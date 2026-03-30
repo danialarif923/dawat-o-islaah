@@ -1,0 +1,422 @@
+{
+  "header": {
+    "home": "HOME",
+    "quran": "AL-QURAN",
+    "hadith": "AL-HADITH",
+    "islamicBooks": "ISLAMIC BOOKS",
+    "islamicTools": "ISLAMIC TOOLS",
+    "masnoonDuas": "MASNOON DUAS",
+    "masail": "MASAIL",
+    "questionAnswer": "QUESTION ANSWER",
+    "login": "LOGIN",
+    "discussionForum": "Discussion Forum",
+    "settings": "Settings"
+  },
+  "headerBanner": {
+    "allowLocation": "Allow Location for Accurate Prayer Times",
+    "gettingLocation": "Getting Location...",
+    "locationError": "Failed to get location information",
+    "current": "Current",
+    "next": "Next",
+    "prayerTimes": "Prayer times:",
+    "at": "at",
+    "urdu": "Urdu",
+    "english": "English"
+  },
+  "hero": {
+    "title": "Explore the Light of Islam",
+    "date": "Monday, 11 Shaban 1446 Hijri - Pakistan"
+  },
+  "sourceSearch": {
+    "placeholder": "Search for...",
+    "options": {
+      "quran": "Al-Quran",
+      "hadith": "Hadith",
+      "articles": "Articles"
+    }
+  },
+  "booksSection": {
+    "quranTitle": "Al-QURAN",
+    "quranDesc": "Recite Quran Kareem with 2 Translations, Words by Words Translation & Tafaseer",
+    "quranLink": "Recite Quran",
+    "hadithTitle": "AL-HADITH",
+    "hadithDesc": "Explore 18 Books of Nabi Kareem ﷺ ahadees in Arabic, Urdu & English",
+    "hadithLink": "Recite Hadith",
+    "islamicBooksTitle": "ISLAMIC BOOKS",
+    "islamicBooksDesc": "Read Popular Islamic books according to your interest",
+    "islamicBooksLink": "Read Books"
+  },
+  "sihahSitta": {
+    "sectionTitle": "SIHAH SITTA",
+    "readAll": "Read All Hadith Books",
+    "books": [
+      {
+        "title": "Jami' at-Tirmidhi",
+        "arabic": "جامع الترمذی"
+      },
+      {
+        "title": "Sahih al-Bukhari",
+        "arabic": "صحیح البخاری"
+      },
+      {
+        "title": "Sahih Muslim",
+        "arabic": "صحیح مسلم"
+      },
+      {
+        "title": "Sunan Abi Dawood",
+        "arabic": "سنن ابی داود"
+      },
+      {
+        "title": "Sunan an-Nasa'i",
+        "arabic": "سنن النسائی"
+      },
+      {
+        "title": "Sunan Ibn Majah",
+        "arabic": "سنن ابن ماجہ"
+      }
+    ]
+  },
+  "dailyVerseHadees": {
+    "verseOfTheDay": "Verse of the Day",
+    "hadeesOfTheDay": "Hadees of the Day"
+  },
+  "footer": {
+    "brand": "Dawat o Islaah",
+    "intro": "Welcome to our Dawat o Islaah website, dedicated to spreading the message of Islam and promoting personal and community development through authentic teachings. Our resources aim to inspire spiritual growth, foster unity, and encourage positive change in line with Islamic principles.",
+    "whatWeOffer": "What We Offer",
+    "islamicTools": "ISLAMIC TOOLS",
+    "searchByTags": "Search By Tags",
+    "whatWeOfferList": ["Quran", "Hadith", "Islamic Books", "Masail"],
+    "itemsSearchByTags": ["Islaah", "Islamic", "Islamic Posts", "Prayer"]
+  },
+  "footerBanner": {
+    "copyright": "© 2025 Dawat o Islaah | Follow us on Social Media"
+  },
+  "services": {
+    "sectionTitle": "Islamic Tools",
+    "zakatCalculator": "Zakat Calculator",
+    "prayerTiming": "Prayer Timing",
+    "inheritanceCalculator": "Inheritance Calculator",
+    "qiblaDirection": "Qibla Direction",
+    "nearestMosque": "Nearest Mosque"
+  },
+  "quran": {
+    "surahListTitle": "Quran Surahs",
+    "tabSurah": "Surah",
+    "tabJuz": "Juzz",
+    "verses": "Verses",
+    "revelationType": {
+      "Meccan": "Meccan",
+      "Medinan": "Medinan"
+    }
+  },
+  "quranDetails": {
+    "verses": "Verses",
+    "translations": "Translations",
+    "selectTranslations": "Select {lang} Translations",
+    "playVerse": "Play Verse",
+    "pauseVerse": "Pause Verse",
+    "checkTafsir": "Read Tafsir",
+    "tafsir": "Tafsir"
+  },
+  "audioPlayer": {
+    "previous": "Previous",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "noAudio": "No audio files available.",
+    "notSupported": "Your browser does not support the audio element."
+  },
+  "hadith": {
+    "booksTitle": "Hadith Books",
+    "error": "Error"
+  },
+  "hadithBookCard": {
+    "died": "Died",
+    "hadiths": "Hadiths",
+    "chapters": "Chapters"
+  },
+  "hadithBookChapters": {
+    "title": "Chapters of",
+    "error": "Error"
+  },
+  "chapterCard": {
+    "book": "Book"
+  },
+  "hadithCard": {
+    "showMore": "Show More",
+    "showLess": "Show Less",
+    "hadithNumber": "Hadith Number",
+    "status": "Status"
+  },
+  "hadithList": {
+    "title": "Hadiths in",
+    "chapter": "Chapter",
+    "loadMore": "Load More"
+  },
+  "islamicBooks": {
+    "collectionTitle": "Islamic Books Collection",
+    "showingBooks": "Showing {count} books",
+    "noBooks": "No books found.",
+    "by": "By",
+    "published": "Published",
+    "download": "Download",
+    "read": "Read",
+    "searchPlaceholder": "Search books...",
+    "close": "Close",
+    "failedToLoad": "Failed to load PDF",
+    "loading": "Loading..."
+  },
+  "masail": {
+    "pageTitle": "Islamic Masail",
+    "categories": "Masail Categories",
+    "searchPlaceholder": "Search masail...",
+    "searchButton": "Search",
+    "showingMasail": "Showing {count} masail",
+    "noMasail": "No masail found.",
+    "category": "Category",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error"
+  },
+  "islamicTools": {
+    "zakatCalculator": {
+      "title": "Zakat Calculator",
+      "subtitle": "Calculate your Islamic obligations accurately",
+      "reset": "Reset Calculator",
+      "resultsTitle": "Zakat Calculation Results",
+      "consultJewelerNote": "⚠️ Note: Consult a Jeweler for Silver and Gold Current Rate. This tool gives approximate values.",
+      "goldTolaNote": "1 tola = 11.6 grams; nisab = 7.5 tolas (87 grams)",
+      "silverTolaNote": "1 tola = 11.6 grams; nisab = 52.5 tolas (612 grams)",
+      "agriNisabNote": "Nisab: 18 Mun 30 Kg (690 Kg)",
+      "selectWaterType": "Select Water Type",
+      "assets": "Assets",
+      "cash": "Cash",
+      "gold": "Gold",
+      "silver": "Silver",
+      "inventory": "Inventory",
+      "liabilities": "Liabilities",
+      "totalAssets": "Total Assets",
+      "zakatApplicable": "Zakat Applicable",
+      "monetaryZakat": "Monetary Zakat",
+      "monetaryZakatNotApplicable": "Monetary Zakat NOT Applicable",
+      "livestockZakat": "Livestock Zakat",
+      "agricultureZakat": "Agriculture Zakat",
+      "zakatDue": "zakat due",
+      "agricultureNoZakat": "Agriculture: No zakat due",
+      "fields": {
+        "cash": "Cash/Savings (PKR)",
+        "goldTolas": "Gold (tolas)",
+        "goldPrice": "Gold Price per Gram (PKR)",
+        "silverTolas": "Silver (tolas)",
+        "silverPrice": "Silver Price per Gram (PKR)",
+        "inventory": "Business Inventory (PKR)",
+        "liabilities": "Debts/Liabilities (PKR)",
+        "sheepQuantity": "Sheep/Goats Quantity",
+        "cowQuantity": "Cows/Buffaloes Quantity",
+        "camelQuantity": "Camels Quantity",
+        "agriMun": "Agriculture Produce - Mun",
+        "agriKg": "Agriculture Produce - Kg",
+        "waterType": "Water Type"
+      },
+      "waterTypes": {
+        "unirrigated": "Unirrigated (Natural Water)",
+        "irrigated": "Irrigated (Tube Well)",
+        "mixed": "Mixed Usage"
+      },
+      "placeholder": "0"
+    },
+    "prayerTimings": {
+      "title": "Prayer Timings",
+      "selectCity": "Select City:",
+      "getTimings": "Get Timings",
+      "prayer": "Prayer",
+      "time": "Time",
+      "loading": "Loading...",
+      "cities": {
+        "Lahore": "Lahore",
+        "Islamabad": "Islamabad",
+        "Karachi": "Karachi",
+        "Dubai": "Dubai"
+      },
+      "prayerNames": {
+        "Fajr": "Fajr",
+        "Sunrise": "Sunrise",
+        "Dhuhr": "Dhuhr",
+        "Asr": "Asr",
+        "Sunset": "Sunset",
+        "Maghrib": "Maghrib",
+        "Isha": "Isha",
+        "Imsak": "Imsak",
+        "Midnight": "Midnight",
+        "Firstthird": "First Third",
+        "Lastthird": "Last Third"
+      }
+    },
+    "qiblaDirection": {
+      "title": "Qibla Direction",
+      "onMap": "Qibla Direction on Map",
+      "loadingLocation": "Loading location...",
+      "errorGettingLocation": "Error getting location:",
+      "notSupported": "Geolocation is not supported by your browser.",
+      "deviceHeading": "Your Device Heading",
+      "manualAdjust": "Device orientation not available. Adjust heading manually:",
+      "rotateInstruction": "Rotate your device until your location arrow (blue) aligns with the Qibla direction.",
+      "qiblaDirectionLabel": "Qibla Direction",
+      "degree": "°",
+      "nA": "N/A"
+    },
+    "nearestMosque": {
+      "loading": "Loading map...",
+      "error": "Unable to retrieve your location. Please enable location services.",
+      "notSupported": "Geolocation is not supported by your browser.",
+      "rating": "Rating"
+    },
+    "inheritanceCalculator": {
+      "title": "Virasat Inheritance Calculator",
+      "shares": "Inheritance Shares",
+      "totalWealth": "Total Wealth",
+      "cash": "Cash",
+      "land": "Land",
+      "published": "Published",
+      "wife": "Wife",
+      "husband": "Husband",
+      "mother": "Mother",
+      "father": "Father",
+      "sons": "Sons",
+      "daughters": "Daughters",
+      "fields": {
+        "totalLandArea": "Total Land Area",
+        "landUnit": "Land Unit",
+        "totalCashAmount": "Total Cash Amount (PKR)",
+        "spouse": "Spouse",
+        "numberOfSons": "Number of Sons",
+        "numberOfDaughters": "Number of Daughters",
+        "motherAlive": "Mother Alive",
+        "fatherAlive": "Father Alive"
+      },
+      "units": {
+        "acres": "Acres",
+        "kanal": "Kanal",
+        "marla": "Marla"
+      },
+      "spouseOptions": {
+        "noSpouse": "No Spouse",
+        "wife": "Wife",
+        "husband": "Husband"
+      },
+      "placeholder": "Enter value"
+    }
+  },
+  "qna": {
+    "pageTitle": "Islamic Questions & Answers",
+    "searchPlaceholder": "Search questions...",
+    "noQuestionsFound": "No questions found matching \"{term}\"",
+    "noQuestionsAvailable": "No questions available",
+    "error": "Error",
+    "tryAgain": "Try Again",
+    "askedBy": "Asked by",
+    "answer": "Answer:",
+    "answeredBy": "Answered by",
+    "readLess": "Read less",
+    "readFullAnswer": "Read full answer",
+    "approved": "Approved",
+    "pending": "Pending",
+    "awaiting": "Awaiting"
+  },
+  "postQnaPopup": {
+    "title": "Post a new question",
+    "submitBtn": "Submit Question",
+    "DetailsPlaceHolder": "Question Details",
+    "TitlePlaceHolder": "Question Title"
+  },
+  "userDropdown": {
+    "changePassword": "Change Password",
+    "logout": "Logout"
+  },
+  "Blog": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "update": "Update"
+  },
+  "zikroazkar": {
+    "1": "The Power of Dua: Connecting with Allah",
+    "2": "Strengthening Family Bonds through Islamic Values",
+    "3": "The Importance of Sincerity in Worship (Ikhlas)",
+    "4": "The Journey of Self Purification (Tazkiyah al-Nafs)"
+  },
+  "searchPage": {
+    "title": "Search Results",
+    "noSearchKeyword": "Please enter a keyword to see search results. "
+  },
+
+  "islamicInheritanceCalculator": {
+    "pageTitle": "Islamic Inheritance Calculator",
+    "header": {
+      "currency": "Currency",
+      "deceasedGender": "Deceased Gender",
+      "genderOptions": {
+        "male": "Male",
+        "female": "Female"
+      }
+    },
+    "estate": {
+      "title": "Estate",
+      "grossEstate": {
+        "label": "Gross Estate",
+        "placeholder": "e.g. 1000000"
+      },
+      "debts": {
+        "label": "Debts",
+        "placeholder": "0"
+      },
+      "funeral": {
+        "label": "Funeral & Expenses",
+        "placeholder": "0"
+      },
+      "wasiyyah": {
+        "label": "Wasiyyah (≤ 1/3 of net)",
+        "placeholder": "0"
+      }
+    },
+    "heirs": {
+      "title": "Heirs",
+      "labels": {
+        "husband": "Husband (0/1)",
+        "wives": "Wives (0–4)",
+        "father": "Father (0/1)",
+        "mother": "Mother (0/1)",
+        "grandfather": "Grandfather (0/1)",
+        "grandmothers": "Grandmothers (0–2)",
+        "sons": "Sons",
+        "daughters": "Daughters",
+        "gsons": "Grandsons (son's sons)",
+        "gdaughters": "Granddaughters (son's daughters)",
+        "matSibs": "Maternal siblings",
+        "fullBro": "Full brothers",
+        "fullSis": "Full sisters",
+        "patBro": "Paternal brothers",
+        "patSis": "Paternal sisters"
+      }
+    },
+    "actions": {
+      "calculate": "Calculate",
+      "loadDemo": "Load Demo",
+      "reset": "Reset",
+      "disclaimer": "Educational tool. Hanafi-leaning. For binding rulings, consult a qualified scholar."
+    },
+    "results": {
+      "title": "Distribution",
+      "summaryTable": {
+        "item": "Item",
+        "amount": "Amount"
+      },
+      "sharesTable": {
+        "heir": "Heir",
+        "fraction": "Fraction",
+        "amount": "Amount"
+      }
+    }
+  }
+}

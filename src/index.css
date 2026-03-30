@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* =====================================================
+   1. LOCAL FONT DEFINITIONS (Static Fallbacks)
+   ===================================================== */
+@font-face {
+  font-family: "TraditionNaskh";
+  src: url("/fonts/Traditional Naskh.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "1 MUHAMMADI QURANIC";
+  src: url("/fonts/1 MUHAMMADI QURANIC.ttf") format("truetype");
+}
+
+/* =====================================================
+   2. DYNAMIC QURAN FONT SYSTEM
+   ===================================================== */
+:root {
+  /* Default fallback if the Admin API fails */
+  --quran-font: "1 MUHAMMADI QURANIC", "Amiri", serif;
+}
+
+.font-quran {
+  /* This MUST use !important to override any other definitions */
+  font-family: var(--quran-font) !important;
+  line-height: 2.2;
+  direction: rtl;
+  font-display: swap;
+  text-align: center;
+}
+
+.font-hadith {
+  font-family: "TraditionNaskh", "Noto Nastaliq Urdu", serif;
+}
+
+/* =====================================================
+   3. GLOBAL UI STYLES
+   ===================================================== */
+body {
+  background-color: #f8f9fa;
+  font-family: "Merriweather", "Noto Nastaliq Urdu", serif;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.overlay-class {
+  background-color: rgba(0, 0, 0, 0.81);
+}
+
+p.font-quran {
+  transition: font-family 0.3s ease-in-out;
+}
+
+/* Specific overrides for CKEditor content */
+.blog-content-wrapper h1 { font-size: 2.5rem !important; font-weight: 800 !important; margin-bottom: 1rem; display: block; }
+.blog-content-wrapper h2 { font-size: 2rem !important; font-weight: 700 !important; margin-bottom: 1rem; display: block; }
+.blog-content-wrapper h3 { font-size: 1.75rem !important; font-weight: 700 !important; margin-bottom: 0.75rem; display: block; }
+.blog-content-wrapper h4 { font-size: 1.5rem !important; font-weight: 600 !important; margin-bottom: 0.75rem; display: block; }
+.blog-content-wrapper h5 { font-size: 1.25rem !important; font-weight: 600 !important; margin-bottom: 0.5rem; display: block; }
+.blog-content-wrapper h6 { font-size: 1.1rem !important; font-weight: 600 !important; margin-bottom: 0.5rem; display: block; }
+
+/* Critical: Fix images that are way too big */
+.blog-content-wrapper img {
+  max-width: 100%;
+  height: auto !important; /* This prevents the 955px height from stretching the image */
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+/* Also fix the paragraphs within the blog so they don't look cramped */
+.blog-content-wrapper p {
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+}
+
+/* Ensure lists also show up correctly */
+.blog-content-wrapper ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.blog-content-wrapper ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}

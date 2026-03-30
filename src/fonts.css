@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "TraditionNaskh";
+  src: url("/fonts/Traditional Naskh.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "AlQalamQuranPublisher";
+  src: url("/fonts/Al Qalam Quran Publisher.ttf") format("truetype");
+}
+
+.font-hadith {
+  font-family: "TraditionNaskh", "Noto Nastaliq Urdu";
+}
+
+.font-quran {
+  font-family: "AlQalamQuranPublisher", "Noto Nastaliq Urdu";
+}

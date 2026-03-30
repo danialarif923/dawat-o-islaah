@@ -1,0 +1,12 @@
+.custom-audio::-webkit-media-controls-play-button {
+  display: none;
+}
+
+.custom-audio::-webkit-media-controls-timeline,
+.custom-audio::-webkit-media-controls-current-time-display,
+.custom-audio::-webkit-media-controls-time-remaining-display,
+.custom-audio::-webkit-media-controls-mute-button,
+.custom-audio::-webkit-media-controls-panel,
+.custom-audio::-webkit-media-controls-volume-slider {
+  display: flex;
+}
