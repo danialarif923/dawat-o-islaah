@@ -28,6 +28,7 @@ const HeaderBanner = () => {
   const [locationRequested, setLocationRequested] = useState(!!savedLocation);
   const [locationError, setLocationError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [geoAttempted, setGeoAttempted] = useState(false);
 
   const { language, toggleLanguage, t } = useLanguage();
 
@@ -111,8 +112,10 @@ const HeaderBanner = () => {
     try {
       setLoading(true);
       const method = getCalculationMethod(country);
+      const today = new Date();
+      const dateStr = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
       const response = await fetch(
-        `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=${method}`
+        `/aladhan/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=${method}`
       );
       const data = await response.json();
 
@@ -143,6 +146,18 @@ const HeaderBanner = () => {
     const ampm = hour >= 12 ? "PM" : "AM";
     const hour12 = hour % 12 || 12;
     return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  const translateCityName = (city) => {
+    const key = `islamicTools.prayerTimings.cities.${city}`;
+    const translated = t(key);
+    return translated !== key ? translated : city;
+  };
+
+  const translateCountryName = (country) => {
+    const key = `islamicTools.prayerTimings.countries.${country}`;
+    const translated = t(key);
+    return translated !== key ? translated : country;
   };
 
   // Get user location
@@ -198,6 +213,7 @@ const HeaderBanner = () => {
       },
       (error) => {
         setLocationError("Location access denied or unavailable");
+        setLocationRequested(false);
         console.error("Geolocation error:", error);
         setLoading(false);
       }
@@ -220,6 +236,15 @@ const HeaderBanner = () => {
         savedLocation.city,
         savedLocation.country
       );
+    }
+  }, []);
+
+  // Auto-detect location on mount if no saved location
+  useEffect(() => {
+    if (!savedLocation && !geoAttempted) {
+      setGeoAttempted(true);
+      setLocationError("");
+      requestLocation();
     }
   }, []);
 
@@ -250,49 +275,61 @@ const HeaderBanner = () => {
 
       {/* Main Header Content */}
       <div className="flex justify-between items-center">
-        {/* Left Section: Location and Prayer Times */}
-        <div className="flex gap-4 items-center">
-          {/* Location */}
-          <div className="flex items-center gap-x-1">
-            <FaLocationDot color="red" />
-            <h1>
-              {locationData.city}, {locationData.country}
-            </h1>
-          </div>
-
-          {/* Current Prayer Status */}
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-green-300">
-              {t("headerBanner.current")}: {currentPrayer}
-            </span>
-            <span className="text-orange-300">
-              {t("headerBanner.next")}: {nextPrayer} ({prayerTimes[nextPrayer]})
-            </span>
-          </div>
-
-          {/* Prayer Times - Hidden on mobile, shown on larger screens */}
-          <div className="hidden lg:flex items-center">
-            <h1 className="mr-2">{t("headerBanner.prayerTimes")}</h1>
-            {Object.entries(prayerTimes).map(([prayer, time], index, array) => (
-              <h1
-                key={prayer}
-                className={`ml-1 ${
-                  prayer === currentPrayer
-                    ? "text-green-300 font-semibold"
-                    : prayer === nextPrayer
-                    ? "text-orange-300"
-                    : ""
-                }`}
-              >
-                {prayer}: {time}
-                {index < array.length - 1 ? " |" : ""}
-              </h1>
-            ))}
-          </div>
+        {/* Location */}
+        <div
+          className="flex items-center gap-x-1 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={requestLocation}
+          style={{ order: language === "ur" ? 4 : 1 }}
+          title={t("headerBanner.refreshLocation")}
+        >
+          <FaLocationDot color="red" />
+          <h1 dir="auto">
+            {translateCityName(locationData.city)}، {translateCountryName(locationData.country)}
+          </h1>
         </div>
 
-        {/* Right Section: Language Selector */}
-        <div className="flex gap-2 items-center">
+        {/* Current Prayer Status */}
+        <div
+          className={`hidden sm:flex items-center gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}
+          style={{ order: language === "ur" ? 3 : 2 }}
+        >
+          <span className="text-green-300" dir="auto">
+            {t("headerBanner.current")}: {t(`islamicTools.prayerTimings.prayerNames.${currentPrayer}`)}
+          </span>
+          <span className="text-orange-300" dir="auto">
+            {t("headerBanner.next")}: {t(`islamicTools.prayerTimings.prayerNames.${nextPrayer}`)} ({prayerTimes[nextPrayer]})
+          </span>
+        </div>
+
+        {/* Prayer Times - Hidden on mobile, shown on larger screens */}
+        <div
+          className="hidden lg:flex items-center"
+          style={{ order: language === "ur" ? 2 : 3 }}
+        >
+          <h1 className={language === "ur" ? "ml-2" : "mr-2"} style={{ order: language === "ur" ? 6 : 0 }}>{t("headerBanner.prayerTimes")}</h1>
+          {(language === "ur" ? [...Object.entries(prayerTimes)].reverse() : Object.entries(prayerTimes)).map(([prayer, time], index, array) => (
+            <h1
+              key={prayer}
+              className={`ml-1 ${
+                prayer === currentPrayer
+                  ? "text-green-300 font-semibold"
+                  : prayer === nextPrayer
+                  ? "text-orange-300"
+                  : ""
+              }`}
+              dir="auto"
+            >
+              {t(`islamicTools.prayerTimings.prayerNames.${prayer}`)}: {time}
+              {index < array.length - 1 ? " |" : ""}
+            </h1>
+          ))}
+        </div>
+
+        {/* Language Selector */}
+        <div
+          className="flex gap-2 items-center"
+          style={{ order: language === "ur" ? 1 : 4 }}
+        >
           <h1
             className="cursor-pointer hover:text-green-300 transition-colors"
             onClick={toggleLanguage}
@@ -307,11 +344,11 @@ const HeaderBanner = () => {
       {/* Mobile Prayer Summary */}
       <div className="sm:hidden mt-2 pt-2 border-t border-[#2A4A6B]">
         <div className="flex justify-between items-center">
-          <span className="text-green-300">
-            {t("headerBanner.current")}: {currentPrayer}
+          <span className="text-green-300" dir="auto">
+            {t("headerBanner.current")}: {t(`islamicTools.prayerTimings.prayerNames.${currentPrayer}`)}
           </span>
-          <span className="text-orange-300">
-            {t("headerBanner.next")}: {nextPrayer} {t("headerBanner.at")}{" "}
+          <span className="text-orange-300" dir="auto">
+            {t("headerBanner.next")}: {t(`islamicTools.prayerTimings.prayerNames.${nextPrayer}`)} {t("headerBanner.at")}{" "}
             {prayerTimes[nextPrayer]}
           </span>
         </div>

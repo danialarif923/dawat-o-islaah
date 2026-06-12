@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import localApiClient from "../api/hadithApi";
 
 const useHadiths = () => {
   const { bookSlug, chapterNo } = useParams();
@@ -12,57 +12,75 @@ const useHadiths = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
+  // Fetch initial page when book/chapter changes
   useEffect(() => {
-    const getHadiths = async () => {
+    setHadiths([]);
+    setCurrentPage(1);
+    setTotalPages(1);
+    setLoading(true);
+    setError(null);
+    setIsFetchingMore(false);
+
+    const controller = new AbortController();
+
+    const fetchPage1 = async () => {
       try {
-        setLoading(true);
+        const response = await localApiClient.get("get-hadith/", {
+          params: { book: bookSlug, chapter: chapterNo, page: 1 },
+          signal: controller.signal,
+        });
 
-        // IMPORTANT: use ROOT URL, NOT /quran/
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/hadith/get-hadith/",
-          {
-            params: {
-              book: bookSlug,
-              chapter: chapterNo,
-              page: currentPage,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          setHadiths((prev) => [
-            ...prev,
-            ...response.data.hadiths.data,
-          ]);
-
+        if (response.data?.hadiths?.data) {
+          setHadiths(response.data.hadiths.data);
           setTotalPages(response.data.hadiths.last_page);
         } else {
           setError("Failed to fetch Hadiths");
         }
-
       } catch (err) {
-        console.error(err);
-        setError(
-          err.response?.data?.error ||
-          "Something went wrong"
-        );
+        if (err.name !== "CanceledError") {
+          console.error(err);
+          setError(
+            err.response?.data?.error ||
+            err.message ||
+            "Something went wrong"
+          );
+        }
       } finally {
         setLoading(false);
-        setIsFetchingMore(false);
       }
     };
 
     if (bookSlug && chapterNo) {
-      getHadiths();
+      fetchPage1();
     }
-  }, [bookSlug, chapterNo, currentPage]);
 
-  const loadMore = () => {
-    if (currentPage < totalPages) {
-      setIsFetchingMore(true);
-      setCurrentPage((prev) => prev + 1);
+    return () => controller.abort();
+  }, [bookSlug, chapterNo]);
+
+  // Load more (pagination)
+  const loadMore = useCallback(async () => {
+    if (currentPage >= totalPages || isFetchingMore) return;
+
+    const nextPage = currentPage + 1;
+    setIsFetchingMore(true);
+
+    try {
+      const response = await localApiClient.get("get-hadith/", {
+        params: { book: bookSlug, chapter: chapterNo, page: nextPage },
+      });
+
+      if (response.data?.hadiths?.data) {
+        setHadiths((prev) => [...prev, ...response.data.hadiths.data]);
+        setCurrentPage(nextPage);
+        setTotalPages(response.data.hadiths.last_page);
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || err.message || "Failed to load more");
+    } finally {
+      setIsFetchingMore(false);
     }
-  };
+  }, [currentPage, totalPages, isFetchingMore, bookSlug, chapterNo]);
 
   return {
     hadiths,

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import * as backendApi from "../api/backendApi";
-import apiClient from "../api/quranApi";
+import surahData from "../../assets/surahData.json";
 
 const useSurah = (surahNumber) => {
+  const location = useLocation();
   const [surahDetails, setSurahDetails] = useState(null);
   const [verses, setVerses] = useState([]);
 
@@ -43,16 +45,33 @@ const useSurah = (surahNumber) => {
   const [error, setError] = useState(null);
 
   // =====================================================
-  // Fetch Surah Details
+  // Fetch Surah Ayahs from backend
   // =====================================================
   useEffect(() => {
     const fetchSurahDetails = async () => {
       try {
-        const arabicRes = await apiClient.get(`/surah/${surahNumber}`);
-        const surahData = arabicRes.data.data;
+        const meta = surahData.find((s) => s.number === Number(surahNumber));
+        const res = await backendApi.getAyahsBySurah(surahNumber);
+        console.log("[useSurah] Backend response:", res);
 
-        setSurahDetails(surahData);
-        setVerses(surahData.ayahs || []);
+        let ayahs = [];
+        if (Array.isArray(res)) {
+          ayahs = res;
+        } else if (res?.ayahs && Array.isArray(res.ayahs)) {
+          ayahs = res.ayahs;
+        } else if (res?.data && Array.isArray(res.data)) {
+          ayahs = res.data;
+        } else if (res?.results && Array.isArray(res.results)) {
+          ayahs = res.results;
+        } else if (res?.verses && Array.isArray(res.verses)) {
+          ayahs = res.verses;
+        }
+
+        setSurahDetails({
+          ...(meta || { number: surahNumber }),
+          numberOfAyahs: meta?.numberOfAyahs || ayahs.length,
+        });
+        setVerses(ayahs);
       } catch (err) {
         console.error("Failed to fetch Surah details:", err);
         setError("Failed to fetch Surah details");
@@ -62,7 +81,7 @@ const useSurah = (surahNumber) => {
     };
 
     fetchSurahDetails();
-  }, [surahNumber]);
+  }, [surahNumber, location.key]);
 
   // =====================================================
   // Fetch Authors + Qaris
@@ -89,11 +108,11 @@ const useSurah = (surahNumber) => {
             typeof a === "string" ? { id: a, name: a } : a
           );
 
-        const enTransAuthors = mapAuthors(enTransAuthorsRes.authors);
-        const urTransAuthors = mapAuthors(urTransAuthorsRes.authors);
+        const enTransAuthors = mapAuthors(enTransAuthorsRes?.authors);
+        const urTransAuthors = mapAuthors(urTransAuthorsRes?.authors);
 
-        const enTafsirAuthors = mapAuthors(enTafsirAuthorsRes.authors);
-        const urTafsirAuthors = mapAuthors(urTafsirAuthorsRes.authors);
+        const enTafsirAuthors = mapAuthors(enTafsirAuthorsRes?.authors);
+        const urTafsirAuthors = mapAuthors(urTafsirAuthorsRes?.authors);
 
         setTranslationAuthors({
           en: enTransAuthors,
@@ -105,7 +124,7 @@ const useSurah = (surahNumber) => {
           ur: urTafsirAuthors,
         });
 
-        setQaris(qariRes.qaris || []);
+        setQaris(qariRes?.qaris || []);
 
         // Default: all translations selected
         setSelectedTranslations({
@@ -120,7 +139,7 @@ const useSurah = (surahNumber) => {
           setSelectedTafsirAuthor(enTafsirAuthors[0].name);
         }
 
-        setSelectedQari(qariRes.qaris?.[0] || null);
+        setSelectedQari(qariRes?.qaris?.[0] || null);
       } catch (err) {
         console.error("Failed to load authors/qaris:", err);
       }
@@ -180,8 +199,9 @@ const useSurah = (surahNumber) => {
 
         setAudioByQari(groupedAudio);
       } catch (err) {
-        console.error("Backend fetch failed:", err);
-        setError("Failed to fetch translations or audio");
+        const status = err.response?.status || "NETWORK";
+        console.error(`Backend fetch failed [${status}]:`, err.message);
+        setError(`Failed to fetch translations or audio (HTTP ${status})`);
       } finally {
         setLoadingVerses(false);
       }

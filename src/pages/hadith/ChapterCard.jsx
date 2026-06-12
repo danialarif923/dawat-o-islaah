@@ -3,7 +3,7 @@ import { useLanguage } from "../../context/LanguageContext";
 
 const ChapterCard = ({ chapter }) => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <div
@@ -16,11 +16,11 @@ const ChapterCard = ({ chapter }) => {
         {/* LEFT SIDE */}
         <div className="flex-1">
           <h3 className="text-xl font-semibold text-blue-600 leading-snug">
-            {chapter.chapterNumber}. {chapter.chapterEnglish}
+            {chapter.chapterNumber}. {language === "ur" ? t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) || chapter.chapterEnglish : chapter.chapterEnglish}
           </h3>
 
           <p className="text-sm text-gray-500 mt-4">
-            {t("chapterCard.book")}: {chapter.bookSlug.replace("-", " ")}
+            {t("chapterCard.book")}: {t(`hadithBookNames.${chapter.bookSlug}`) || chapter.bookSlug.replace("-", " ")}
           </p>
         </div>
 
@@ -30,9 +30,9 @@ const ChapterCard = ({ chapter }) => {
             {chapter.chapterArabic || "—"}
           </p>
 
-          {chapter.chapterUrdu && (
+          {language === "ur" && t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) && (
             <p className="text-gray-500 mt-2 leading-relaxed">
-              {chapter.chapterUrdu}
+              {t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`)}
             </p>
           )}
         </div>

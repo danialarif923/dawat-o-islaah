@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { authApiClient } from "../../api/backendApi";
 import { useAuthData } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const Settings = () => {
+  const { t } = useLanguage();
   // ✅ Get updateUser from AuthContext
   const { token, user, updateUser } = useAuthData();
 
@@ -90,17 +92,17 @@ const Settings = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-10">
       <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow rounded-xl p-6">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
-          Settings
+          {t("settings.pageTitle")}
         </h1>
 
         {/* EMAIL SETTING */}
         <div className="flex items-center justify-between border-b pb-6 mb-6">
           <div>
             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">
-              Daily Ayat & Hadith Email
+              {t("settings.dailyEmail")}
             </h3>
             <p className="text-sm text-gray-500">
-              Receive a daily Quran verse and Hadith in your email
+              {t("settings.dailyEmailDesc")}
             </p>
           </div>
 
@@ -112,8 +114,8 @@ const Settings = () => {
             }`}
           >
             <div
-              className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${
-                emailEnabled ? "translate-x-7" : ""
+              className={`bg-white w-5 h-5 rounded-full shadow-md transition ${
+                emailEnabled ? "ms-auto" : ""
               }`}
             />
           </button>
@@ -123,10 +125,10 @@ const Settings = () => {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">
-              Prayer Time Location
+              {t("settings.prayerLocation")}
             </h3>
             <p className="text-sm text-gray-500">
-              Update your location to receive emails exactly at Fajr time
+              {t("settings.prayerLocationDesc")}
             </p>
             {locationStatus && (
               <p className={`text-xs mt-1 ${locationStatus.includes("success") ? "text-green-500" : "text-red-500"}`}>
@@ -142,7 +144,7 @@ const Settings = () => {
               locationLoading ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {locationLoading ? "Updating..." : "Update Location"}
+            {locationLoading ? t("settings.updating") : t("settings.updateLocation")}
           </button>
         </div>
       </div>

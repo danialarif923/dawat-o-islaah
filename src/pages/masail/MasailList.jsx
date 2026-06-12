@@ -8,7 +8,7 @@ const MasailList = ({
   selectedCategoryName,
   setSelectedCategory,
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedMasail, setSelectedMasail] = useState(false);
@@ -120,16 +120,17 @@ const MasailList = ({
                   className="h-32 w-full object-cover rounded md:w-48"
                 />
                 {/* Content section */}
-                <div className=" m-3 md:ml-4 flex-1">
+                <div className=" m-3 md:ml-4 flex-1" dir={language === "ur" ? "rtl" : "ltr"}>
                   <span className="text-sm text-gray-500 italic">
                     {masla.category.name}
                   </span>
                   <h3 className="text-sm md:text-xl font-semibold mdsm:mt-4 md:mt-0">
                     {masla.title}
                   </h3>
-                  <p className="text-gray-600 line-clamp-2 text-sm md:text-base">
-                    {masla.content}
-                  </p>
+                  <div
+                    className="text-gray-600 line-clamp-2 text-sm md:text-base"
+                    dangerouslySetInnerHTML={{ __html: masla.content.replace(/<\/?p[^>]*>/g, "") }}
+                  />
                 </div>
               </div>
             ))}
@@ -200,12 +201,19 @@ const MasailList = ({
                     </div>
 
                     {/* Category */}
-                    <div className="text-sm text-gray-500 italic">
+                    <div
+                      className="text-sm text-gray-500 italic"
+                      dir={language === "ur" ? "rtl" : "ltr"}
+                    >
                       {t("masail.category")}: {selectedMasail.category?.name}
                     </div>
 
                     {/* Content */}
-                    <p className="text-gray-700">{selectedMasail.content}</p>
+                    <div
+                      className="text-gray-700"
+                      dir={language === "ur" ? "rtl" : "ltr"}
+                      dangerouslySetInnerHTML={{ __html: selectedMasail.content.replace(/<\/?p[^>]*>/g, "") }}
+                    />
                   </div>
                 </div>
               )}

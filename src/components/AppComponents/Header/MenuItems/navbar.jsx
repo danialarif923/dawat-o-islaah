@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { FaCog, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import MenuItems from "./Item";
 import { useAuthData } from "../../../../context/AuthContext";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const Navbar = () => {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { user, logout, token } = useAuthData();
 
@@ -25,7 +27,7 @@ const Navbar = () => {
         onClick={() => navigate("/")}
         className="text-xl font-bold text-[#1E3A5F] cursor-pointer"
       >
-        Dawat-o-Islaah
+        {t("footer.brand")}
       </div>
 
       {/* 🔷 CENTER: MENU */}
@@ -41,7 +43,7 @@ const Navbar = () => {
           <button
             onClick={() => navigate("/settings")}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-            title="Settings"
+            title={t("header.settings")}
           >
             <FaCog className="text-lg text-[#1E3A5F] dark:text-gray-300 hover:rotate-90 transition-transform duration-300" />
           </button>
@@ -53,7 +55,7 @@ const Navbar = () => {
             onClick={() => navigate("/signin")}
             className="bg-[#1E3A5F] text-white px-4 py-1.5 rounded-lg text-sm"
           >
-            Login
+            {t("header.login")}
           </button>
         ) : (
           <div className="relative">
@@ -77,7 +79,7 @@ const Navbar = () => {
                   }}
                   className="flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <FaUserCircle /> Profile
+                  <FaUserCircle /> {t("header.profile")}
                 </button>
 
                 <button
@@ -87,14 +89,14 @@ const Navbar = () => {
                   }}
                   className="flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <FaCog /> Settings
+                  <FaCog /> {t("header.settings")}
                 </button>
 
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 w-full text-left text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <FaSignOutAlt /> Logout
+                  <FaSignOutAlt /> {t("userDropdown.logout")}
                 </button>
 
               </div>

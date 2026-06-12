@@ -3,6 +3,15 @@ import { motion, useAnimation } from "framer-motion";
 import { useLanguage } from "../../context/LanguageContext";
 import useBlogs from "../../hooks/useBlogs";
 
+const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+
+const translateBlogTitle = (blog, t) => {
+  if (!blog?.title) return "";
+  const key = `blogs.titles.${blog.title}`;
+  const translated = t(key);
+  return translated !== key ? translated : blog.title;
+};
+
 const ZikrOAzkar = () => {
   const { t } = useLanguage();
   const { blogs, loading: blogsLoading, error: blogsError } = useBlogs();
@@ -82,11 +91,11 @@ const ZikrOAzkar = () => {
   return (
     <div className="bg-[#116466] text-white hidden px-10 sm:px-14 md:px-20 lg:px-32 py-2 md:flex items-center overflow-hidden">
       <h1 className="mr-5 bg-[#1E3A5F] rounded-md py-3 px-2 w-fit text-nowrap">
-        ZIKR O AZKAAR
+        {t("zikrOAzkar.title")}
       </h1>
       <div className="relative w-full overflow-hidden">
         {blogsLoading ? (
-          <div className="text-white text-sm">Loading...</div>
+          <div className="text-white text-sm">{t("zikrOAzkar.loading")}</div>
         ) : (
           <div className="flex">
             <motion.div
@@ -104,11 +113,11 @@ const ZikrOAzkar = () => {
                     onClick={() => handleBlogClick(blog.id)}
                   >
                     <img
-                      src={blog.featured_image}
+                      src={blog.featured_image?.startsWith("http") ? blog.featured_image : `${BACKEND_BASE_URL}${blog.featured_image}`}
                       alt={blog.title}
                       className="w-10 h-10 rounded-md"
                     />
-                    <p className="pr-6">{blog.title}</p>
+                    <p className="pr-6" dir="auto">{translateBlogTitle(blog, t)}</p>
                   </div>
                 )
               )}
@@ -128,11 +137,11 @@ const ZikrOAzkar = () => {
                     onClick={() => handleBlogClick(blog.id)}
                   >
                     <img
-                      src={blog.featured_image}
+                      src={blog.featured_image?.startsWith("http") ? blog.featured_image : `${BACKEND_BASE_URL}${blog.featured_image}`}
                       alt={blog.title}
                       className="w-10 h-10 rounded-md"
                     />
-                    <p className="pr-6">{blog.title}</p>
+                    <p className="pr-6" dir="auto">{translateBlogTitle(blog, t)}</p>
                   </div>
                 )
               )}

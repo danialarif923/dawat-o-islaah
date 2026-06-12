@@ -47,19 +47,20 @@ const Header = () => {
         />
       </Link>
 
-      <div className="flex items-center">
-        {/* Desktop Menu */}
-        <div className="hidden lg:flex gap-x-8">
-          <MenuItems isUser={isUser} />
-        </div>
+      {/* Desktop Menu - Centered */}
+      <div className="hidden lg:flex flex-1 justify-center gap-x-8">
+        <MenuItems isUser={isUser} />
+      </div>
 
+      {/* Right side: Login/UserDropdown + Hamburger */}
+      <div className="flex items-center gap-x-4">
         {/* Login or User Dropdown */}
         {isUser ? (
           <UserDropdown />
         ) : (
           <Link
             to="/signin"
-            className="hidden lg:flex bg-[#1E3A5F] text-white hover:scale-105 rounded-lg h-fit ml-8 px-6 py-2 font-medium text-sm cursor-pointer transition-all duration-200 hover:bg-[#2a4b7a] hover:shadow-md"
+            className="hidden lg:flex bg-[#1E3A5F] text-white hover:scale-105 rounded-lg h-fit px-6 py-2 font-medium text-sm cursor-pointer transition-all duration-200 hover:bg-[#2a4b7a] hover:shadow-md"
           >
             {login}
           </Link>
@@ -73,52 +74,52 @@ const Header = () => {
         >
           {isMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
+      </div>
 
-        {/* Mobile Menu Backdrop */}
-        {isMenuOpen && (
-          <div className="fixed inset-0 bg-black/30  z-40 lg:hidden" />
-        )}
+      {/* Mobile Menu Backdrop */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" />
+      )}
 
-        {/* Mobile Menu */}
-        <div
-          ref={menuRef}
-          className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#C9A227] shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-            isMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="h-full flex flex-col">
-            {/* Menu Header with Close Button */}
-            <div className="flex justify-end p-4">
-              <button
+      {/* Mobile Menu */}
+      <div
+        ref={menuRef}
+        className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#C9A227] shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="h-full flex flex-col">
+          {/* Menu Header with Close Button */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="text-white text-2xl p-2"
+              aria-label="Close Menu"
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          {/* Menu Items */}
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <MenuItems
+              closeMenu={() => setIsMenuOpen(false)}
+              isMobile={true}
+              isUser={isUser}
+            />
+          </div>
+
+          {/* Optional Footer */}
+          <div className="p-4 border-t border-[#1E3A5F]/20">
+            {!isUser && (
+              <Link
+                to="/signin"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-white text-2xl p-2"
-                aria-label="Close Menu"
+                className="block w-full text-center bg-[#1E3A5F] text-white rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200 hover:bg-[#2a4b7a]"
               >
-                <FaTimes />
-              </button>
-            </div>
-
-            {/* Menu Items */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              <MenuItems
-                closeMenu={() => setIsMenuOpen(false)}
-                isMobile={true}
-                isUser={isUser}
-              />
-            </div>
-
-            {/* Optional Footer */}
-            <div className="p-4 border-t border-[#1E3A5F]/20">
-              {!isUser && (
-                <Link
-                  to="/signin"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full text-center bg-[#1E3A5F] text-white rounded-lg px-6 py-3 font-medium text-sm cursor-pointer transition-all duration-200 hover:bg-[#2a4b7a]"
-                >
-                  {login}
-                </Link>
-              )}
-            </div>
+                {login}
+              </Link>
+            )}
           </div>
         </div>
       </div>

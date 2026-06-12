@@ -67,7 +67,7 @@ const JuzDetails = () => {
           {juzData.juz_name_en}
         </h1>
         <p className="text-lg text-gray-500 mt-2">
-          {juzData.start_surah} - {juzData.end_surah} | {juzData.total_ayahs}{" "}
+          {t(`surahNames.${juzData.start_surah_number}`)} - {t(`surahNames.${juzData.end_surah_number}`)} | {juzData.total_ayahs}{" "}
           {t("quranDetails.verses")}
         </p>
         <p className="text-3xl text-blue-600 font-bold mt-6 font-quran">
@@ -158,6 +158,14 @@ const JuzDetails = () => {
           translations={translations}
           audioLinks={audioLinks}
           isTranslation={translationsEnabled}
+          selectedEnglish={selectedTranslations.en.map((id) => {
+            const opt = translationOptions.en.find((o) => o.identifier === id);
+            return { name: id, displayName: opt?.name || id };
+          })}
+          selectedUrdu={selectedTranslations.ur.map((id) => {
+            const opt = translationOptions.ur.find((o) => o.identifier === id);
+            return { name: id, displayName: opt?.name || id };
+          })}
         />
       )}
     </div>

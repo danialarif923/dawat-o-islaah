@@ -2,8 +2,24 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { useLocation } from "react-router-dom";
 
+const getBaabName = (h, lang) => {
+  const sources = [
+    h?.baab, h?.chapter?.baab, h?.baab_name, h?.chapter?.baab_name,
+  ];
+  for (const src of sources) {
+    if (!src) continue;
+    const name = lang === "ur" ? (src.nameUrdu || src.name_urdu) : (src.nameEnglish || src.name_english);
+    if (name) return name;
+  }
+  if (lang === "ur" && h?.baab_name_urdu) return h.baab_name_urdu;
+  if (lang === "en" && h?.baab_name_english) return h.baab_name_english;
+  if (lang === "ur" && h?.chapter?.baab_name_urdu) return h.chapter.baab_name_urdu;
+  if (lang === "en" && h?.chapter?.baab_name_english) return h.chapter.baab_name_english;
+  return null;
+};
+
 const HadithCard = ({ hadith }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [showFull, setShowFull] = useState(false);
   const isTruncated = hadith?.hadithEnglish?.length > 250;
 
@@ -37,45 +53,50 @@ const HadithCard = ({ hadith }) => {
           : "bg-white border-l-blue-600"
       }`}
     >
-      <div className="flex justify-between gap-2">
-        <h3 className="text-lg font-bold text-gray-900 flex-1 leading-8">
-          {hadith?.chapter?.chapterEnglish} {hadith?.headingEnglish && " - "}{" "}
+      <div className={`flex justify-between gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}>
+        <h3 className={`text-lg font-bold text-gray-900 flex-1 leading-8 ${language === "ur" ? "text-end" : ""}`}>
+          {language === "ur" ? t(`hadithChapterNames.${hadith.bookSlug}.${hadith.chapter.chapterNumber}`) || hadith?.chapter?.chapterEnglish : hadith?.chapter?.chapterEnglish}
+          {getBaabName(hadith, language) && (
+            <span className="text-green-700 ml-2">
+              - {getBaabName(hadith, language)}
+            </span>
+          )}
+          {hadith?.headingEnglish && " - "}{" "}
           {hadith?.headingEnglish}
         </h3>
-        <p className="text-gray-500 text-3xl pb-4 font-hadith flex-1 text-end">
+        <p className="text-gray-500 text-3xl pb-4 font-quran flex-1 text-end">
           {hadith?.headingArabic}
         </p>
       </div>
 
       <div className="text-end">
-        <p className="text-gray-600 text-lg leading-12">
-          {hadith?.headingUrdu}
-        </p>
+        {hadith?.headingUrdu && (
+          <p className="text-gray-600 text-lg leading-12">
+            {hadith?.headingUrdu}
+          </p>
+        )}
 
-        <p
-          className={`text-green-600 leading-12 text-3xl font-hadith mt-2 ${
+        <div
+          className={`text-green-600 leading-12 text-3xl font-quran mt-2 ${
             showFull || !isTruncated ? "block" : "line-clamp-3"
           }`}
-        >
-          {hadith?.hadithArabic}
-        </p>
+          dangerouslySetInnerHTML={{ __html: hadith?.hadithArabic?.replace(/<\/?p[^>]*>/g, "") }}
+        />
 
-        <p
+        <div
           className={`text-lg leading-12 pt-2 ${
             showFull || !isTruncated ? "block" : "line-clamp-3"
           }`}
-        >
-          {hadith?.hadithUrdu}
-        </p>
+          dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
+        />
       </div>
 
-      <p
+      <div
         className={`text-gray-800 pt-2 leading-12 ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
         }`}
-      >
-        {hadith?.hadithEnglish}
-      </p>
+        dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
+      />
 
       {isTruncated && (
         <button
@@ -86,13 +107,18 @@ const HadithCard = ({ hadith }) => {
         </button>
       )}
 
-      <div className="mt-2 text-sm text-gray-500 flex justify-between">
+      {hadith?.reference && (
+        <div className="mt-2 text-sm text-gray-500">
+          <span className="font-semibold">{t("hadithCard.reference")}</span>{" "}
+          <span
+            className="text-gray-400 italic"
+            dangerouslySetInnerHTML={{ __html: hadith?.reference?.replace(/<\/?p[^>]*>/g, "") }}
+          />
+        </div>
+      )}
+      <div className="mt-1 text-sm text-gray-500 text-end">
         <span>
           {t("hadithCard.hadithNumber")}: {hadith?.hadithNumber}
-        </span>
-        <span>
-          {t("hadithCard.status")}:{" "}
-          <span className="text-green-600">{hadith?.status}</span>
         </span>
       </div>
     </div>

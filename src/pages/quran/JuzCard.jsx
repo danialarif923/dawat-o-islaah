@@ -9,6 +9,8 @@ const JuzCard = ({
   arabicName,
   startingSurah,
   endingSurah,
+  startSurahNum,
+  endSurahNum,
 }) => {
   const { t } = useLanguage();
 
@@ -25,7 +27,7 @@ const JuzCard = ({
           </h3>
 
           <p className="text-xs md:text-sm text-gray-400">
-            {startingSurah} - {endingSurah} | {numberOfAyahs}{" "}
+            {t(`surahNames.${startSurahNum}`)} - {t(`surahNames.${endSurahNum}`)} | {numberOfAyahs}{" "}
             {t("quran.verses")}
           </p>
         </div>

@@ -1,28 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import quranApi from "../api/quranApi";
+import surahData from "../../assets/surahData.json";
 
 const useSurahList = () => {
-  const [surahs, setSurahs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [surahs, setSurahs] = useState(surahData);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchSurahs = async () => {
-      try {
-        const data = await quranApi.get("/surah");
-        console.log("data = ", data?.data?.data);
-        setSurahs(data?.data?.data);
-      } catch (err) {
-        setError("Failed to fetch Surahs");
-      } finally {
-        setLoading(false);
+  const fetchSurahs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await quranApi.get("/surah");
+      if (data?.data?.data) {
+        setSurahs(data.data.data);
       }
-    };
-
-    fetchSurahs();
+    } catch (err) {
+      const status = err.response?.status || "NETWORK";
+      console.warn(`API fetch failed [${status}], using local data.`);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { surahs, loading, error };
+  useEffect(() => {
+    fetchSurahs();
+  }, [fetchSurahs]);
+
+  return { surahs, loading, error, retry: fetchSurahs };
 };
 
 export default useSurahList;

@@ -8,8 +8,15 @@ import { useLanguage } from "../../context/LanguageContext";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
+const translateBlogTitle = (blog, t) => {
+  if (!blog?.title) return "";
+  const key = `blogs.titles.${blog.title}`;
+  const translated = t(key);
+  return translated !== key ? translated : blog.title;
+};
+
 const BlogDetail = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { blogs, loading: blogsLoading, error: blogsError } = useBlogs();
   const { blogid } = useParams();
   const { user, token } = useAuthData();
@@ -130,13 +137,13 @@ const BlogDetail = () => {
         <img
           src={featuredImage}
           alt={selectedBlog.title}
-          className="w-full h-80 object-cover mb-6 rounded"
+          className="w-full aspect-[40/21] object-cover mb-6 rounded"
         />
       )}
 
       {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">
-        {selectedBlog.title}
+      <h1 className="text-3xl font-bold text-gray-800 mb-2" dir="auto">
+        {translateBlogTitle(selectedBlog, t)}
       </h1>
 
       <p className="text-sm text-green-600 mb-6">
@@ -145,13 +152,14 @@ const BlogDetail = () => {
 
       {/* Blog Content (CKEditor HTML) */}
       <div
-        className="max-w-none blog-content-wrapper" // Add a specific class here
-        dangerouslySetInnerHTML={{ __html: blogContent }}
+        className="max-w-none blog-content-wrapper"
+        dir="auto"
+        dangerouslySetInnerHTML={{ __html: blogContent.replace(/<\/?p[^>]*>/g, "") }}
       />
 
       {/* Comments */}
       <div className="mt-12">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Comments</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6" dir={language === "ur" ? "rtl" : "ltr"}>{t("blog.comments")}</h2>
 
         {selectedBlog.comments && selectedBlog.comments.length > 0 ? (
           <ul className="space-y-6">
@@ -222,7 +230,7 @@ const BlogDetail = () => {
                         </button>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-700 mt-1">
+                      <p className="text-sm text-gray-700 mt-1" dir="auto">
                         {comment.content}
                       </p>
                     )}
@@ -232,14 +240,14 @@ const BlogDetail = () => {
             })}
           </ul>
         ) : (
-          <p className="text-gray-500">No comments yet.</p>
+          <p className="text-gray-500" dir={language === "ur" ? "rtl" : "ltr"}>{t("blog.noComments")}</p>
         )}
       </div>
 
       {/* Add Comment */}
       <div className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Post a Comment
+        <h2 className="text-xl font-semibold text-gray-800 mb-4" dir={language === "ur" ? "rtl" : "ltr"}>
+          {t("blog.postComment")}
         </h2>
 
         {commentError && (
@@ -265,7 +273,7 @@ const BlogDetail = () => {
             onClick={handleCommentSubmit}
             className="px-4 py-2 bg-[#1E3A5F] text-white rounded"
           >
-            {isSubmitting ? "Posting..." : "Post"}
+            {isSubmitting ? t("blog.posting") : t("blog.post")}
           </button>
         </div>
       </div>

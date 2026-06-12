@@ -10,9 +10,11 @@ const useHadithBooks = () => {
     const getBooks = async () => {
       try {
         const data = await fetchHadith("books");
-        setBooks(data);
+        setBooks(data?.books || data?.data || []);
       } catch (err) {
-        setError(err);
+        const status = err.response?.status || "NETWORK";
+        console.error(`Failed to fetch hadith books [${status}]:`, err.message);
+        setError(`Failed to fetch hadith books (HTTP ${status})`);
       } finally {
         setLoading(false);
       }

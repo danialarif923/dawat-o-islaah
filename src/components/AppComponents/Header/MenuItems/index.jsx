@@ -11,16 +11,16 @@ const MenuItems = ({ isMobile, isUser, closeMenu }) => {
     { name: "hadith" },
     { name: "islamicBooks" },
     { name: "masail" },
+    { name: "discussionForum" },
+    { name: "questionAnswer" },
   ];
 
-  // Auth-based items
+  // Auth-based items (only Settings requires login)
   let authDependentItems = [];
 
   if (isUser) {
     authDependentItems = [
-      { name: "discussionForum" },
-      { name: "questionAnswer" },
-      { name: "settings" }, // ✅ NEW SETTINGS ITEM
+      { name: "settings" },
     ];
   }
 

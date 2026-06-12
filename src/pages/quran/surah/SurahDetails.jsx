@@ -120,7 +120,7 @@ const SurahDetails = () => {
       ===================== */}
       <div className="text-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold">
-          {surahDetails.englishName} ({surahDetails.englishNameTranslation})
+          {t(`surahNames.${surahNumber}`)}
         </h1>
 
         <p className="text-lg text-gray-500 mt-2">

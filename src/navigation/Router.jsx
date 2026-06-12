@@ -31,6 +31,7 @@ import QuestionsPage from "../pages/qna/QuestionsPage";
 import Search from "../pages/search";
 import { QNAProvider } from "../context/QnaContext";
 import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "../context/ThemeContext";
 import NotFound from "../components/AppComponents/NotFound";
 import DiscussionForum from "../pages/DiscussionForum/DiscussionForum";
 import Navbar from "../components/AppComponents/Header/MenuItems/navbar";
@@ -47,79 +48,81 @@ export default function Router() {
               <BookProvider>
                 <MasailProvider>
                   <QNAProvider>
-                    <Toaster />
-                    <Routes>
-                      <Route path="/" element={<WithHeroLayout />}>
-                        <Route index element={<Home />} />
-                        <Route path="quran" element={<Quran />} />
-                        <Route path="surah/:surahNumber" element={<Surah />} />
-                        <Route path="juz/:juzNumber" element={<Juz />} />
-                        <Route path="hadith" element={<Hadith />} />
-                        <Route
-                          path="hadith/:bookSlug"
-                          element={<HadithBookChapters />}
-                        />
-                        <Route
-                          path="hadith/:bookSlug/:chapterNo"
-                          element={<HadithList />}
-                        />
-                        <Route path="blog/:blogid" element={<BlogDetail />} />
-                        <Route path="search" element={<Search />} />
-                      </Route>
-                      <Route path="/" element={<WithoutHeroLayout />}>
-                        <Route
-                          path="zakat-calculator"
-                          element={<ZakatCalculator />}
-                        />
-                        <Route
-                          path="inheritance-calculator"
-                          element={<InheritanceCalculator />}
-                        />
-                        <Route
-                          path="prayer-timings"
-                          element={<PrayerTimings />}
-                        />
-                        <Route
-                          path="qibla-direction"
-                          element={<QiblaDirection />}
-                        />
-                        <Route path="islamicBooks" element={<IslamicBooks />} />
-                        <Route path="masail" element={<Masail />} />
+                    <ThemeProvider>
+                      <Toaster />
+                      <Routes>
+                        <Route path="/" element={<WithHeroLayout />}>
+                          <Route index element={<Home />} />
+                          <Route path="quran" element={<Quran />} />
+                          <Route path="surah/:surahNumber" element={<Surah />} />
+                          <Route path="juz/:juzNumber" element={<Juz />} />
+                          <Route path="hadith" element={<Hadith />} />
+                          <Route
+                            path="hadith/:bookSlug"
+                            element={<HadithBookChapters />}
+                          />
+                          <Route
+                            path="hadith/:bookSlug/:chapterNo"
+                            element={<HadithList />}
+                          />
+                          <Route path="blog/:blogid" element={<BlogDetail />} />
+                          <Route path="search" element={<Search />} />
+                        </Route>
+                        <Route path="/" element={<WithoutHeroLayout />}>
+                          <Route
+                            path="zakat-calculator"
+                            element={<ZakatCalculator />}
+                          />
+                          <Route
+                            path="inheritance-calculator"
+                            element={<InheritanceCalculator />}
+                          />
+                          <Route
+                            path="prayer-timings"
+                            element={<PrayerTimings />}
+                          />
+                          <Route
+                            path="qibla-direction"
+                            element={<QiblaDirection />}
+                          />
+                          <Route
+                            path="nearest-mosque"
+                            element={<NearestMosquesMap />}
+                          />
+                          <Route path="islamicBooks" element={<IslamicBooks />} />
+                          <Route path="masail" element={<Masail />} />
 
-                        {/* ✅ ADD THIS LINE HERE */}
-                        <Route
-                          path="discussion-forum"
-                          element={<DiscussionForum />}
-                        />
+                          <Route
+                            path="discussion-forum"
+                            element={<DiscussionForum />}
+                          />
 
-                        {/* Keep private routes logic */}
-                        {isAuthenticated && (
                           <Route
                             path="questions-and-answers"
                             element={<QuestionsPage />}
                           />
-                        )}
-                      </Route>
-                      <Route>
-                        <Route path="/signin" element={<SignIn />} />
-                        <Route path="/signup" element={<SignUp />} />
-                        <Route
-                          path="/forget-password"
-                          element={<ForgotPassword />}
-                        />
-                        <Route
-                          path="/change-password"
-                          element={<ChangePassword />}
-                        />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/navbar" element={<Navbar />} />
-                        <Route
-                          path="/set-new-password"
-                          element={<SetNewPassword />}
-                        />
-                        <Route path="*" element={<NotFound />} />
-                      </Route>
-                    </Routes>
+                        </Route>
+                        <Route>
+                          <Route path="/signin" element={<SignIn />} />
+                          <Route path="/signup" element={<SignUp />} />
+                          <Route
+                            path="/forget-password"
+                            element={<ForgotPassword />}
+                          />
+                          <Route
+                            path="/change-password"
+                            element={<ChangePassword />}
+                          />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="/navbar" element={<Navbar />} />
+                          <Route
+                            path="/set-new-password"
+                            element={<SetNewPassword />}
+                          />
+                          <Route path="*" element={<NotFound />} />
+                        </Route>
+                      </Routes>
+                    </ThemeProvider>
                   </QNAProvider>
                 </MasailProvider>
               </BookProvider>

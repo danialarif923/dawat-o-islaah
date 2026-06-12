@@ -12,14 +12,21 @@ const useHadithChapters = () => {
     const getChapters = async () => {
       try {
         const data = await getHadiths(`${bookSlug}/chapters`);
-        // Check if data exists and has the chapters key
-        if (data && data.status === 200) {
-          setChapters(data.chapters || []);
+
+        if (data?.chapters) {
+          setChapters(data.chapters);
+        } else if (data?.data) {
+          setChapters(data.data);
+        } else if (Array.isArray(data)) {
+          setChapters(data);
         } else {
-          setError("Failed to fetch chapters");
+          setError(`Failed to fetch chapters: unexpected response format for book "${bookSlug}"`);
         }
       } catch (err) {
-        setError(err.message); // This is likely where your red text is coming from
+        const detail = err.response?.status
+          ? `HTTP ${err.response.status}`
+          : err.message;
+        setError(`Failed to fetch chapters for "${bookSlug}": ${detail}`);
       } finally {
         setLoading(false);
       }

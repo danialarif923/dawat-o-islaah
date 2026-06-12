@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 /* =====================================================
-   1. LOCAL FONT DEFINITIONS (Static Fallbacks)
-   ===================================================== */
+    1. LOCAL FONT DEFINITIONS (Static Fallbacks)
+    ===================================================== */
 @font-face {
   font-family: "TraditionNaskh";
   src: url("/fonts/Traditional Naskh.ttf") format("truetype");
@@ -19,6 +20,7 @@
 :root {
   /* Default fallback if the Admin API fails */
   --quran-font: "1 MUHAMMADI QURANIC", "Amiri", serif;
+  --color-black: #000;
 }
 
 .font-quran {
@@ -39,8 +41,62 @@
    ===================================================== */
 body {
   background-color: #f8f9fa;
+  color: #111827;
   font-family: "Merriweather", "Noto Nastaliq Urdu", serif;
 }
+
+.dark body {
+  background-color: #0B131A;
+  color: #e5e7eb;
+}
+
+.theme-bg-page {
+  background-color: #f8f9fa;
+}
+.dark .theme-bg-page {
+  background-color: #0B131A;
+}
+
+.theme-bg-card {
+  background-color: #ffffff;
+}
+.dark .theme-bg-card {
+  background-color: #132232;
+}
+
+.theme-border {
+  border-color: #e5e7eb;
+}
+.dark .theme-border {
+  border-color: #233857;
+}
+
+.qna-heading {
+  color: #000;
+}
+.dark .qna-heading {
+  color: #fff;
+}
+
+.qna-login-text {
+  color: #000;
+}
+.dark .qna-login-text {
+  color: #6ee7b7;
+}
+
+.qna-text-dark {
+  color: #000;
+}
+.dark .qna-text-dark {
+  color: #e5e7eb;
+}
+#qna-root.qna-mode-dark { background-color: #0B131A; }
+#qna-root.qna-mode-dark .theme-bg-card { background-color: #132232; }
+#qna-root.qna-mode-dark .theme-border { border-color: #233857; }
+#qna-root.qna-mode-dark .qna-heading { color: #fff; }
+#qna-root.qna-mode-dark .qna-login-text { color: #6ee7b7; }
+#qna-root.qna-mode-dark .qna-text-dark { color: #e5e7eb; }
 
 .hide-scrollbar {
   scrollbar-width: none;

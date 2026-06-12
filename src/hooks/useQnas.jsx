@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react";
-import { authApiClient, setAuthToken } from "../api/backendApi";
+import { publicApiClient } from "../api/backendApi";
 import { useQnaContext } from "../context/QnaContext";
-import { useAuthData } from "../context/AuthContext";
 
 const useQnas = () => {
   const { questions, setQuestions } = useQnaContext();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { token } = useAuthData();
-
-  setAuthToken(token);
-
   useEffect(() => {
     const fetchQnas = async () => {
       try {
-        const response = await authApiClient.get("api/questions");
+        const response = await publicApiClient.get("api/questions");
         setQuestions(response.data?.results || []);
       } catch (err) {
         setError(err);

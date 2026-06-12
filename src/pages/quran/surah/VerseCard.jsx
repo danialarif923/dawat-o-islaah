@@ -163,9 +163,12 @@ const VerseCard = ({
             </p>
 
             {/* Arabic - Using Dynamic Font Class */}
-            <p className="text-5xl text-center my-10 leading-relaxed font-quran">
-              {ayah.text}
-            </p>
+            <div
+              className="text-5xl text-center my-10 leading-relaxed font-quran whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{
+                __html: ayah.text.replace(/<\/?p[^>]*>/g, ""),
+              }}
+            />
 
             {/* TRANSLATIONS */}
             {isTranslation && (
@@ -174,43 +177,42 @@ const VerseCard = ({
                 <div>
                   {selectedEnglish.map((author) => {
                     const name = String(author?.name || author).trim();
-                    const list = translations.en
-                      ? Object.values(translations.en).flat().filter((t) => t.author === name)
-                      : [];
-                    const tr = list.find((t) => Number(t.ayah) === ayah.numberInSurah);
+                    const group = translations.en?.[name];
+                    const list = group || Object.values(translations.en || {}).flat().filter((t) => t.author === name);
+                    const tr = list.find((t) => Number(t.ayah || t.numberInSurah) === ayah.numberInSurah);
 
                     if (!tr) return null;
 
                     return (
                       <div key={`${name}-${ayah.numberInSurah}`} className="mb-4">
-                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">{name}</p>
+                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">{author.displayName || tr.author || name}</p>
                         <p
                           className="text-lg text-gray-700"
-                          dangerouslySetInnerHTML={{ __html: tr.text }}
+                                                    dangerouslySetInnerHTML={{ __html: tr.text.replace(/<\/?p[^>]*>/g, "") }}
                         />
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Urdu */}
+                {/* Urdu */
+}
                 <div className="text-right">
                   {selectedUrdu.map((author) => {
                     const name = String(author?.name || author).trim();
-                    const list = translations.ur
-                      ? Object.values(translations.ur).flat().filter((t) => t.author === name)
-                      : [];
-                    const tr = list.find((t) => Number(t.ayah) === ayah.numberInSurah);
+                    const group = translations.ur?.[name];
+                    const list = group || Object.values(translations.ur || {}).flat().filter((t) => t.author === name);
+                    const tr = list.find((t) => Number(t.ayah || t.numberInSurah) === ayah.numberInSurah);
 
                     if (!tr) return null;
 
                     return (
                       <div key={`${name}-${ayah.numberInSurah}`} className="mb-4">
-                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">{name}</p>
+                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">{author.displayName || tr.author || name}</p>
                         <p
                           className="text-2xl leading-relaxed font-urdu"
                           style={{ direction: "rtl" }}
-                          dangerouslySetInnerHTML={{ __html: tr.text }}
+                                                    dangerouslySetInnerHTML={{ __html: tr.text.replace(/<\/?p[^>]*>/g, "") }}
                         />
                       </div>
                     );
@@ -219,7 +221,8 @@ const VerseCard = ({
               </div>
             )}
 
-            {/* TAFSIR */}
+            {/* TAFSIR */
+}
             {tafsirEnabled && selectedTafsir && (
               <div className="mt-6 border-t pt-4 bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-emerald-800 mb-2 font-bold">
@@ -227,7 +230,7 @@ const VerseCard = ({
                 </p>
 
                 {(() => {
-                  const rawTafsir = tafseerByAyah?.[ayah.numberInSurah] || "";
+                  const rawTafsir = (tafseerByAyah?.[ayah.numberInSurah] || "").replace(/<\/?p[^>]*>/g, "");
 
                   if (!rawTafsir) {
                     return (

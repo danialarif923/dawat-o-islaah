@@ -28,6 +28,11 @@ const forumApiClient = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+const publicApiClient = axios.create({
+  baseURL: FORUM_BASE_URL,
+  headers: { "Content-Type": "application/json" },
+});
+
 /* =====================================================
    AUTH TOKEN HANDLER
 ===================================================== */
@@ -54,7 +59,21 @@ const getWithParams = async (endpoint, params = {}) => {
     const res = await backendApiClient.get(endpoint, { params });
     return res.data;
   } catch (error) {
-    console.error(`GET ${endpoint} failed:`, error);
+    const status = error.response?.status || "NETWORK";
+    const detail = error.response?.data || error.message;
+    console.error(`GET /quran/${endpoint} failed [${status}]:`, detail);
+    return null;
+  }
+};
+
+const getPublicWithParams = async (endpoint, params = {}) => {
+  try {
+    const res = await publicApiClient.get(endpoint, { params });
+    return res.data;
+  } catch (error) {
+    const status = error.response?.status || "NETWORK";
+    const detail = error.response?.data || error.message;
+    console.error(`GET public ${endpoint} failed [${status}]:`, detail);
     return null;
   }
 };
@@ -83,7 +102,7 @@ export const getSurahList = async () => {
 ===================================================== */
 
 export const getAyahsBySurah = (surahNumber) =>
-  getWithParams("api/quran/", { surah: surahNumber });
+  getWithParams("api/quran/", { surah: surahNumber, _t: Date.now() });
 
 /* =====================================================
    TRANSLATIONS
@@ -169,8 +188,10 @@ export const deleteAuthor = (author, language) =>
 export {
   backendApiClient,
   authApiClient,
+  publicApiClient,
   BACKEND_BASE_URL,
   forumApiClient,
   getWithParams,
+  getPublicWithParams,
   postData,
 };

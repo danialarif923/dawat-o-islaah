@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "../../../style/audioStyles.css";
 import { useLanguage } from "../../context/LanguageContext";
 
-const AudioPlayer = ({ audioFiles }) => {
+const AudioPlayer = ({ audioFiles = [] }) => {
   const { t } = useLanguage();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);

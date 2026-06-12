@@ -10,10 +10,22 @@ const SurahList = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("Surah");
   const tabs = [t("quran.tabSurah"), t("quran.tabJuz")];
-  const { surahs, loading, error } = useSurahList();
+  const { surahs, loading, error, retry } = useSurahList();
 
   if (loading) return <p className="text-center py-4">Loading...</p>;
-  if (error) return <p className="text-center text-red-500 py-4">{error}</p>;
+  if (error && surahs.length === 0) return (
+    <div className="text-center py-8">
+      <p className="text-red-500 mb-4">{error}</p>
+      {!loading && (
+        <button
+          onClick={retry}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+        >
+          Retry
+        </button>
+      )}
+    </div>
+  );
 
   const surahList = (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:mx-20 mb-8">
@@ -42,6 +54,8 @@ const SurahList = () => {
           arabicName={juzItem.juz_name_ar}
           startingSurah={juzItem.start_surah}
           endingSurah={juzItem.end_surah}
+          startSurahNum={juzItem.start_surah_number}
+          endSurahNum={juzItem.end_surah_number}
         />
       ))}
     </div>

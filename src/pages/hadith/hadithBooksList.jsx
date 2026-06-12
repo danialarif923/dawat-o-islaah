@@ -11,7 +11,7 @@ const HadithBooksList = () => {
   if (error)
     return (
       <p className="text-center text-red-500">
-        {t("hadith.error")}: {error.message}
+        {t("hadith.error")}: {error}
       </p>
     );
 
@@ -21,8 +21,8 @@ const HadithBooksList = () => {
         {t("hadith.booksTitle")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {books?.books?.length > 0 &&
-          books.books
+        {books.length > 0 &&
+          books
             .filter((book) => book.hadiths_count > 0)
             .map((book) => <HadithBookCard key={book.id} book={book} />)}
       </div>

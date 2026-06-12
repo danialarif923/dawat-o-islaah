@@ -1,13 +1,17 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import useHadiths from "../../hooks/useHadiths";
 import HadithCard from "./HadithCard";
 import ShimmerLoader from "../../components/AppComponents/Hadith/ShimmerLoader";
 import { useLanguage } from "../../context/LanguageContext";
+import localApiClient from "../../api/hadithApi";
 
 const HadithList = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { bookSlug, chapterNo } = useParams();
+  const query = new URLSearchParams(useLocation().search);
+  const targetHadith = query.get("hadith");
+
   const {
     hadiths,
     loading,
@@ -18,24 +22,60 @@ const HadithList = () => {
     isFetchingMore,
   } = useHadiths();
 
-  if (loading && currentPage === 1) return <ShimmerLoader />;
-  if (error) return <p className="text-center text-red-600 my-6">{error}</p>;
+  const [extraHadith, setExtraHadith] = useState(null);
 
-  // console.log("hadiths data", hadiths);
+  useEffect(() => {
+    if (!targetHadith || loading || hadiths.length === 0) return;
+
+    const isLoaded = hadiths.some(
+      (h) => String(h.hadithNumber) === String(targetHadith)
+    );
+
+    if (!isLoaded) {
+      localApiClient
+        .get("get-hadith/", {
+          params: { book: bookSlug, hadith: targetHadith },
+        })
+        .then((res) => {
+          const data = res.data;
+          const hadithData =
+            data?.hadiths?.data?.[0] ??
+            data?.hadith?.data ??
+            data?.hadith;
+          if (hadithData) {
+            setExtraHadith(hadithData);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setExtraHadith(null);
+    }
+  }, [targetHadith, loading, hadiths, bookSlug]);
+
+  const displayHadiths = extraHadith
+    ? [extraHadith, ...hadiths.filter(
+        (h) => String(h.hadithNumber) !== String(targetHadith)
+      )]
+    : hadiths;
+
+  if (loading && currentPage === 1 && !extraHadith) return <ShimmerLoader />;
+  if (error) return <p className="text-center text-red-600 my-6">{error}</p>;
+  if (!displayHadiths.length) return <p className="text-center text-gray-500 my-6">No hadiths found.</p>;
 
   return (
     <div className="container mx-auto px-4 md:px-20 py-6">
       <h2 className="text-2xl font-bold text-center mb-6">
-        {t("hadithList.title")} {bookSlug.replace("-", " ")} -{" "}
+        {t("hadithList.title")} {t(`hadithBookNames.${bookSlug}`) || bookSlug.replace("-", " ")} -{" "}
         {t("hadithList.chapter")} {chapterNo}
       </h2>
-      <h2 className="text-3xl font-bold text-center mb-6 text-blue-900">
-        &#34; {hadiths[0]?.chapter?.chapterEnglish} &#34;
-      </h2>
+      {hadiths[0]?.chapter?.chapterEnglish && (
+        <h2 className="text-3xl font-bold text-center mb-6 text-blue-900">
+          &#34; {language === "ur" ? t(`hadithChapterNames.${bookSlug}.${hadiths[0].chapter.chapterNumber}`) || hadiths[0].chapter.chapterEnglish : hadiths[0].chapter.chapterEnglish} &#34;
+        </h2>
+      )}
       <div>
-        {hadiths.map((hadith, index) => (
+        {displayHadiths.map((hadith, index) => (
           <HadithCard
-            // Combining values creates a much more reliable unique string
             key={`${hadith.bookSlug}-${hadith.hadithNumber}-${index}`}
             hadith={hadith}
           />

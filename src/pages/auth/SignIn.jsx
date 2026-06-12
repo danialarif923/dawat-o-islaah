@@ -4,8 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import LogoSection from "./LogoSection";
 import { authApiClient, setAuthToken } from "../../api/backendApi";
 import { useAuthData } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const SignIn = () => {
+  const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -72,9 +74,19 @@ const SignIn = () => {
       <div className="flex flex-col justify-center px-6 w-full md:py-8 mx-auto lg:py-0 md:w-[50%]">
         <div className="rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Sign in to your account
-            </h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                {t("auth.signInTitle")}
+              </h1>
+              <button
+                onClick={toggleLanguage}
+                className="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline cursor-pointer"
+              >
+                {language === "en"
+                  ? t("headerBanner.urdu")
+                  : t("headerBanner.english")}
+              </button>
+            </div>
 
             {error && (
               <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800">
