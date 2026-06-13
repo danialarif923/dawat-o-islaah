@@ -24,7 +24,9 @@ const Item = ({ item, closeMenu, isMobile }) => {
       ? "signin"
       : item === "questionAnswer"
       ? "questions-and-answers"
-      : item === "settings"          // ✅ NEW
+      : item === "islamicTools"
+      ? "zakat-calculator"
+      : item === "settings"
       ? "settings"
       : "#";
 

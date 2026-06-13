@@ -122,13 +122,15 @@
     }
   },
   "quranDetails": {
+    "ayah": "آیت",
     "verses": "آیات",
     "translations": "تراجم",
     "selectTranslations": "{lang} تراجم منتخب کریں ",
     "playVerse": "آیت چلائیں",
     "pauseVerse": "آیت روکیں",
     "checkTafsir": "تفسیر پڑھیں",
-    "tafsir": "تفسیر"
+    "tafsir": "تفسیر",
+    "tafsirNotAvailable": "اس آیت کے لیے تفسیر دستیاب نہیں ہے۔"
   },
   "audioPlayer": {
     "previous": "پچھلا",

@@ -123,13 +123,15 @@
     }
   },
   "quranDetails": {
+    "ayah": "Ayah",
     "verses": "Verses",
     "translations": "Translations",
     "selectTranslations": "Select {lang} Translations",
     "playVerse": "Play Verse",
     "pauseVerse": "Pause Verse",
     "checkTafsir": "Read Tafsir",
-    "tafsir": "Tafsir"
+    "tafsir": "Tafsir",
+    "tafsirNotAvailable": "Tafsir not available for this verse."
   },
   "audioPlayer": {
     "previous": "Previous",

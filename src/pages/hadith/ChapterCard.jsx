@@ -24,13 +24,19 @@ const ChapterCard = ({ chapter }) => {
           </p>
         </div>
 
-        {/* RIGHT SIDE (ARABIC) */}
+        {/* RIGHT SIDE (ARABIC & URDU) */}
         <div className="flex-1 text-right">
           <p className="text-2xl font-bold font-hadith text-gray-700 leading-loose">
             {chapter.chapterArabic || "—"}
           </p>
 
-          {language === "ur" && t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) && (
+          {chapter.chapterUrdu && (
+            <p className="text-md text-gray-500 mt-2 leading-relaxed">
+              {chapter.chapterUrdu}
+            </p>
+          )}
+
+          {!chapter.chapterUrdu && language === "ur" && t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) && (
             <p className="text-gray-500 mt-2 leading-relaxed">
               {t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`)}
             </p>
