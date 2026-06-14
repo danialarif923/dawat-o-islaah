@@ -61,7 +61,7 @@ const Settings = () => {
         try {
           await authApiClient.post(
             "api/auth/update-location/",
-            { latitude, longitude },
+            { latitude, longitude, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
             {
               headers: { Authorization: `Bearer ${token}` },
             }

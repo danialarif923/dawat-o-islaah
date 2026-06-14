@@ -46,6 +46,7 @@ const SignIn = () => {
       const response = await authApiClient.post("api/auth/login/", {
         email: formData.email,
         password: formData.password,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
 
       const { access, user } = response.data;

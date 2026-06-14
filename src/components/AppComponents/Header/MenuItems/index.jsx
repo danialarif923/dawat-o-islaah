@@ -10,7 +10,6 @@ const MenuItems = ({ isMobile, isUser, closeMenu }) => {
     { name: "quran" },
     { name: "hadith" },
     { name: "islamicBooks" },
-    { name: "islamicTools" },
     { name: "masail" },
     { name: "discussionForum" },
     { name: "questionAnswer" },

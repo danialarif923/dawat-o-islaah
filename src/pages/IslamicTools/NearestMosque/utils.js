@@ -15,6 +15,7 @@ export const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.openstreetmap.ru/api/interpreter',
 ];
 const NOMINATIM_ENDPOINT = 'https://nominatim.openstreetmap.org/search';
 
@@ -252,70 +253,88 @@ export const searchMosquesViaOverpass = async (location, radiusKm = 5, query = "
   `;
 
   let lastErr = null;
+  const backoff = [3000, 10000, 30000];
   for (const endpoint of OVERPASS_ENDPOINTS) {
-    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-    try {
-      const url = `${endpoint}?data=${encodeURIComponent(overpassQuery)}`;
+    let retries = 0;
+    const maxRetries = 3;
+    while (retries <= maxRetries) {
+      if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      try {
+        const url = `${endpoint}?data=${encodeURIComponent(overpassQuery)}`;
 
-      const now = Date.now();
-      const elapsed = now - lastRequestTime;
-      if (elapsed < MIN_INTERVAL_MS) {
-        await wait(MIN_INTERVAL_MS - elapsed);
-        if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+        const now = Date.now();
+        const elapsed = now - lastRequestTime;
+        if (elapsed < MIN_INTERVAL_MS) {
+          await wait(MIN_INTERVAL_MS - elapsed);
+          if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+        }
+        lastRequestTime = Date.now();
+
+        const response = await fetchWithTimeout(url, 55000, { signal });
+
+        if (response.status === 429) {
+          if (retries < maxRetries) {
+            const delay = backoff[retries] || 30000;
+            console.warn(`Overpass 429 on ${endpoint} — waiting ${delay}ms (retry ${retries + 1}/${maxRetries})`);
+            await wait(delay);
+            retries++;
+            continue;
+          }
+          console.warn(`Overpass 429 on ${endpoint} — exhausted retries, trying next endpoint`);
+          break;
+        }
+
+        if (!response.ok) {
+          console.warn(`Overpass ${response.status} on ${endpoint} — trying next`);
+          break;
+        }
+
+        const data = await response.json();
+        const elements = data.elements || [];
+
+        const mosques = [];
+        const qLower = query.toLowerCase();
+        for (let i = 0; i < elements.length; i++) {
+          const el = elements[i];
+          const lat = el.type === 'node' ? el.lat : el.center?.lat;
+          const lng = el.type === 'node' ? el.lon : el.center?.lon;
+          if (lat == null || lng == null) continue;
+          const tags = el.tags || {};
+          const name = tags.name || tags["name:en"] || `Mosque (OSM ${el.id})`;
+          if (query && !name.toLowerCase().includes(qLower)) continue;
+          mosques.push({
+            id: `${el.type}-${el.id}`,
+            name,
+            address: [
+              tags["addr:street"],
+              tags["addr:city"],
+              tags["addr:country"],
+            ].filter(Boolean).join(", ") || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+            lat,
+            lng,
+            rating: null,
+            reviews: 0,
+            isOpen: null,
+            osmType: el.type,
+            osmId: el.id,
+          });
+        }
+
+        setLocalCache(cacheKey, mosques);
+        return mosques;
+      } catch (err) {
+        if (err.name === "AbortError") throw err;
+        if (retries < maxRetries) {
+          const delay = backoff[retries] || 30000;
+          console.warn(`Overpass endpoint ${endpoint} failed: ${err.message} — retrying in ${delay}ms (${retries + 1}/${maxRetries})`);
+          await wait(delay);
+          retries++;
+        } else {
+          lastErr = err;
+          console.warn(`Overpass endpoint ${endpoint} failed after retries:`, err.message);
+          break;
+        }
       }
-      lastRequestTime = Date.now();
-
-      const response = await fetchWithTimeout(url, 55000, { signal });
-
-      if (response.status === 429) {
-        console.warn(`Overpass 429 on ${endpoint} — waiting 3s`);
-        await wait(3000);
-        if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-        continue;
-      }
-
-      if (!response.ok) {
-        console.warn(`Overpass ${response.status} on ${endpoint} — trying next`);
-        continue;
-      }
-
-      const data = await response.json();
-      const elements = data.elements || [];
-
-      const mosques = [];
-      const qLower = query.toLowerCase();
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements[i];
-        const lat = el.type === 'node' ? el.lat : el.center?.lat;
-        const lng = el.type === 'node' ? el.lon : el.center?.lon;
-        if (lat == null || lng == null) continue;
-        const tags = el.tags || {};
-        const name = tags.name || tags["name:en"] || `Mosque (OSM ${el.id})`;
-        if (query && !name.toLowerCase().includes(qLower)) continue;
-        mosques.push({
-          id: `${el.type}-${el.id}`,
-          name,
-          address: [
-            tags["addr:street"],
-            tags["addr:city"],
-            tags["addr:country"],
-          ].filter(Boolean).join(", ") || `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-          lat,
-          lng,
-          rating: null,
-          reviews: 0,
-          isOpen: null,
-          osmType: el.type,
-          osmId: el.id,
-        });
-      }
-
-      setLocalCache(cacheKey, mosques);
-      return mosques;
-    } catch (err) {
-      if (err.name === "AbortError") throw err;
-      lastErr = err;
-      console.warn(`Overpass endpoint ${endpoint} failed:`, err.message);
     }
   }
 

@@ -67,7 +67,8 @@ const SignUp = () => {
       first_name: formData.first_name,
       last_name: formData.last_name,
       password: formData.password,
-      receive_daily_email: formData.receive_daily_email, // ✅ NEW
+      receive_daily_email: formData.receive_daily_email,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
 
     try {
