@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../../context/LanguageContext";
-import { ChevronLeft, ChevronRight, X, FileText, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Maximize, Minimize } from "lucide-react";
 import { backendApiClient } from "../../api/backendApi";
 import * as pdfjsLib from "pdfjs-dist";
 import Tesseract from "tesseract.js";
@@ -41,6 +41,8 @@ const BookCard = ({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [pageGenerating, setPageGenerating] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [pageInput, setPageInput] = useState("");
   const retryRef = useRef(null);
   const retryCountRef = useRef(0);
 
@@ -85,6 +87,9 @@ const BookCard = ({
   const splitTextItemsCacheRef = useRef(new Map());
   const splitViewportCacheRef = useRef(new Map());
   const readTrackedRef = useRef(false);
+  const pageCacheRef = useRef(new Map());
+  const preRenderRef = useRef(null);
+  const pageTextLoadingRef = useRef(new Map()); // pageNum -> Promise<result>
 
   useEffect(() => {
     readTrackedRef.current = false;
@@ -124,17 +129,15 @@ const BookCard = ({
     }).catch(() => {});
   }, [isOpen]);
 
-  // Load PDF when modal opens
+  // Load when modal opens
   useEffect(() => {
     if (!isOpen || !pdfFile) return;
 
+    setError(null);
+    setCurrentPage(1);
+
     if (isSplit && propTotalPages > 0) {
-      // Use pre-rendered page images — instant display
-      setError(null);
-      setLoading(false);
       setTotalPages(propTotalPages);
-      setCurrentPage(1);
-      setSearchQuery("");
       setImgLoaded(true);
       setImgError(false);
       setPageGenerating(false);
@@ -146,31 +149,27 @@ const BookCard = ({
       return;
     }
 
-    const loadPDF = async () => {
+    // Non-split - load PDF page by page (no blocking)
+    setTotalPages(0);
+    setImgError(false);
+    setImgLoaded(false);
+    (async () => {
       try {
-        setLoading(true);
-        setError(null);
-
         const pdf = await pdfjsLib.getDocument({
           url: pdfFile,
           disableAutoFetch: true,
+          disableStream: true,
         }).promise;
         pdfDocRef.current = pdf;
         setTotalPages(pdf.numPages);
-        setCurrentPage(1);
-        setSearchQuery("");
-
-        // Render first page
-        renderPage(pdf, 1, "");
+        setPageGenerating(false);
+        // Render current page (user might have navigated while PDF was loading)
+        renderPage(pdf, currentPage, searchQuery);
       } catch (err) {
         setError(err.message || "Failed to load PDF");
         console.error("PDF loading error:", err);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    loadPDF();
+    })();
   }, [isOpen, pdfFile]);
 
   // Reactive search: runs on every searchQuery and page change
@@ -224,6 +223,12 @@ const BookCard = ({
         return true;
       }
 
+      // Non-split: try page-{n}.txt+json for instant search (any page, before or after pdf.js loads)
+      if (!textItemsRef.current && overlay) {
+        loadSplitPageForSearch(currentPage, query);
+        return true;
+      }
+
       return false;
     };
 
@@ -234,21 +239,58 @@ const BookCard = ({
     }
   }, [searchQuery, currentPage]);
 
-  // Render PDF page to canvas
+  // Pre-load page text on mount/navigation for split books (instant search)
+  useEffect(() => {
+    if (!isOpen || !isSplit || !propTotalPages) return;
+    ensurePageText(currentPage);
+  }, [currentPage, isOpen, isSplit]);
+
+  // Render a single page to a given canvas context
+  const renderPageToCtx = async (pdf, pageNum, ctx, width, height, scale) => {
+    const page = await pdf.getPage(Math.max(1, Math.min(pageNum, pdf.numPages)));
+    const viewport = page.getViewport({ scale });
+    const canvas = ctx.canvas;
+    canvas.width = width || viewport.width;
+    canvas.height = height || viewport.height;
+    ctx.save();
+    ctx.scale(canvas.width / viewport.width, canvas.height / viewport.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    ctx.restore();
+    return { page, viewport };
+  };
+
+  // Render PDF page to canvas with caching + pre-render next page
   const renderPage = async (pdf, pageNum, searchTerm = "") => {
     try {
       if (!canvasRef.current || !pdf) return;
 
-      // Clear stale data from previous page
+      // Check cache first
+      const cached = pageCacheRef.current.get(pageNum);
+      if (cached) {
+        const ctx = canvasRef.current.getContext("2d");
+        canvasRef.current.width = cached.width;
+        canvasRef.current.height = cached.height;
+        ctx.putImageData(cached.imageData, 0, 0);
+        if (cached.textContent) {
+          textContentRef.current = cached.textContent;
+          setOcrText(cached.textContent);
+        }
+        if (cached.textItems) textItemsRef.current = cached.textItems;
+        isScannedRef.current = cached.isScanned;
+        setNoTextContent(cached.isScanned);
+        setMatchCount(0);
+        setPageGenerating(false);
+        return;
+      }
+
       textItemsRef.current = null;
       textContentRef.current = "";
       ocrWordsRef.current = null;
       isScannedRef.current = false;
 
       const page = await pdf.getPage(Math.max(1, Math.min(pageNum, pdf.numPages)));
-
       const viewport1 = page.getViewport({ scale: 1 });
-      const fitScale = Math.max((window.innerWidth * 0.92) / viewport1.width, 1.5);
+      const fitScale = Math.max((window.innerWidth * 0.92) / viewport1.width, 1.0);
 
       const viewport = page.getViewport({ scale: fitScale });
 
@@ -261,11 +303,14 @@ const BookCard = ({
       const context = canvasRef.current.getContext("2d");
       await page.render({ canvasContext: context, viewport }).promise;
 
+      // Cache the rendered page as ImageData
+      const imageData = context.getImageData(0, 0, viewport.width, viewport.height);
+      pageCacheRef.current.set(pageNum, { imageData, width: viewport.width, height: viewport.height });
+
       scaleRef.current = fitScale;
 
       const textContent = await page.getTextContent();
       const isScanned = textContent.items.length === 0;
-      console.log("PDF text items:", textContent.items.length, isScanned ? "(scanned)" : "(has text)");
       isScannedRef.current = isScanned;
       setNoTextContent(isScanned);
 
@@ -276,7 +321,10 @@ const BookCard = ({
         textContentRef.current = pdfText;
         setOcrText(pdfText);
         setOcrError(null);
-        ocrCacheRef.current.set(currentPage, pdfText);
+        ocrCacheRef.current.set(pageNum, pdfText);
+        // Update cache with text data
+        const entry = pageCacheRef.current.get(pageNum);
+        if (entry) { entry.textContent = pdfText; entry.textItems = textContent.items; entry.isScanned = false; }
         if (overlayCanvasRef.current) {
           overlayCanvasRef.current.width = viewport.width;
           overlayCanvasRef.current.height = viewport.height;
@@ -290,6 +338,8 @@ const BookCard = ({
       } else {
         textContentRef.current = "";
         setOcrText("");
+        const entry = pageCacheRef.current.get(pageNum);
+        if (entry) { entry.isScanned = true; }
         if (overlayCanvasRef.current) {
           overlayCanvasRef.current.width = viewport.width;
           overlayCanvasRef.current.height = viewport.height;
@@ -297,8 +347,46 @@ const BookCard = ({
         }
         extractText();
       }
+
+      // Pre-render next page in background (to offscreen canvas, not visible one)
+      const nextPage = pageNum + 1;
+      if (nextPage <= totalPages && !pageCacheRef.current.has(nextPage)) {
+        if (preRenderRef.current) clearTimeout(preRenderRef.current);
+        preRenderRef.current = setTimeout(async () => {
+          const pdf = pdfDocRef.current;
+          if (!pdf) return;
+          try {
+            const oc = document.createElement('canvas');
+            oc.width = 1; oc.height = 1;
+            const octx = oc.getContext("2d");
+            const { page, viewport } = await renderPageToCtx(pdf, nextPage, octx, 0, 0, 1.0);
+            const fullScale = Math.max((window.innerWidth * 0.92) / viewport.width, 1.0);
+            const fullVp = page.getViewport({ scale: fullScale });
+            oc.width = fullVp.width;
+            oc.height = fullVp.height;
+            await page.render({ canvasContext: octx, viewport: fullVp }).promise;
+            const imgData = octx.getImageData(0, 0, fullVp.width, fullVp.height);
+            pageCacheRef.current.set(nextPage, { imageData: imgData, width: fullVp.width, height: fullVp.height });
+            // Get text content
+            const tc = await page.getTextContent();
+            if (tc.items.length > 0) {
+              const entry = pageCacheRef.current.get(nextPage);
+              if (entry) {
+                entry.textContent = tc.items.map(i => i.str).join(" ");
+                entry.textItems = tc.items;
+                entry.isScanned = false;
+              }
+            }
+            page.cleanup();
+          } catch (e) {
+            // Pre-render failed silently
+          }
+        }, 200);
+      }
+      setPageGenerating(false);
     } catch (err) {
       console.error("Page rendering error:", err);
+      setPageGenerating(false);
     }
   };
 
@@ -404,6 +492,19 @@ const BookCard = ({
     setMatchCount(count);
   };
 
+  // Build full-text index from text items for multi-span match support
+  const buildTextIndex = (items) => {
+    let fullText = "";
+    const boundaries = [];
+    for (const item of items) {
+      if (!item.str) continue;
+      const start = fullText.length;
+      fullText += item.str;
+      boundaries.push({ start, end: fullText.length, item });
+    }
+    return { fullText, fullTextLower: fullText.toLowerCase(), boundaries };
+  };
+
   const drawTextHighlights = (overlayContext, viewport, scale, textItems, searchTerm) => {
     overlayContext.clearRect(0, 0, overlayContext.canvas.width, overlayContext.canvas.height);
     if (!searchTerm.trim() || !textItems || textItems.length === 0) {
@@ -412,33 +513,36 @@ const BookCard = ({
     }
 
     const query = searchTerm.toLowerCase().trim();
+    const { fullTextLower, boundaries } = buildTextIndex(textItems);
     let matchCount = 0;
+    let pos = 0;
 
-    for (const item of textItems) {
-      if (!item.str) continue;
-      const itemText = item.str.trim();
-      const itemTextLower = itemText.toLowerCase();
-      if (!itemTextLower.includes(query)) continue;
+    while ((pos = fullTextLower.indexOf(query, pos)) !== -1) {
+      const matchEnd = pos + query.length;
+      matchCount++;
 
-      const x = item.transform?.[4];
-      const y = item.transform?.[5];
-      if (x == null || y == null) continue;
-      let totalW = item.width;
-      const h = item.height || 10;
-      if (h <= 0) continue;
+      for (const b of boundaries) {
+        if (b.start >= matchEnd) break;
+        if (b.end <= pos) continue;
 
-      // totalW can be 0 or undefined for some PDF items; estimate from transform if needed
-      if (!totalW || totalW <= 0) {
-        totalW = itemText.length * 10;
-      }
+        const item = b.item;
+        const x = item.transform?.[4];
+        const y = item.transform?.[5];
+        if (x == null || y == null) continue;
+        let totalW = item.width;
+        const h = item.height || 10;
+        if (h <= 0) continue;
+        if (!totalW || totalW <= 0) {
+          totalW = item.str.length * 10;
+        }
 
-      let startIdx = 0;
-      while ((startIdx = itemTextLower.indexOf(query, startIdx)) !== -1) {
-        matchCount++;
+        const overlapStart = Math.max(pos, b.start);
+        const overlapEnd = Math.min(matchEnd, b.end);
+        const startRel = overlapStart - b.start;
+        const endRel = overlapEnd - b.start;
+        const startRatio = startRel / item.str.length;
+        const endRatio = endRel / item.str.length;
 
-        const endIdx = startIdx + query.length;
-        const startRatio = startIdx / itemText.length;
-        const endRatio = endIdx / itemText.length;
         const cx = (x + startRatio * totalW) * scale;
         const cw = (endRatio - startRatio) * totalW * scale;
         const cy = viewport.height - (y + h) * scale;
@@ -446,9 +550,9 @@ const BookCard = ({
 
         overlayContext.fillStyle = "rgba(255, 255, 0, 0.5)";
         overlayContext.fillRect(cx, cy, cw, ch);
-
-        startIdx = endIdx;
       }
+
+      pos = matchEnd;
     }
 
     setMatchCount(matchCount);
@@ -476,7 +580,8 @@ const BookCard = ({
 
   // Navigate to page
   const goToPage = (pageNum) => {
-    if (pageNum < 1 || pageNum > totalPages) return;
+    if (pageNum < 1) return;
+    if (totalPages > 0 && pageNum > totalPages) return;
 
     setPageTransition(pageNum > currentPage ? 1 : -1);
     setCurrentPage(pageNum);
@@ -489,8 +594,11 @@ const BookCard = ({
       retryRef.current = null;
     }
 
+    if (isSplit) return;
     if (pdfDocRef.current) {
       renderPage(pdfDocRef.current, pageNum, searchQuery);
+    } else {
+      setPageGenerating(true);
     }
   };
 
@@ -559,47 +667,56 @@ const BookCard = ({
 
   const drawSplitPageHighlights = (textContent, pageViewport, query) => {
     const img = imgRef.current;
+    const canvas = canvasRef.current;
     const overlay = overlayCanvasRef.current;
     const ctx = overlay?.getContext("2d");
-    if (!img || !ctx || !query.trim()) return;
+    if (!ctx || !query.trim()) return;
 
-    const imgRect = img.getBoundingClientRect();
-    if (imgRect.width <= 0 || imgRect.height <= 0) return;
+    // Use img for positioning (pages 1-5, or split books), fallback to pdf.js canvas
+    let refEl = img && img.getBoundingClientRect().width > 0 ? img : canvas;
+    if (!refEl || refEl.getBoundingClientRect().width <= 0) return;
+    const refRect = refEl.getBoundingClientRect();
+    if (refRect.width <= 0 || refRect.height <= 0) return;
 
-    overlay.width = imgRect.width;
-    overlay.height = imgRect.height;
+    overlay.width = refRect.width;
+    overlay.height = refRect.height;
 
     const pdfW = pageViewport.width;
     const pdfH = pageViewport.height;
-    const scaleX = imgRect.width / pdfW;
-    const scaleY = imgRect.height / pdfH;
+    const scaleX = refRect.width / pdfW;
+    const scaleY = refRect.height / pdfH;
 
     const lower = query.toLowerCase().trim();
+    const { fullTextLower, boundaries } = buildTextIndex(textContent.items);
     let count = 0;
+    let pos = 0;
 
-    for (const item of textContent.items) {
-      if (!item.str) continue;
-      const itemText = item.str.trim();
-      const itemTextLower = itemText.toLowerCase();
-      if (!itemTextLower.includes(lower)) continue;
+    while ((pos = fullTextLower.indexOf(lower, pos)) !== -1) {
+      const matchEnd = pos + lower.length;
+      count++;
 
-      const x = item.transform?.[4];
-      const y = item.transform?.[5];
-      if (x == null || y == null) continue;
-      let totalW = item.width;
-      const h = item.height || 10;
-      if (h <= 0) continue;
+      for (const b of boundaries) {
+        if (b.start >= matchEnd) break;
+        if (b.end <= pos) continue;
 
-      if (!totalW || totalW <= 0) {
-        totalW = itemText.length * 10;
-      }
+        const item = b.item;
+        const x = item.transform?.[4];
+        const y = item.transform?.[5];
+        if (x == null || y == null) continue;
+        let totalW = item.width;
+        const h = item.height || 10;
+        if (h <= 0) continue;
+        if (!totalW || totalW <= 0) {
+          totalW = item.str.length * 10;
+        }
 
-      let startIdx = 0;
-      while ((startIdx = itemTextLower.indexOf(lower, startIdx)) !== -1) {
-        count++;
-        const endIdx = startIdx + lower.length;
-        const startRatio = startIdx / itemText.length;
-        const endRatio = endIdx / itemText.length;
+        const overlapStart = Math.max(pos, b.start);
+        const overlapEnd = Math.min(matchEnd, b.end);
+        const startRel = overlapStart - b.start;
+        const endRel = overlapEnd - b.start;
+        const startRatio = startRel / item.str.length;
+        const endRatio = endRel / item.str.length;
+
         const cx = (x + startRatio * totalW) * scaleX;
         const cw = (endRatio - startRatio) * totalW * scaleX;
         const cy = (pdfH - y - h) * scaleY;
@@ -607,51 +724,79 @@ const BookCard = ({
 
         ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
         ctx.fillRect(cx, cy, cw, ch);
-
-        startIdx = endIdx;
       }
+
+      pos = matchEnd;
     }
 
     setMatchCount(count);
     if (count > 0) setShowTextPanel(true);
   };
 
-  // Load a single pre-split page PDF for text extraction (split books only)
-  const loadSplitPageForSearch = async (pageNum, query) => {
-    if (!query.trim()) { setMatchCount(0); return; }
-
+  // Try page-{n}.txt + page-{n}.json first, fallback to PDF
+  // Uses per-page promise dedup so concurrent callers share one load
+  const ensurePageText = async (pageNum) => {
     if (ocrCacheRef.current.has(pageNum)) {
-      const cached = ocrCacheRef.current.get(pageNum);
-      doSearch(cached, query);
-      if (ocrWordsRef.current) {
-        drawSplitSearchHighlights(query);
-      }
-      return;
+      return { text: ocrCacheRef.current.get(pageNum), scanned: isScannedRef.current, items: splitTextItemsCacheRef.current.get(pageNum), viewport: splitViewportCacheRef.current.get(pageNum), words: ocrWordsRef.current };
     }
-    if (ocrBusyRef.current) return;
-    ocrBusyRef.current = true;
-    setOcrLoading(true);
-    setOcrError(null);
-    try {
-      const pagePdfUrl = `${pagesUrlPrefix}page-${pageNum}.pdf`;
-      const pdf = await pdfjsLib.getDocument(pagePdfUrl).promise;
-      const page = await pdf.getPage(1);
-      const pageViewport = page.getViewport({ scale: 1 });
-      const textContent = await page.getTextContent();
-      const scanned = textContent.items.length === 0;
-      isScannedRef.current = scanned;
-
-      if (!scanned) {
-        const pdfText = textContent.items.map(i => i.str).join(" ");
-        textContentRef.current = pdfText;
-        ocrCacheRef.current.set(pageNum, pdfText);
-        splitTextItemsCacheRef.current.set(pageNum, textContent.items);
-        splitViewportCacheRef.current.set(pageNum, pageViewport);
-        setOcrText(pdfText);
-        setOcrLoading(false);
-        drawSplitPageHighlights(textContent, pageViewport, query);
-      } else {
-        // Scanned page — render to hidden canvas and OCR
+    const existing = pageTextLoadingRef.current.get(pageNum);
+    if (existing) return existing;
+    const promise = (async () => {
+      setOcrLoading(true);
+      try {
+        const txtUrl = `${pagesUrlPrefix}page-${pageNum}.txt`;
+        const resp = await fetch(txtUrl);
+        if (resp.ok) {
+          const pdfText = await resp.text();
+          textContentRef.current = pdfText;
+          ocrCacheRef.current.set(pageNum, pdfText);
+          isScannedRef.current = false;
+          setOcrText(pdfText);
+          setOcrLoading(false);
+          pageTextLoadingRef.current.delete(pageNum);
+          // Try loading JSON with bounding boxes for instant positional highlights
+          const jsonUrl = `${pagesUrlPrefix}page-${pageNum}.json`;
+          try {
+            const jsonResp = await fetch(jsonUrl);
+            if (jsonResp.ok) {
+              const jsonData = await jsonResp.json();
+              const items = jsonData.items.map(item => ({
+                str: item.str,
+                transform: [0, 0, 0, 0, item.x, item.y],
+                width: item.width,
+                height: item.height || 10,
+              }));
+              const vp = { width: jsonData.pageWidth, height: jsonData.pageHeight };
+              splitTextItemsCacheRef.current.set(pageNum, items);
+              splitViewportCacheRef.current.set(pageNum, vp);
+              return { text: pdfText, scanned: false, items, viewport: vp, words: null };
+            }
+          } catch (_) {}
+          return { text: pdfText, scanned: false, items: null, viewport: null, words: null };
+        }
+      } catch (_) { }
+      // Fallback to PDF
+      try {
+        const pagePdfUrl = `${pagesUrlPrefix}page-${pageNum}.pdf`;
+        const pdf = await pdfjsLib.getDocument(pagePdfUrl).promise;
+        const page = await pdf.getPage(1);
+        const pageViewport = page.getViewport({ scale: 1 });
+        const textContent = await page.getTextContent();
+        const scanned = textContent.items.length === 0;
+        isScannedRef.current = scanned;
+        setNoTextContent(scanned);
+        if (!scanned) {
+          const pdfText = textContent.items.map(i => i.str).join(" ");
+          textContentRef.current = pdfText;
+          ocrCacheRef.current.set(pageNum, pdfText);
+          splitTextItemsCacheRef.current.set(pageNum, textContent.items);
+          splitViewportCacheRef.current.set(pageNum, pageViewport);
+          setOcrText(pdfText);
+          setOcrLoading(false);
+          pageTextLoadingRef.current.delete(pageNum);
+          return { text: pdfText, scanned: false, items: textContent.items, viewport: pageViewport, words: null };
+        }
+        // Scanned — render and OCR
         const viewport = page.getViewport({ scale: 2 });
         if (canvasRef.current) {
           canvasRef.current.width = viewport.width;
@@ -663,9 +808,7 @@ const BookCard = ({
           scaleRef.current = 2;
         }
         const { data } = await Tesseract.recognize(canvasRef.current, "ara+eng", {
-          logger: (m) => {
-            if (m.status === "recognizing text") setOcrLoading(true);
-          },
+          logger: (m) => { if (m.status === "recognizing text") setOcrLoading(true); },
         });
         const text = data.text || "";
         textContentRef.current = text;
@@ -673,16 +816,41 @@ const BookCard = ({
         ocrWordsRef.current = data.words || null;
         setOcrText(text);
         setOcrLoading(false);
-        drawOcrHighlights(query);
-        if (!ocrWordsRef.current) doSearch(text, query);
+        pageTextLoadingRef.current.delete(pageNum);
+        return { text, scanned: true, items: null, viewport: null, words: data.words || null };
+      } catch (err) {
+        console.error("Split page search failed:", err);
+        setOcrError(err.message || "Failed to load page for search");
+        setOcrLoading(false);
+        pageTextLoadingRef.current.delete(pageNum);
+        return null;
       }
-    } catch (err) {
-      console.error("Split page search failed:", err);
-      setOcrError(err.message || "Failed to load page for search");
-      setOcrLoading(false);
-    } finally {
-      ocrBusyRef.current = false;
+    })();
+    pageTextLoadingRef.current.set(pageNum, promise);
+    return promise;
+  };
+
+  const loadSplitPageForSearch = async (pageNum, query) => {
+    if (!query.trim()) { setMatchCount(0); return; }
+
+    if (ocrCacheRef.current.has(pageNum)) {
+      const cached = ocrCacheRef.current.get(pageNum);
+      doSearch(cached, query);
+      if (ocrWordsRef.current) {
+        drawSplitSearchHighlights(query);
+      } else if (splitTextItemsCacheRef.current.has(pageNum)) {
+        const items = splitTextItemsCacheRef.current.get(pageNum);
+        const vp = splitViewportCacheRef.current.get(pageNum);
+        if (items && vp) drawSplitPageHighlights({ items }, vp, query);
+      }
+      return;
     }
+    setOcrError(null);
+    const result = await ensurePageText(pageNum);
+    if (!result) return;
+    doSearch(result.text, query);
+    if (result.words) drawOcrHighlights(query);
+    if (result.items) drawSplitPageHighlights({ items: result.items }, result.viewport, query);
   };
 
   const handleSearchChange = (e) => {
@@ -893,28 +1061,76 @@ const BookCard = ({
                 </div>
 
                 {/* Navigation Controls */}
-                <div className="p-3 bg-white flex justify-between items-center gap-2 border-b border-gray-200">
-                  <button
-                    onClick={goToPreviousPage}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                    <span className="text-sm hidden sm:inline">{t("islamicBooks.previous")}</span>
-                  </button>
+                <div className="p-3 bg-white flex flex-wrap items-center gap-2 border-b border-gray-200">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={goToPreviousPage}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold text-sm"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="text-xs hidden sm:inline">{t("islamicBooks.previous")}</span>
+                    </button>
 
-                  <div className="text-center text-black font-bold text-lg px-6 py-2 bg-gray-100 rounded-lg">
-                    {totalPages > 0 ? `${currentPage} / ${totalPages}` : "0 / 0"}
+                    <div className="text-center text-black font-bold text-base px-3 py-2 bg-gray-100 rounded-lg min-w-[80px]">
+                      {totalPages > 0 ? `${currentPage} / ${totalPages}` : `${currentPage}`}
+                    </div>
+
+                    <button
+                      onClick={goToNextPage}
+                      disabled={totalPages > 0 && currentPage >= totalPages}
+                      className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold text-sm"
+                    >
+                      <span className="text-xs hidden sm:inline">{t("islamicBooks.next")}</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
 
-                  <button
-                    onClick={goToNextPage}
-                    disabled={currentPage >= totalPages}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold"
-                  >
-                    <span className="text-sm hidden sm:inline">{t("islamicBooks.next")}</span>
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
+                  <div className="flex items-center gap-1 ml-auto">
+                    <input
+                      type="number"
+                      min={1}
+                      value={pageInput}
+                      onChange={(e) => setPageInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const p = parseInt(pageInput);
+                          if (p >= 1) goToPage(p);
+                          setPageInput("");
+                        }
+                      }}
+                      placeholder={totalPages > 0 ? `1-${totalPages}` : "Page #"}
+                      className="w-16 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm text-center text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => {
+                        const p = parseInt(pageInput);
+                        if (p >= 1) { goToPage(p); setPageInput(""); }
+                      }}
+                      disabled={!pageInput}
+                      className="px-3 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-semibold"
+                    >
+                      Go
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        if (!document.fullscreenElement) {
+                          document.querySelector('.book-viewer')?.requestFullscreen();
+                          setIsFullscreen(true);
+                        } else {
+                          document.exitFullscreen();
+                          setIsFullscreen(false);
+                        }
+                      }}
+                      className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                      title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                    >
+                      {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 {ocrLoading && (
@@ -925,8 +1141,7 @@ const BookCard = ({
               </div>
 
               {/* PDF / Image Display Area */}
-              <div className="flex-1 bg-gray-300 flex items-start justify-center p-2 overflow-auto relative">
-                {/* Always render content so canvasRef stays valid */}
+              <div className="flex-1 bg-gray-300 flex items-start justify-center overflow-auto relative book-viewer">
                 <motion.div
                   key={currentPage}
                   custom={pageTransition}
@@ -938,40 +1153,21 @@ const BookCard = ({
                     x: { type: "spring", stiffness: 300, damping: 30 },
                     opacity: { duration: 0.2 },
                   }}
-                  className="relative bg-white rounded-lg shadow-2xl"
+                  className="relative bg-white rounded-lg shadow-2xl m-2"
                 >
-                  {/* Visible display container (sized by content) */}
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                    }}
-                  >
-                    {/* Main canvas — hidden for split, visible for non-split (always rendered for search/OCR) */}
-                    <canvas
-                      ref={canvasRef}
-                      style={{
-                        display: isSplit ? "none" : "block",
-                        imageRendering: "high-quality",
-                      }}
-                    />
-
-                    {/* Pre-rendered page image — shown only for split books */}
-                    {isSplit && (
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                    {/* Loading spinner — shown for any book when generating page */}
+                    {pageGenerating && (
+                      <div className="flex items-center justify-center p-16 min-h-[300px]">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="animate-spin rounded-full h-8 w-8 border-3 border-gray-300 border-t-amber-500"></div>
+                          <p className="text-gray-500 text-sm font-medium">Loading page {currentPage}...</p>
+                        </div>
+                      </div>
+                    )}
+                    {/* Page image — displayed when available (all pages after processing) */}
+                    {!imgError && (
                       <>
-                        {!imgLoaded && !imgError && !pageGenerating && (
-                          <div className="flex items-center justify-center p-16 min-h-[300px]">
-                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-300 border-t-blue-600"></div>
-                          </div>
-                        )}
-                        {pageGenerating && (
-                          <div className="flex items-center justify-center p-16 min-h-[300px]">
-                            <div className="flex flex-col items-center gap-3">
-                              <div className="animate-spin rounded-full h-8 w-8 border-3 border-gray-300 border-t-amber-500"></div>
-                              <p className="text-gray-500 text-sm font-medium">Generating page {currentPage}...</p>
-                            </div>
-                          </div>
-                        )}
                         <img
                           ref={imgRef}
                           src={`${pagesUrlPrefix}page-${currentPage}.jpg`}
@@ -980,30 +1176,27 @@ const BookCard = ({
                             setImgLoaded(true);
                             setImgError(false);
                             setPageGenerating(false);
-                            if (retryRef.current) {
-                              clearTimeout(retryRef.current);
-                              retryRef.current = null;
-                            }
+                            if (retryRef.current) { clearTimeout(retryRef.current); retryRef.current = null; }
                             retryCountRef.current = 0;
                           }}
-                          onError={() => {
-                            if (processingStatus === "processing" || processingStatus === "pending") {
-                              if (retryCountRef.current < 60) {
-                                setPageGenerating(true);
-                                setImgLoaded(false);
-                                retryCountRef.current += 1;
-                                retryRef.current = setTimeout(() => {
-                                  if (imgRef.current) {
-                                    imgRef.current.src = `${pagesUrlPrefix}page-${currentPage}.jpg?retry=${Date.now()}`;
-                                  }
-                                }, 3000);
-                              } else {
-                                setImgError(true);
-                                setPageGenerating(false);
-                              }
+                            onError={() => {
+                            if (isSplit || currentPage === 1) {
+                              if (processingStatus === "processing" || processingStatus === "pending") {
+                                if (retryCountRef.current < 60) {
+                                  setPageGenerating(true); setImgLoaded(false);
+                                  retryCountRef.current += 1;
+                                  retryRef.current = setTimeout(() => {
+                                    if (imgRef.current) imgRef.current.src = `${pagesUrlPrefix}page-${currentPage}.jpg?retry=${Date.now()}`;
+                                  }, 3000);
+                                } else { setImgError(true); setPageGenerating(false); }
+                              } else { setImgError(true); setImgLoaded(true); setPageGenerating(true); }
                             } else {
                               setImgError(true);
-                              setImgLoaded(true);
+                              setImgLoaded(false);
+                              setPageGenerating(true);
+                              if (pdfDocRef.current) {
+                                renderPage(pdfDocRef.current, currentPage, searchQuery);
+                              }
                             }
                           }}
                           className="max-w-full h-auto"
@@ -1012,45 +1205,32 @@ const BookCard = ({
                       </>
                     )}
 
-                    {/* Overlay canvas — always visible, matches container via CSS */}
+                    {/* pdf.js canvas — shown when image unavailable or for search highlights */}
+                    <canvas
+                      ref={canvasRef}
+                      style={{
+                        display: isSplit || (!imgError && imgLoaded) ? 'none' : 'block',
+                        imageRendering: "high-quality",
+                      }}
+                    />
+
                     <canvas
                       ref={overlayCanvasRef}
                       style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        pointerEvents: "none",
+                        position: "absolute", top: 0, left: 0,
+                        width: "100%", height: "100%", pointerEvents: "none",
                       }}
                     />
                   </div>
                 </motion.div>
 
-                {/* Loading overlay */}
-                {loading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/90 z-10">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-300 border-t-blue-600"></div>
-                      <p className="text-black font-semibold text-lg">
-                        {t("islamicBooks.loading")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 {/* Error overlay */}
                 {error && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
                     <div className="text-center text-red-600 p-8">
-                      <p className="text-lg font-bold mb-4 text-black">
-                        {t("islamicBooks.failedToLoad")}
-                      </p>
+                      <p className="text-lg font-bold mb-4 text-black">{t("islamicBooks.failedToLoad")}</p>
                       <p className="text-red-500 mb-6">{error}</p>
-                      <button
-                        onClick={() => setIsOpen(false)}
-                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
-                      >
+                      <button onClick={() => setIsOpen(false)} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
                         {t("islamicBooks.close")}
                       </button>
                     </div>
