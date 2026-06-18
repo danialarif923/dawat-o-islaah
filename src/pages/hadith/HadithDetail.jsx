@@ -121,27 +121,14 @@ const HadithDetail = () => {
           />
         </div>
 
-        {language === "ur" ? (
-          <div className="flex flex-row gap-6 pt-2">
-            <div className="flex-1 text-left text-gray-800 leading-12"
-              dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
-            />
-            <div className="flex-1 text-right text-lg leading-12"
-              dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
-            />
-          </div>
-        ) : (
-          <>
-            <div
-              className="text-lg leading-12 pt-2 text-right"
-              dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
-            />
-            <div
-              className="text-gray-800 pt-2 leading-12"
-              dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
-            />
-          </>
-        )}
+        <div
+          className="text-lg leading-12 pt-2 text-right"
+          dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
+        />
+        <div
+          className="text-gray-800 pt-2 leading-12"
+          dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
+        />
 
         {hadith?.reference && (() => {
           const cleanRef = hadith.reference.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, "");
