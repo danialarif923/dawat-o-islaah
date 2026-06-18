@@ -126,7 +126,7 @@ const HadithDetail = () => {
           dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
         />
         <div
-          className="text-gray-800 pt-2 leading-12"
+          className="text-gray-800 pt-2 leading-12 text-left"
           dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
         />
 
