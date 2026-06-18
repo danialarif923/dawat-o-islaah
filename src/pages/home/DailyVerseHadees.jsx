@@ -110,7 +110,7 @@ ${item.english}
             ${item.reference}
           </p>
 
-          <p style="font-size:11px;text-align:center;color:#555;margin:8px 0 0;">
+          <p style="font-size:11px;text-align:center;color:#000000;margin:8px 0 0;">
             ${formattedDate}
           </p>
         </div>
