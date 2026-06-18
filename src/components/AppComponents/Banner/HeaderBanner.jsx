@@ -290,7 +290,8 @@ const HeaderBanner = () => {
 
         {/* Current Prayer Status */}
         <div
-          className={`hidden sm:flex items-center gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}
+          className="hidden sm:flex items-center gap-2"
+          dir={language === "ur" ? "rtl" : "ltr"}
           style={{ order: language === "ur" ? 3 : 2 }}
         >
           <span className="text-green-300 whitespace-nowrap">
@@ -350,7 +351,7 @@ const HeaderBanner = () => {
 
       {/* Mobile Prayer Summary */}
       <div className="sm:hidden mt-2 pt-2 border-t border-[#2A4A6B]">
-        <div className={`flex justify-between items-center ${language === "ur" ? "flex-row-reverse" : ""}`}>
+        <div className="flex justify-between items-center" dir={language === "ur" ? "rtl" : "ltr"}>
           <span className="text-green-300">
             {t("headerBanner.current")}: {t(`islamicTools.prayerTimings.prayerNames.${currentPrayer}`)}
           </span>
