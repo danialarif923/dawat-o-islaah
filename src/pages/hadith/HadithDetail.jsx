@@ -96,6 +96,7 @@ const HadithDetail = () => {
           <div className="text-sm text-gray-500">
             {hadith?.status && (
               <span>
+                <span className="font-semibold">{language === "ur" ? "حالت:" : "Status:"}</span>{" "}
                 <span className={`font-semibold ${hadith.status === "Sahih" ? "text-green-600" : "text-red-600"}`}>
                   {language === "ur" ? (STATUS_URDU[hadith.status] || hadith.status) : hadith.status}
                 </span>
