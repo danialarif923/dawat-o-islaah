@@ -445,7 +445,7 @@ const AyahDetail = () => {
                     onClick={() => setExpandedTafsir(!expandedTafsir)}
                     className="mt-2 text-emerald-600 text-sm font-bold hover:underline"
                   >
-                    {expandedTafsir ? t("qnaPage.readLess") : t("qnaPage.readMore")}
+                    {expandedTafsir ? t("qna.readLess") : t("qna.readMore")}
                   </button>
                 )}
               </>
