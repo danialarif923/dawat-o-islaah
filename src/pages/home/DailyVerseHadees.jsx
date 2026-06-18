@@ -88,9 +88,7 @@ ${item.english}
         </div>
 
         <div style="padding:24px 24px 8px;position:relative;overflow:hidden;">
-          ${type === "verse" ? `
-          <div style="position:absolute;inset:0;background-image:url(/assets/verse-of-the-day-background.jpeg);background-size:cover;background-position:center;opacity:0.45;filter:blur(3px);"></div>
-          ` : ""}
+          <div style="position:absolute;inset:0;background-image:url(${type === "verse" ? "/assets/verse-of-the-day-background.jpeg" : "/assets/hadith-of-the-day-background.jpg"});background-size:cover;background-position:center;opacity:0.45;filter:blur(3px);"></div>
           <div style="position:relative;z-index:1;">
           <p style="font-family:${safeArabicFont};font-size:30px;direction:rtl;text-align:center;line-height:2;margin:0 0 16px;color:#000000;">
             ${item.arabic}
@@ -350,75 +348,43 @@ ${item.english}
         {title}
       </h3>
 
-      {type === "verse" ? (
-        <div style={{ ...cardStyle, borderTop: `4px solid ${color}`, position: "relative", overflow: "hidden" }}>
-          <div style={{
-            position: "absolute", inset: 0,
-            backgroundImage: "url(/assets/verse-of-the-day-background.jpeg)",
-            backgroundSize: "cover", backgroundPosition: "center",
-            opacity: 0.45, filter: "blur(3px)",
-          }} />
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <p className="font-quran" style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
-              {item.arabic}
-            </p>
-            <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
-              {item.urdu}
-            </p>
-            <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
-              {item.english}
-            </p>
-            <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
-              {item.reference}
-            </p>
-          </div>
-          <div className="flex items-center gap-3 mt-5 justify-center" style={{ position: "relative", zIndex: 1 }}>
-            <button
-              onClick={() => copyText(item)}
-              className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
-            >
-              <FaCopy /> Copy Text
-            </button>
-            <button
-              onClick={() => openShareModal(item, type)}
-              disabled={!fontsLoaded}
-              className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
-            >
-              <FaShareAlt className="text-gray-700" /> Share Image
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div style={{ ...cardStyle, borderTop: `4px solid ${color}` }}>
-          <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
+      <div style={{ ...cardStyle, borderTop: `4px solid ${color}`, position: "relative", overflow: "hidden" }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `url(${type === "verse" ? "/assets/verse-of-the-day-background.jpeg" : "/assets/hadith-of-the-day-background.jpg"})`,
+          backgroundSize: "cover", backgroundPosition: "center",
+          opacity: 0.45, filter: "blur(3px)",
+        }} />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl", color: "#000000" }}>
             {item.arabic}
           </p>
-          <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
+          <p style={{ fontSize: 18, textAlign: "center", marginTop: 10, color: "#000000" }}>
             {item.urdu}
           </p>
-          <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
+          <p style={{ fontSize: 16, textAlign: "center", marginTop: 10, color: "#000000" }}>
             {item.english}
           </p>
-          <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
+          <p style={{ fontSize: 12, textAlign: "right", marginTop: 14, color: "#000000" }}>
             {item.reference}
           </p>
-          <div className="flex items-center gap-3 mt-5 justify-center">
-            <button
-              onClick={() => copyText(item)}
-              className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
-            >
-              <FaCopy /> Copy Text
-            </button>
-            <button
-              onClick={() => openShareModal(item, type)}
-              disabled={!fontsLoaded}
-              className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
-            >
-              <FaShareAlt className="text-gray-700" /> Share Image
-            </button>
-          </div>
         </div>
-      )}
+        <div className="flex items-center gap-3 mt-5 justify-center" style={{ position: "relative", zIndex: 1 }}>
+          <button
+            onClick={() => copyText(item)}
+            className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
+          >
+            <FaCopy /> Copy Text
+          </button>
+          <button
+            onClick={() => openShareModal(item, type)}
+            disabled={!fontsLoaded}
+            className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
+          >
+            <FaShareAlt className="text-gray-700" /> Share Image
+          </button>
+        </div>
+      </div>
     </div>
   );
 
