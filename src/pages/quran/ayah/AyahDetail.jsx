@@ -205,8 +205,8 @@ const AyahDetail = () => {
         </button>
       </div>
 
-      <div className="flex items-center gap-6 my-6">
-        <div className="flex items-center gap-2">
+      <div className={`flex items-center gap-6 my-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
           <span>{t("quranDetails.translations")}</span>
           <div
             onClick={() => setTranslationsEnabled(!translationsEnabled)}
@@ -221,7 +221,7 @@ const AyahDetail = () => {
             />
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
           <span>{t("quranDetails.tafsir")}</span>
           <div
             onClick={() => setTafsirEnabled(!tafsirEnabled)}
