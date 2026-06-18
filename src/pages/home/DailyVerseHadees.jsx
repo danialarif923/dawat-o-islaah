@@ -117,7 +117,7 @@ ${item.english}
           text-align:center;
           border-top:1px solid #eee;
         ">
-          <span style="font-size:11px;color:#999;">
+          <span style="font-size:11px;color:#000000;">
             ${type === "verse" ? "آیتِ الیوم" : "حدیثِ الیوم"} &bull; Dawat-o-Islaah
           </span>
         </div>
