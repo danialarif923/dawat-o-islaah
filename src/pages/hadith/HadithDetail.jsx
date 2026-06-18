@@ -92,12 +92,12 @@ const HadithDetail = () => {
       </div>
 
       <div className="bg-white p-6 md:p-10 rounded-lg shadow-md border-l-4 border-l-blue-600">
-        <div className={`flex flex-col mb-2 ${language === "ur" ? "items-end" : "items-start"}`}>
+        <div className="flex flex-col mb-2 items-end">
           {hadith?.chapter?.chapterArabic && (
-            <p className={`text-xl font-quran text-gray-600 leading-8 ${language === "ur" ? "w-full" : ""}`} style={language === "ur" ? { textAlign: "right" } : {}}>{hadith.chapter.chapterArabic}</p>
+            <p className="text-xl font-quran text-gray-600 leading-8 w-full" style={{ textAlign: "right" }}>{hadith.chapter.chapterArabic}</p>
           )}
           {hadith?.chapter?.chapterUrdu && hadith.chapter.chapterUrdu !== hadith.chapter.chapterEnglish && (
-            <p className={`text-md text-gray-500 leading-8 ${language === "ur" ? "text-right w-full" : ""}`}>{hadith.chapter.chapterUrdu}</p>
+            <p className="text-md text-gray-500 leading-8 w-full text-right">{hadith.chapter.chapterUrdu}</p>
           )}
         </div>
 
