@@ -89,7 +89,7 @@ ${item.english}
 
         <div style="padding:24px 24px 8px;position:relative;overflow:hidden;">
           ${type === "verse" ? `
-          <div style="position:absolute;inset:0;background-image:url(/assets/verse-of-the-day-background.jpeg);background-size:cover;background-position:center;opacity:0.2;filter:blur(4px);"></div>
+          <div style="position:absolute;inset:0;background-image:url(/assets/verse-of-the-day-background.jpeg);background-size:cover;background-position:center;opacity:0.45;filter:blur(3px);"></div>
           ` : ""}
           <div style="position:relative;z-index:1;">
           <div style="
@@ -367,7 +367,7 @@ ${item.english}
             position: "absolute", inset: 0,
             backgroundImage: "url(/assets/verse-of-the-day-background.jpeg)",
             backgroundSize: "cover", backgroundPosition: "center",
-            opacity: 0.2, filter: "blur(4px)",
+            opacity: 0.45, filter: "blur(3px)",
           }} />
           <div style={{ position: "relative", zIndex: 1 }}>
             <p className="font-quran" style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
