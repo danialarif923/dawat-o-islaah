@@ -44,7 +44,7 @@ const AyahDetail = () => {
   );
 
   const [showDropdown, setShowDropdown] = useState({ en: false, ur: false });
-  const [translationsEnabled, setTranslationsEnabled] = useState(true);
+  const [translationsEnabled, setTranslationsEnabled] = useState(false);
   const [tafsirEnabled, setTafsirEnabled] = useState(false);
   const dropdownRef = useRef(null);
   const audioRef = useRef(null);
@@ -107,6 +107,23 @@ const AyahDetail = () => {
       if (audioRef.current) audioRef.current.pause();
     };
   }, []);
+
+  useEffect(() => {
+    if (translationsEnabled) {
+      const en = (translationAuthors?.en || []).find((a) => a.name === "AHMED RAZA KHAN");
+      const ur = (translationAuthors?.ur || []).find((a) => a.name === "احمد رضا خان");
+      setSelectedTranslations({
+        en: en ? [{ name: en.name }] : [],
+        ur: ur ? [{ name: ur.name }] : [],
+      });
+    }
+  }, [translationsEnabled]);
+
+  useEffect(() => {
+    if (tafsirEnabled) {
+      setSelectedTafsirAuthor(null);
+    }
+  }, [tafsirEnabled]);
 
   const formatTafsirContent = (text) => {
     if (!text) return "";

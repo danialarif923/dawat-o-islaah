@@ -126,18 +126,25 @@ const useSurah = (surahNumber) => {
 
         setQaris(qariRes?.qaris || []);
 
-        // Default: all translations selected
-        setSelectedTranslations({
-          en: enTransAuthors.map((a) => ({ name: a.name })),
-          ur: urTransAuthors.map((a) => ({ name: a.name })),
-        });
+        // Default: only Ahmed Raza Khan translations selected
+        const findAhmedRaza = (authors, nameEn, nameUr) => {
+          const en = authors.en.find((a) => a.name === nameEn);
+          const ur = authors.ur.find((a) => a.name === nameUr);
+          return {
+            en: en ? [{ name: en.name }] : [],
+            ur: ur ? [{ name: ur.name }] : [],
+          };
+        };
+        setSelectedTranslations(
+          findAhmedRaza(
+            { en: enTransAuthors, ur: urTransAuthors },
+            "AHMED RAZA KHAN",
+            "احمد رضا خان"
+          )
+        );
 
-        // Default tafsir author (based on language)
-        if (tafsirLang === "ur" && urTafsirAuthors.length) {
-          setSelectedTafsirAuthor(urTafsirAuthors[0].name);
-        } else if (tafsirLang === "en" && enTafsirAuthors.length) {
-          setSelectedTafsirAuthor(enTafsirAuthors[0].name);
-        }
+        // Default tafsir author: none
+        setSelectedTafsirAuthor(null);
 
         setSelectedQari(qariRes?.qaris?.[0] || null);
       } catch (err) {
