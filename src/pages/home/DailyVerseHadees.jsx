@@ -343,23 +343,23 @@ ${item.english}
   };
 
   const renderCard = (item, type, title, color) => (
-    <div>
+    <div className="flex flex-col h-full">
       <h3 className="text-xl font-semibold text-gray-700 mb-2 text-center">
         {title}
       </h3>
 
-      <div style={{ ...cardStyle, borderTop: `4px solid ${color}` }}>
-        <div>
-          <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
+      <div style={{ ...cardStyle, borderTop: `4px solid ${color}`, flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl", width: "100%" }}>
             {item.arabic}
           </p>
-          <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
+          <p style={{ fontSize: 18, textAlign: "center", marginTop: 10, width: "100%" }}>
             {item.urdu}
           </p>
-          <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
+          <p style={{ fontSize: 16, textAlign: "center", marginTop: 10, width: "100%" }}>
             {item.english}
           </p>
-          <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
+          <p style={{ fontSize: 12, textAlign: "center", marginTop: 14, width: "100%" }}>
             {item.reference}
           </p>
         </div>
