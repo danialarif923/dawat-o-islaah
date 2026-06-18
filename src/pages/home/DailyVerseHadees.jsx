@@ -60,6 +60,8 @@ ${item.english}
   };
 
   const generateImage = async (item, type) => {
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
     const quranFont = (getComputedStyle(document.documentElement).getPropertyValue("--quran-font").trim() || "'1 MUHAMMADI QURANIC', 'Amiri', serif").replace(/"/g, "'");
     const arabicFont = type === "verse" ? quranFont : "'TraditionNaskh', 'Noto Nastaliq Urdu', serif";
     const safeArabicFont = arabicFont || "'1 MUHAMMADI QURANIC', 'Amiri', serif";
@@ -106,6 +108,10 @@ ${item.english}
 
           <p style="font-size:12px;text-align:right;color:#000000;margin:0 0 8px;font-style:italic;">
             ${item.reference}
+          </p>
+
+          <p style="font-size:11px;text-align:center;color:#555;margin:8px 0 0;">
+            ${formattedDate}
           </p>
         </div>
 
