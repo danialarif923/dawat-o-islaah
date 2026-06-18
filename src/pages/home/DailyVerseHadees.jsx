@@ -92,32 +92,21 @@ ${item.english}
           <div style="position:absolute;inset:0;background-image:url(/assets/verse-of-the-day-background.jpeg);background-size:cover;background-position:center;opacity:0.45;filter:blur(3px);"></div>
           ` : ""}
           <div style="position:relative;z-index:1;">
-          <div style="
-            background:${c.light};
-            border-radius:50%;
-            width:40px;height:40px;
-            display:flex;align-items:center;justify-content:center;
-            margin:0 auto 16px;
-            font-size:20px;
-          ">
-            ${type === "verse" ? "&#x1F4D6;" : "&#x1F4F0;"}
-          </div>
-
-          <p style="font-family:${safeArabicFont};font-size:30px;direction:rtl;text-align:center;line-height:2;margin:0 0 16px;">
+          <p style="font-family:${safeArabicFont};font-size:30px;direction:rtl;text-align:center;line-height:2;margin:0 0 16px;color:#000000;">
             ${item.arabic}
           </p>
 
           <div style="height:1px;background:linear-gradient(to right,transparent,${c.primary}40,transparent);margin:12px 0;"></div>
 
-          <p style="font-family:'Noto Nastaliq Urdu Local', 'Noto Nastaliq Urdu', serif;font-size:18px;text-align:center;line-height:1.8;margin:0 0 12px;color:#1a1a1a;">
+          <p style="font-family:'Noto Nastaliq Urdu Local', 'Noto Nastaliq Urdu', serif;font-size:18px;text-align:center;line-height:1.8;margin:0 0 12px;color:#000000;">
             ${item.urdu}
           </p>
 
-          <p style="font-family:'Merriweather', serif;font-size:15px;text-align:center;line-height:1.6;margin:0 0 12px;color:#444;">
+          <p style="font-family:'Merriweather', serif;font-size:15px;text-align:center;line-height:1.6;margin:0 0 12px;color:#000000;">
             ${item.english}
           </p>
 
-          <p style="font-size:12px;text-align:right;color:#888;margin:0 0 8px;font-style:italic;">
+          <p style="font-size:12px;text-align:right;color:#000000;margin:0 0 8px;font-style:italic;">
             ${item.reference}
           </p>
         </div>
