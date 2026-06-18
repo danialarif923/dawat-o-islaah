@@ -27,10 +27,10 @@ const HadithCard = ({ hadith }) => {
     <div
       ref={isActive ? cardRef : null}
       onClick={() => navigate(`/hadith/${hadith.bookSlug}/${hadith.chapter.chapterNumber}/hadith/${hadith.hadithNumber}`)}
-      className={`p-6 rounded-lg shadow-md mb-4 transition-all border-l-4 cursor-pointer hover:shadow-lg ${
+      className={`p-6 rounded-lg shadow-md mb-4 transition-all border-2 cursor-pointer hover:shadow-xl hover:border-emerald-400 ${
         isActive
-          ? "bg-green-50 border-l-green-600 ring-2 ring-green-300"
-          : "bg-white border-l-blue-600"
+          ? "border-green-600 bg-green-50 ring-2 ring-green-300"
+          : "border-neutral-200"
       }`}
     >
       <div
