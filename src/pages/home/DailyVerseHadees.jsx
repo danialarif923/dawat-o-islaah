@@ -79,6 +79,7 @@ ${item.english}
         overflow:hidden;
         box-shadow:0 8px 30px rgba(0,0,0,0.12);
         font-family:'Segoe UI',system-ui,sans-serif;
+        color:#000000;
       ">
         <div style="
           background:linear-gradient(135deg, ${c.primary}, ${c.dark});
