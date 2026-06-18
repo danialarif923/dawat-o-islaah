@@ -205,8 +205,9 @@ const AyahDetail = () => {
         </button>
       </div>
 
-      <div className={`flex items-center gap-6 my-6 ${isRtl ? "flex-row-reverse" : ""}`}>
-        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+      <div className="flex items-center gap-6 my-6">
+        <div className="flex items-center gap-2">
+          <span>{t("quranDetails.translations")}</span>
           <div
             onClick={() => setTranslationsEnabled(!translationsEnabled)}
             className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer ${
@@ -219,9 +220,9 @@ const AyahDetail = () => {
               }`}
             />
           </div>
-          <span>{t("quranDetails.translations")}</span>
         </div>
-        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className="flex items-center gap-2">
+          <span>{t("quranDetails.tafsir")}</span>
           <div
             onClick={() => setTafsirEnabled(!tafsirEnabled)}
             className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer ${
@@ -234,7 +235,6 @@ const AyahDetail = () => {
               }`}
             />
           </div>
-          <span>{t("quranDetails.tafsir")}</span>
         </div>
       </div>
 
