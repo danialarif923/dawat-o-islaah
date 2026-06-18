@@ -133,7 +133,7 @@ const HadithDetail = () => {
         ) : (
           <>
             <div
-              className="text-lg leading-12 pt-2"
+              className="text-lg leading-12 pt-2 text-right"
               dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
             />
             <div
