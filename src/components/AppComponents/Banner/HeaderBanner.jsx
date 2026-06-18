@@ -307,7 +307,13 @@ const HeaderBanner = () => {
           dir={language === "ur" ? "rtl" : "ltr"}
           style={{ order: language === "ur" ? 2 : 3 }}
         >
-          <h1 className="whitespace-nowrap">{t("headerBanner.prayerTimes")}</h1>
+          <h1 className="whitespace-nowrap">
+            {language === "ur" ? (
+              <span dir="rtl">{t("headerBanner.prayerTimes")}<span dir="ltr">:</span></span>
+            ) : (
+              <span>{t("headerBanner.prayerTimes")}:</span>
+            )}
+          </h1>
           {Object.entries(prayerTimes).map(([prayer, time], index, array) => (
             <h1
               key={prayer}
