@@ -205,9 +205,8 @@ const AyahDetail = () => {
         </button>
       </div>
 
-      <div className="flex items-center gap-6 my-6">
-        <div className="flex items-center gap-2">
-          <span>{t("quranDetails.translations")}</span>
+      <div className={`flex items-center gap-6 my-6 ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
           <div
             onClick={() => setTranslationsEnabled(!translationsEnabled)}
             className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer ${
@@ -220,9 +219,9 @@ const AyahDetail = () => {
               }`}
             />
           </div>
+          <span>{t("quranDetails.translations")}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span>{t("quranDetails.tafsir")}</span>
+        <div className={`flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}>
           <div
             onClick={() => setTafsirEnabled(!tafsirEnabled)}
             className={`w-14 h-8 flex items-center rounded-full p-1 cursor-pointer ${
@@ -235,6 +234,7 @@ const AyahDetail = () => {
               }`}
             />
           </div>
+          <span>{t("quranDetails.tafsir")}</span>
         </div>
       </div>
 
@@ -301,8 +301,8 @@ const AyahDetail = () => {
               tafsirEnabled ? "bg-white" : "bg-gray-200 text-gray-500"
             }`}
           >
-            <option value="ur">Urdu Tafsir</option>
-            <option value="en">English Tafsir</option>
+            <option value="ur">{isRtl ? "اردو تفسیر" : "Urdu Tafsir"}</option>
+            <option value="en">{isRtl ? "انگریزی تفسیر" : "English Tafsir"}</option>
           </select>
           <select
             disabled={!tafsirEnabled}
@@ -313,7 +313,9 @@ const AyahDetail = () => {
             }`}
           >
             <option value="">
-              Select {tafsirLang === "en" ? "English" : "Urdu"} Tafsir
+              {isRtl
+                ? `${tafsirLang === "en" ? "انگریزی" : "اردو"} تفسیر منتخب کریں`
+                : `Select ${tafsirLang === "en" ? "English" : "Urdu"} Tafsir`}
             </option>
             {tafsirAuthors?.[tafsirLang]?.map((author) => (
               <option key={author.id} value={author.name}>
@@ -391,7 +393,7 @@ const AyahDetail = () => {
       {tafsirEnabled && selectedTafsirAuthor && (
         <div className="bg-gray-50 p-6 rounded-lg border">
           <p className="text-sm text-emerald-800 mb-2 font-bold">
-            {selectedTafsirAuthor} — Tafsir
+            {selectedTafsirAuthor} — {t("quranDetails.tafsir")}
           </p>
           {(() => {
             const rawTafsir = (
@@ -426,7 +428,7 @@ const AyahDetail = () => {
                     onClick={() => setExpandedTafsir(!expandedTafsir)}
                     className="mt-2 text-emerald-600 text-sm font-bold hover:underline"
                   >
-                    {expandedTafsir ? "Read Less" : "Read More"}
+                    {expandedTafsir ? t("qnaPage.readLess") : t("qnaPage.readMore")}
                   </button>
                 )}
               </>
