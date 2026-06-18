@@ -92,13 +92,24 @@ const HadithDetail = () => {
       </div>
 
       <div className="bg-white p-6 md:p-10 rounded-lg shadow-md border-l-4 border-l-blue-600">
-        <div className="flex flex-col mb-2 items-end">
-          {hadith?.chapter?.chapterArabic && (
-            <p className="text-xl font-quran text-gray-600 leading-8 w-full" style={{ textAlign: "right" }}>{hadith.chapter.chapterArabic}</p>
-          )}
-          {hadith?.chapter?.chapterUrdu && hadith.chapter.chapterUrdu !== hadith.chapter.chapterEnglish && (
-            <p className="text-md text-gray-500 leading-8 w-full text-right">{hadith.chapter.chapterUrdu}</p>
-          )}
+        <div className="flex justify-between items-start mb-2">
+          <div className="text-sm text-gray-500">
+            {hadith?.status && (
+              <span>
+                <span className={`font-semibold ${hadith.status === "Sahih" ? "text-green-600" : "text-red-600"}`}>
+                  {language === "ur" ? (STATUS_URDU[hadith.status] || hadith.status) : hadith.status}
+                </span>
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col items-end">
+            {hadith?.chapter?.chapterArabic && (
+              <p className="text-xl font-quran text-gray-600 leading-8 w-full" style={{ textAlign: "right" }}>{hadith.chapter.chapterArabic}</p>
+            )}
+            {hadith?.chapter?.chapterUrdu && hadith.chapter.chapterUrdu !== hadith.chapter.chapterEnglish && (
+              <p className="text-md text-gray-500 leading-8 w-full text-right">{hadith.chapter.chapterUrdu}</p>
+            )}
+          </div>
         </div>
 
         <div className={`flex justify-between gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}>
@@ -157,15 +168,6 @@ const HadithDetail = () => {
               dir={detailedHasUrdu ? "rtl" : "ltr"}
               dangerouslySetInnerHTML={{ __html: hadith.detailedExplanation?.replace(/<\/?p[^>]*>/g, "") }}
             />
-          </div>
-        )}
-
-        {hadith?.status && (
-          <div className="mt-3 text-sm text-gray-500">
-            <span className="font-semibold">{language === "ur" ? "حالت" : "Status:"}</span>{" "}
-            <span className={hadith.status === "Sahih" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-              {language === "ur" ? (STATUS_URDU[hadith.status] || hadith.status) : hadith.status}
-            </span>
           </div>
         )}
 
