@@ -303,14 +303,15 @@ const HeaderBanner = () => {
 
         {/* Prayer Times - Hidden on mobile, shown on larger screens */}
         <div
-          className="hidden lg:flex items-center"
+          className="hidden lg:flex items-center gap-1"
+          dir={language === "ur" ? "rtl" : "ltr"}
           style={{ order: language === "ur" ? 2 : 3 }}
         >
-          <h1 className={language === "ur" ? "ml-2" : "mr-2"} style={{ order: language === "ur" ? 6 : 0 }}>{t("headerBanner.prayerTimes")}</h1>
-          {(language === "ur" ? [...Object.entries(prayerTimes)].reverse() : Object.entries(prayerTimes)).map(([prayer, time], index, array) => (
+          <h1 className="whitespace-nowrap">{t("headerBanner.prayerTimes")}</h1>
+          {Object.entries(prayerTimes).map(([prayer, time], index, array) => (
             <h1
               key={prayer}
-              className={`ml-1 ${
+              className={`whitespace-nowrap ${
                 prayer === currentPrayer
                   ? "text-green-300 font-semibold"
                   : prayer === nextPrayer
