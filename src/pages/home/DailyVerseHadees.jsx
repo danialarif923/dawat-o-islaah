@@ -357,40 +357,75 @@ ${item.english}
         {title}
       </h3>
 
-      <div style={{ ...cardStyle, borderTop: `4px solid ${color}` }}>
-        <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
-          {item.arabic}
-        </p>
-
-        <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
-          {item.urdu}
-        </p>
-
-        <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
-          {item.english}
-        </p>
-
-        <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
-          {item.reference}
-        </p>
-
-        <div className="flex items-center gap-3 mt-5 justify-center">
-          <button
-            onClick={() => copyText(item)}
-            className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
-          >
-            <FaCopy /> Copy Text
-          </button>
-
-          <button
-            onClick={() => openShareModal(item, type)}
-            disabled={!fontsLoaded}
-            className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
-          >
-            <FaShareAlt className="text-gray-700" /> Share Image
-          </button>
+      {type === "verse" ? (
+        <div style={{ ...cardStyle, borderTop: `4px solid ${color}`, position: "relative", overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "url(/assets/verse-of-the-day-background.jpeg)",
+            backgroundSize: "cover", backgroundPosition: "center",
+            opacity: 0.2, filter: "blur(4px)",
+          }} />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <p className="font-quran" style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
+              {item.arabic}
+            </p>
+            <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
+              {item.urdu}
+            </p>
+            <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
+              {item.english}
+            </p>
+            <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
+              {item.reference}
+            </p>
+          </div>
+          <div className="flex items-center gap-3 mt-5 justify-center" style={{ position: "relative", zIndex: 1 }}>
+            <button
+              onClick={() => copyText(item)}
+              className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
+            >
+              <FaCopy /> Copy Text
+            </button>
+            <button
+              onClick={() => openShareModal(item, type)}
+              disabled={!fontsLoaded}
+              className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
+            >
+              <FaShareAlt className="text-gray-700" /> Share Image
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ ...cardStyle, borderTop: `4px solid ${color}` }}>
+          <p className={type === "verse" ? "font-quran" : "font-hadith"} style={{ fontSize: 32, textAlign: "center", direction: "rtl" }}>
+            {item.arabic}
+          </p>
+          <p style={{ fontSize: 18, textAlign: "center", marginTop: 10 }}>
+            {item.urdu}
+          </p>
+          <p style={{ fontSize: 16, textAlign: "center", marginTop: 10 }}>
+            {item.english}
+          </p>
+          <p style={{ fontSize: 12, textAlign: "right", marginTop: 14 }}>
+            {item.reference}
+          </p>
+          <div className="flex items-center gap-3 mt-5 justify-center">
+            <button
+              onClick={() => copyText(item)}
+              className={`${buttonBase} bg-gray-200 hover:bg-gray-300 flex-1`}
+            >
+              <FaCopy /> Copy Text
+            </button>
+            <button
+              onClick={() => openShareModal(item, type)}
+              disabled={!fontsLoaded}
+              className={`${buttonBase} flex-1 bg-gray-200 hover:bg-gray-300`}
+            >
+              <FaShareAlt className="text-gray-700" /> Share Image
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
