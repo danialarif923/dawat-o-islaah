@@ -112,24 +112,36 @@ const HadithDetail = () => {
           <p className="text-gray-500 text-3xl pb-4 font-quran flex-1 text-end">{hadith?.headingArabic}</p>
         </div>
 
-        <div className="text-end">
+        <div className={`${language === "ur" ? "" : "text-end"}`}>
           {hadith?.headingUrdu && <p className="text-gray-600 text-lg leading-12">{hadith?.headingUrdu}</p>}
 
           <div
             className="text-green-600 leading-12 text-3xl font-quran mt-2"
             dangerouslySetInnerHTML={{ __html: hadith?.hadithArabic?.replace(/<\/?p[^>]*>/g, "") }}
           />
-
-          <div
-            className="text-lg leading-12 pt-2"
-            dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
-          />
         </div>
 
-        <div
-          className="text-gray-800 pt-2 leading-12"
-          dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
-        />
+        {language === "ur" ? (
+          <div className="flex flex-row gap-6 pt-2">
+            <div className="flex-1 text-left text-gray-800 leading-12"
+              dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
+            />
+            <div className="flex-1 text-right text-lg leading-12"
+              dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
+            />
+          </div>
+        ) : (
+          <>
+            <div
+              className="text-lg leading-12 pt-2"
+              dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
+            />
+            <div
+              className="text-gray-800 pt-2 leading-12"
+              dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
+            />
+          </>
+        )}
 
         {hadith?.reference && (() => {
           const cleanRef = hadith.reference.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, "");
