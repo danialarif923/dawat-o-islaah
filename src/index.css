@@ -14,6 +14,12 @@
   src: url("/fonts/1 MUHAMMADI QURANIC.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Noto Nastaliq Urdu Local";
+  src: url("/fonts/NotoNastaliqUrdu-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
 /* =====================================================
    2. DYNAMIC QURAN FONT SYSTEM
    ===================================================== */
@@ -33,7 +39,7 @@
 }
 
 .font-hadith {
-  font-family: "TraditionNaskh", "Noto Nastaliq Urdu", serif;
+  font-family: "TraditionNaskh", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", serif;
 }
 
 /* =====================================================
@@ -42,7 +48,7 @@
 body {
   background-color: #f8f9fa;
   color: #111827;
-  font-family: "Merriweather", "Noto Nastaliq Urdu", serif;
+  font-family: "Merriweather", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", "Alvi Nastaleeq", "Nafees Nastaleeq", serif;
 }
 
 .dark body {

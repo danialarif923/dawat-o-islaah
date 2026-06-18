@@ -20,15 +20,15 @@ const SurahDetails = () => {
   return (
     <div className="container mx-auto px-6 md:px-20 py-12">
       <div className="text-center mb-6">
-        <h1 className="text-3xl md:text-4xl font-bold">
+        <p className="text-3xl text-blue-600 font-semibold font-quran">
+          {surahDetails.name}
+        </p>
+        <h1 className="text-3xl md:text-4xl font-bold mt-4">
           {t(`surahNames.${surahNumber}`)}
         </h1>
         <p className="text-lg text-gray-500 mt-2">
           {surahDetails.revelationType} | {surahDetails.numberOfAyahs}{" "}
           {t("quranDetails.verses")}
-        </p>
-        <p className="text-3xl text-blue-600 font-semibold mt-4 font-quran">
-          {surahDetails.name}
         </p>
       </div>
 

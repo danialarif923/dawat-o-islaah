@@ -20,6 +20,9 @@ const VerseCard = ({ verses = [], surahNo }) => {
 
   return (
     <div className="space-y-6">
+      <p className="text-center text-sm text-gray-500 mb-2">
+        Click on an ayah for details
+      </p>
       {verses.map((ayah) => {
         const isTarget = targetAyah === ayah.numberInSurah;
         return (

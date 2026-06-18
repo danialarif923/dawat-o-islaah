@@ -151,7 +151,8 @@
     "chapters": "Chapters"
   },
   "hadithBookChapters": {
-    "chaptersOf": "Chapters of"
+    "chaptersOf": "Chapters of",
+    "error": "Error"
   },
   "chapterCard": {
     "book": "Book"

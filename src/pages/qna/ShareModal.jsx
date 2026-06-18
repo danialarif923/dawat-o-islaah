@@ -23,7 +23,7 @@ const ShareModal = ({ isOpen, onClose, question, language = "en" }) => {
     container.style.padding = "30px";
     container.style.backgroundColor = "#0B131A"; // Brand dark slate background
     container.style.color = "#FFFFFF";
-    container.style.fontFamily = language === "ur" ? "'Noto Nastaliq Urdu', serif" : "'Merriweather', serif";
+    container.style.fontFamily = language === "ur" ? "'Noto Nastaliq Urdu Local', 'Noto Nastaliq Urdu', serif" : "'Merriweather', serif";
     container.style.borderRadius = "12px";
     container.style.border = "1px solid #233857";
     container.style.direction = language === "ur" ? "rtl" : "ltr";

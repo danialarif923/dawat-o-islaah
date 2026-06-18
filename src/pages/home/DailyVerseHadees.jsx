@@ -105,7 +105,7 @@ ${item.english}
 
           <div style="height:1px;background:linear-gradient(to right,transparent,${c.primary}40,transparent);margin:12px 0;"></div>
 
-          <p style="font-family:'Noto Nastaliq Urdu', serif;font-size:18px;text-align:center;line-height:1.8;margin:0 0 12px;color:#1a1a1a;">
+          <p style="font-family:'Noto Nastaliq Urdu Local', 'Noto Nastaliq Urdu', serif;font-size:18px;text-align:center;line-height:1.8;margin:0 0 12px;color:#1a1a1a;">
             ${item.urdu}
           </p>
 

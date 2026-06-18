@@ -13,6 +13,7 @@ import AyahDetail from "../pages/quran/ayah";
 import Juz from "../pages/quran/juz";
 import Hadith from "../pages/hadith";
 import HadithList from "../pages/hadith/HadithList";
+import HadithDetail from "../pages/hadith/HadithDetail";
 import { ScrollToTopWrapper } from "../utils/ScrollToTop";
 import ZakatCalculator from "../pages/IslamicTools/ZakatCalculator";
 import InheritanceCalculator from "../pages/IslamicTools/InheritanceCalculator";
@@ -66,6 +67,10 @@ export default function Router() {
                           <Route
                             path="hadith/:bookSlug/:chapterNo"
                             element={<HadithList />}
+                          />
+                          <Route
+                            path="hadith/:bookSlug/:chapterNo/hadith/:hadithNumber"
+                            element={<HadithDetail />}
                           />
                           <Route path="blog/:blogid" element={<BlogDetail />} />
                           <Route path="search" element={<Search />} />

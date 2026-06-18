@@ -13,6 +13,7 @@ export function LanguageProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.lang = language;
+    document.documentElement.dir = language === "ur" ? "rtl" : "ltr";
   }, [language]);
 
   const toggleLanguage = () => {

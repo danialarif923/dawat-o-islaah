@@ -10,7 +10,8 @@
     "questionAnswer": "سوال جواب",
     "login": "لاگ ان",
     "discussionForum": "ڈسکشن فورم",
-    "settings": "سیٹنگ"
+    "settings": "سیٹنگ",
+    "profile": "پروفائل"
   },
   "headerBanner": {
     "allowLocation": "درست نماز کے اوقات کے لیے لوکیشن کی اجازت دیں",
@@ -156,7 +157,7 @@
     "book": "کتاب"
   },
   "hadithBookChapters": {
-    "title": "ابواب",
+    "chaptersOf": "ابواب",
     "error": "خرابی"
   },
   "hadithBookCard": {
@@ -398,7 +399,9 @@
   },
   "searchPage": {
     "title": "تلاش کی فہرست",
-    "noSearchKeyword": "نتائج دیکھنے کے لیے براہ کرم کوئی لفظ درج کریں۔"
+    "noSearchKeyword": "نتائج دیکھنے کے لیے براہ کرم کوئی لفظ درج کریں۔",
+    "resultsFor": "کے نتائج",
+    "allBooks": "تمام کتب"
   },
   "islamicInheritanceCalculator": {
     "pageTitle": "اسلامی وراثت کیلکولیٹر",
@@ -475,6 +478,19 @@
     "forgotPasswordTitle": "اپنا پاس ورڈ ری سیٹ کریں",
     "changePasswordTitle": "پاس ورڈ تبدیل کریں",
     "brandName": "دعوت و اصلاح"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "صفحہ نہیں ملا",
+    "subtitle": "معذرت، آپ جس صفحہ کی تلاش کر رہے ہیں وہ موجود نہیں ہے یا منتقل کر دیا گیا ہے۔",
+    "goHome": "ہوم پیج پر جائیں"
+  },
+  "recentArticles": {
+    "title": "حالیہ مضامین"
+  },
+  "zikrOAzkar": {
+    "title": "ذکر و اذکار",
+    "loading": "لوڈ ہو رہا ہے..."
   },
   "blog": {
     "comments": "تبصرے",
