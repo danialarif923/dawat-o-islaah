@@ -87,7 +87,11 @@ ${item.english}
           <span style="color:white;font-size:18px;font-weight:600;margin-left:10px;vertical-align:middle;">Dawat-o-Islaah</span>
         </div>
 
-        <div style="padding:24px 24px 8px;">
+        <div style="padding:24px 24px 8px;position:relative;overflow:hidden;">
+          ${type === "verse" ? `
+          <div style="position:absolute;inset:0;background-image:url(/assets/verse-of-the-day-background.jpeg);background-size:cover;background-position:center;opacity:0.2;filter:blur(4px);"></div>
+          ` : ""}
+          <div style="position:relative;z-index:1;">
           <div style="
             background:${c.light};
             border-radius:50%;
