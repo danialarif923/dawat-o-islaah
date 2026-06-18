@@ -103,9 +103,9 @@ const HadithDetail = () => {
 
         <div className={`flex justify-between gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}>
           <h3 className={`text-lg font-bold text-gray-900 flex-1 leading-8 ${language === "ur" ? "text-end" : ""}`}>
-            {language === "ur" ? t(`hadithChapterNames.${bookSlug}.${hadith?.chapter?.chapterNumber}`) || hadith?.chapter?.chapterEnglish : hadith?.chapter?.chapterEnglish}
-            {getBaabName(hadith, language) && (
-              <span className="text-green-700 ml-2"> - {getBaabName(hadith, language)}</span>
+            {hadith?.chapter?.chapterEnglish}
+            {getBaabName(hadith, "en") && (
+              <span className="text-green-700 ml-2"> - {getBaabName(hadith, "en")}</span>
             )}
             {hadith?.headingEnglish && " - "} {hadith?.headingEnglish}
           </h3>
