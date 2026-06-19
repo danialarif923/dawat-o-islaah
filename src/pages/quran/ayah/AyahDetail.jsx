@@ -430,8 +430,8 @@ const AyahDetail = () => {
             return (
               <>
                 <div
-                  className="text-xl leading-loose text-gray-800 text-right font-urdu"
-                  style={{ direction: "rtl" }}
+                  className={`text-xl leading-loose text-gray-800 ${tafsirLang === "en" ? "text-left" : "text-right"} ${tafsirLang === "en" ? "" : "font-urdu"}`}
+                  style={{ direction: tafsirLang === "en" ? "ltr" : "rtl" }}
                   dangerouslySetInnerHTML={{
                     __html: expandedTafsir
                       ? formattedTafsir
