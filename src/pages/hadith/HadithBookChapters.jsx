@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import useHadithChapters from "../../hooks/useHadithChapters";
 import ChapterCard from "./ChapterCard";
 import ShimmerLoader from "../../components/AppComponents/Hadith/ShimmerLoader";
 import { useLanguage } from "../../context/LanguageContext";
 
 const HadithBookChapters = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { bookSlug } = useParams();
   const { chapters, loading, error } = useHadithChapters();
 
@@ -20,6 +20,12 @@ const HadithBookChapters = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen py-10 px-4 md:px-16">
+      <Link
+        to="/hadith"
+        className="inline-block text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
+      >
+        &larr; {language === "ur" ? "واپس" : "Back"}
+      </Link>
       <h2 className="text-4xl font-bold text-center mb-10 capitalize">
         {t("hadithBookChapters.chaptersOf")} {t(`hadithBookNames.${bookSlug}`) || bookSlug.replace("-", " ")}
       </h2>

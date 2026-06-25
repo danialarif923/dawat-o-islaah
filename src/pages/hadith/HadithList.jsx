@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import useHadiths from "../../hooks/useHadiths";
 import HadithCard from "./HadithCard";
 import ShimmerLoader from "../../components/AppComponents/Hadith/ShimmerLoader";
@@ -64,6 +64,12 @@ const HadithList = () => {
 
   return (
     <div className="container mx-auto px-4 md:px-20 py-6">
+      <Link
+        to={`/hadith/${bookSlug}`}
+        className="inline-block text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
+      >
+        &larr; {language === "ur" ? "واپس" : "Back"}
+      </Link>
       <h2 className="text-2xl font-bold text-center mb-6">
         {t("hadithList.title")} {t(`hadithBookNames.${bookSlug}`) || bookSlug.replace("-", " ")} -{" "}
         {t("hadithList.chapter")} {chapterNo}
