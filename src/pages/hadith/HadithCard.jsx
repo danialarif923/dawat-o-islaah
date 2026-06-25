@@ -33,6 +33,10 @@ const HadithCard = ({ hadith }) => {
           : "border-neutral-200"
       }`}
     >
+      <div className="text-sm text-gray-500 mb-1">
+        {language === "ur" ? "حدیث نمبر" : "Hadith #"}: {hadith?.hadithNumber}
+      </div>
+
       <div
         className={`text-green-600 leading-12 text-3xl font-quran mt-2 ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
