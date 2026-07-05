@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import UserDropdown from "./UserDropdown";
 import { useAuthData } from "../../../context/AuthContext";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { useLanguage } from "../../../context/LanguageContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,8 @@ const Header = () => {
   const translation = useTranslation();
   const login = translation?.header?.login;
   const isUser = !!user;
+  const { language } = useLanguage();
+  const isRTL = language === "ur";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,7 +40,10 @@ const Header = () => {
   }, [isMenuOpen]);
 
   return (
-    <div className="flex justify-between px-4 lg:px-20 items-center p-4 bg-[#C9A227]">
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className="flex justify-between px-4 lg:px-20 items-center p-4 bg-[#C9A227]"
+    >
       {/* Logo */}
       <Link to="/">
         <img
@@ -68,7 +74,7 @@ const Header = () => {
 
         {/* Hamburger Icon */}
         <button
-          className="lg:hidden text-white text-2xl p-2 -mr-2"
+          className={`lg:hidden text-white text-2xl p-2 ${isRTL ? "-ml-2" : "-mr-2"}`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle Menu"
         >
@@ -84,8 +90,14 @@ const Header = () => {
       {/* Mobile Menu */}
       <div
         ref={menuRef}
-        className={`fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#C9A227] shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 h-full w-4/5 max-w-sm bg-[#C9A227] shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isRTL ? "left-0" : "right-0"
+        } ${
+          isMenuOpen
+            ? "translate-x-0"
+            : isRTL
+            ? "-translate-x-full"
+            : "translate-x-full"
         }`}
       >
         <div className="h-full flex flex-col">

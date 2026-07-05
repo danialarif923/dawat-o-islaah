@@ -6,9 +6,10 @@ import { useAuthData } from "../../../../context/AuthContext";
 import { useLanguage } from "../../../../context/LanguageContext";
 
 const Navbar = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { user, logout, token } = useAuthData();
+  const isRTL = language === "ur";
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -20,7 +21,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-white dark:bg-gray-900 shadow-md px-6 py-3 flex items-center justify-between">
+    <nav
+      dir={isRTL ? "rtl" : "ltr"}
+      className="w-full bg-white dark:bg-gray-900 shadow-md px-6 py-3 flex items-center justify-between"
+    >
       
       {/* 🔷 LEFT: LOGO */}
       <div
