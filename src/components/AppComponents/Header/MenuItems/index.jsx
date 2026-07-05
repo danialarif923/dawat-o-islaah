@@ -1,8 +1,6 @@
-import { useLanguage } from "../../../../context/LanguageContext";
 import Item from "./Item";
 
 const MenuItems = ({ isMobile, isUser, closeMenu }) => {
-  const { language } = useLanguage();
 
   // Base items always visible
   const baseItems = [
@@ -26,15 +24,13 @@ const MenuItems = ({ isMobile, isUser, closeMenu }) => {
 
   const items = [...baseItems, ...authDependentItems];
 
-  const renderedItems = language === "ur" ? [...items].reverse() : items;
-
   return (
     <div
       className={`flex ${
         isMobile ? "flex-col space-y-6" : "items-center space-x-8"
       }`}
     >
-      {renderedItems.map((item) => (
+      {items.map((item) => (
         <div key={item.name} className="w-full">
           <Item closeMenu={closeMenu} item={item.name} isMobile={isMobile} />
         </div>
