@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import localApiClient from "../../api/hadithApi";
 
 const HADITH_BOOK_OPTIONS = (t) => [
   { label: t("searchPage.allBooks"), value: "" },
@@ -18,7 +19,19 @@ const HADITH_BOOK_OPTIONS = (t) => [
 ];
 
 const BOOKS = ["sahih-bukhari", "sahih-muslim", "al-tirmidhi", "abu-dawood", "ibn-e-majah", "sunan-nasai", "musnad-ahmad", "sunan-darimi", "muwatta-malik", "mustadrak-al-hakim", "sahih-ibn-khuzaymah"];
-const HADITH_PAGE_SIZE = 100;
+const BOOK_NAME_TO_SLUG = {
+  "Sahih Bukhari": "sahih-bukhari",
+  "Sahih Muslim": "sahih-muslim",
+  "Al Tirmidhi": "al-tirmidhi",
+  "Sunan Abu Dawood": "abu-dawood",
+  "Sunan Ibn E Majah": "ibn-e-majah",
+  "Sunan Nasai": "sunan-nasai",
+  "Musnad Ahmad": "musnad-ahmad",
+  "Sunan Darimi": "sunan-darimi",
+  "Muwatta Malik": "muwatta-malik",
+  "Mustadrak Al Hakim": "mustadrak-al-hakim",
+  "Sahih Ibn Khuzaymah": "sahih-ibn-khuzaymah",
+};
 
 const ARABIC_SCRIPT = /[\u0600-\u06FF]/;
 
@@ -158,8 +171,7 @@ const Search = () => {
   const [hadithNumberResults, setHadithNumberResults] = useState([]);
   const [hadithNumberLoading, setHadithNumberLoading] = useState(false);
 
-  const HADITH_API_KEY =
-    "$2y$10$d4nL2E660zHHBrwTB7Bviu3WvW5sToLRBWFbJ1yhn7rJzSuNpA0S";
+  const [bookCounts, setBookCounts] = useState({});
 
   const highlightText = useCallback((text, target) => {
     if (!text || !target || !target.trim()) return text;
@@ -246,129 +258,46 @@ const Search = () => {
       setLoading(true);
       setQuranResults([]);
       setHadithResults([]);
+      setBookCounts({});
       setCurrentPage(1);
-
-      let searchTerms = [keyword];
-      setLoadingMessage("Translating...");
 
       const expanded = await translateRomanUrdu(keyword);
       if (cancelled) return;
+
+      const searchTerms = [keyword];
       if (expanded.urdu && !searchTerms.includes(expanded.urdu)) searchTerms.push(expanded.urdu);
       if (expanded.english && !searchTerms.includes(expanded.english)) searchTerms.push(expanded.english);
 
-      // deduplicate case-insensitively
       const lowerMap = new Map();
       searchTerms.forEach((t) => { const k = t.toLowerCase(); if (!lowerMap.has(k)) lowerMap.set(k, t); });
-      searchTerms = Array.from(lowerMap.values());
-      setSearchTerms(searchTerms);
+      setSearchTerms(Array.from(lowerMap.values()));
 
-      // Run Quran and Hadith searches in parallel
       const searchQuran = async () => {
-        const mergedMap = new Map();
-        const quranEndpoints = [];
-        searchTerms.forEach((term) => {
-          const arabicTerm = normalizeArabic(term);
-          quranEndpoints.push(
-            { url: `https://api.alquran.cloud/v1/search/${encodeURIComponent(arabicTerm)}/all/quran-simple-clean`, lang: "ar" },
-            { url: `https://api.alquran.cloud/v1/search/${encodeURIComponent(term)}/all/en.sahih`, lang: "en" },
-            { url: `https://api.alquran.cloud/v1/search/${encodeURIComponent(term)}/all/ur.jalandhry`, lang: "ur" },
-          );
-        });
-
-        const mergeMatches = (matches, lang) => {
-          if (!matches) return;
-          matches.forEach((m) => {
-            if (!mergedMap.has(m.number)) {
-              mergedMap.set(m.number, { ...m, ar: "", en: "", ur: "" });
-            }
-            const entry = mergedMap.get(m.number);
-            entry[lang] = m.text || "";
+        setLoadingMessage("Searching Quran...");
+        try {
+          const resp = await localApiClient.get("../quran/search/", {
+            params: { q: keyword, page: 1 },
           });
-        };
-
-        for (let i = 0; i < quranEndpoints.length; i++) {
           if (cancelled) return;
-          setLoadingMessage(`Searching Quran (term ${i + 1}/${quranEndpoints.length})...`);
-          try {
-            const resp = await fetch(quranEndpoints[i].url).then((r) => (r.ok ? r.json() : null));
-            if (cancelled) return;
-            mergeMatches(resp?.data?.matches, quranEndpoints[i].lang);
-            setQuranResults(Array.from(mergedMap.values()));
-          } catch { /* skip */ }
+          setQuranResults(resp.data.results || []);
+        } catch {
+          if (!cancelled) setQuranResults([]);
         }
-
-        const QURAN_EDITIONS = "quran-simple-clean,en.sahih,ur.jalandhry";
-        const matchedAyahs = Array.from(mergedMap.keys());
-        for (let idx = 0; idx < matchedAyahs.length; idx++) {
-          if (cancelled) return;
-          setLoadingMessage(`Fetching full translations for ayah ${idx + 1}/${matchedAyahs.length}...`);
-          try {
-            const resp = await fetch(
-              `https://api.alquran.cloud/v1/ayah/${matchedAyahs[idx]}/editions/${QURAN_EDITIONS}`,
-            ).then((r) => (r.ok ? r.json() : null));
-            if (cancelled) return;
-            if (resp?.data) {
-              resp.data.forEach((item) => {
-                const entry = mergedMap.get(item.number);
-                if (!entry) return;
-                const id = item.edition?.identifier;
-                if (id === "quran-simple-clean") entry.ar = item.text || "";
-                if (id === "en.sahih") entry.en = item.text || "";
-                if (id === "ur.jalandhry") entry.ur = item.text || "";
-              });
-            }
-          } catch { /* skip */ }
-        }
-        setQuranResults(Array.from(mergedMap.values()));
       };
 
       const searchHadith = async () => {
-        const allHadithsMap = new Map();
-        let totalHadithPages = 0;
-        let completedHadithPages = 0;
-
-        for (const term of searchTerms) {
-          const isArabicTerm = ARABIC_SCRIPT.test(term);
-          for (const book of BOOKS) {
-            let page = 1;
-            let lastPage = 1;
-            const MAX_PAGES = 50;
-
-            while (page <= lastPage && page <= MAX_PAGES) {
-              if (cancelled) return;
-              await new Promise((r) => setTimeout(r, 400));
-              setLoadingMessage(
-                `Fetching hadith — ${book} page ${page}/${lastPage || "?"} (${completedHadithPages} pages done)...`,
-              );
-
-              try {
-                const searchTerm = isArabicTerm ? normalizeArabic(term) : term;
-                const hadithParam = isArabicTerm ? "hadithArabic" : "hadithEnglish";
-                const res = await fetch(
-                  `https://hadithapi.com/api/hadiths?apiKey=${HADITH_API_KEY}&book=${book}&${hadithParam}=${encodeURIComponent(searchTerm)}&paginate=${HADITH_PAGE_SIZE}&page=${page}`,
-                ).then((r) => (r.ok ? r.json() : null));
-
-                if (cancelled) return;
-
-                if (res?.hadiths) {
-                  if (totalHadithPages === 0) {
-                    totalHadithPages = res.hadiths.last_page || 1;
-                  }
-                  lastPage = res.hadiths.last_page || 1;
-
-                  const data = res.hadiths.data || [];
-                  data.forEach((h) => {
-                    const key = `${h.book?.bookSlug}-${h.hadithNumber}`;
-                    if (!allHadithsMap.has(key)) allHadithsMap.set(key, h);
-                  });
-
-                  setHadithResults(Array.from(allHadithsMap.values()));
-                }
-                completedHadithPages++;
-              } catch { /* skip */ }
-
-              page++;
-            }
+        setLoadingMessage("Searching hadith...");
+        try {
+          const resp = await localApiClient.get("search-hadith/", {
+            params: { q: keyword, page: 1 },
+          });
+          if (cancelled) return;
+          setHadithResults(resp.data.results || []);
+          setBookCounts(resp.data.book_counts || {});
+        } catch {
+          if (!cancelled) {
+            setHadithResults([]);
+            setBookCounts({});
           }
         }
       };
@@ -398,12 +327,14 @@ const Search = () => {
     const allResults = new Map();
     for (const book of booksToSearch) {
       try {
-        const res = await fetch(
-          `https://hadithapi.com/api/hadiths?apiKey=${HADITH_API_KEY}&book=${book}&hadithNumber=${num}`,
-        ).then((r) => (r.ok ? r.json() : null));
-        if (res?.hadiths?.data) {
-          res.hadiths.data.forEach((h) => {
-            const key = `${h.book?.bookSlug}-${h.hadithNumber}`;
+        const res = await fetch(`/api/hadith/get-hadith/?book=${book}&hadith=${num}`);
+        const data = await res.json();
+        if (data?.hadiths?.data) {
+          data.hadiths.data.forEach((h) => {
+            const slug = h.bookSlug || BOOK_NAME_TO_SLUG[h.book?.bookName] || book;
+            h.book = h.book || {};
+            h.book.bookSlug = slug;
+            const key = `${slug}-${h.hadithNumber}`;
             if (!allResults.has(key)) allResults.set(key, h);
           });
         }
@@ -412,7 +343,7 @@ const Search = () => {
 
     setHadithNumberResults(Array.from(allResults.values()));
     setHadithNumberLoading(false);
-  }, [hadithNumberInput, hadithNumberSearchMode, hadithNumberSelectedBooks, HADITH_API_KEY]);
+  }, [hadithNumberInput, hadithNumberSearchMode, hadithNumberSelectedBooks]);
 
   // SECTION DATA
   const generalResults = [
@@ -553,7 +484,7 @@ const Search = () => {
           >
             {HADITH_BOOK_OPTIONS(t).map((b) => (
               <option key={b.value} value={b.value}>
-                {b.label}
+                {b.label}{b.value && bookCounts[b.value] != null ? ` (${bookCounts[b.value]})` : ""}
               </option>
             ))}
           </select>
