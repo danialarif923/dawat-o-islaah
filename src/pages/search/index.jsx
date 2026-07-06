@@ -288,13 +288,8 @@ const Search = () => {
       const searchHadith = async () => {
         setLoadingMessage("Searching hadith...");
         try {
-          let searchQuery = keyword;
-          const arabicConverted = romanUrduToArabic(keyword);
-          if (arabicConverted !== keyword) {
-            searchQuery = arabicConverted;
-          }
           const resp = await localApiClient.get("search-hadith/", {
-            params: { q: searchQuery },
+            params: { q: keyword },
           });
           if (cancelled) return;
           setHadithResults(resp.data.results || []);
