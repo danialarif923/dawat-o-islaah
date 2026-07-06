@@ -10,7 +10,7 @@ const HadithBookCard = ({ book }) => {
       onClick={() => navigate(`/hadith/${book.bookSlug}`)}
       className="transition-transform transform hover:scale-105 shadow-lg bg-white p-4 rounded-lg text-center cursor-pointer"
     >
-      <h3 className="text-xl font-semibold text-gray-900">{t(`hadithBookNames.${book.bookSlug}`) || book.bookName}</h3>
+      <h3 className="text-xl font-semibold text-gray-900">{t(`hadithBookNames.${book.bookSlug}`) || book.name || book.bookName}</h3>
       <p className="text-gray-600 text-sm">{book.writerName}</p>
       <p className="text-gray-500 text-xs">
         {t("hadithBookCard.died")}: {book.writerDeath}

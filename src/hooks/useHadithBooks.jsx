@@ -11,7 +11,12 @@ const useHadithBooks = () => {
       try {
         const response = await localApiClient.get("get-books/");
         const data = response.data;
-        setBooks(data?.books || data?.data || []);
+        const raw = data?.books || data?.data || [];
+        const normalized = raw.map((b) => ({
+          ...b,
+          bookSlug: b.bookSlug || b.slug || b.name?.toLowerCase().replace(/\s+/g, "-"),
+        }));
+        setBooks(normalized);
       } catch (err) {
         const status = err.response?.status || "NETWORK";
         console.error(`Failed to fetch hadith books [${status}]:`, err.message);
