@@ -487,7 +487,12 @@
     "ibn-e-majah": "Sunan Ibn Majah",
     "sunan-ibn-e-majah": "Sunan Ibn Majah",
     "mishkat": "Mishkat al-Masabih",
-    "mishkat-al-masabih": "Mishkat al-Masabih"
+    "mishkat-al-masabih": "Mishkat al-Masabih",
+    "musnad-ahmad": "Musnad Ahmad",
+    "sunan-darimi": "Sunan Darimi",
+    "muwatta-malik": "Muwatta Malik",
+    "mustadrak-al-hakim": "Mustadrak al-Hakim",
+    "sahih-ibn-khuzaymah": "Sahih Ibn Khuzaymah"
   },
   "surahNames": {
     "1": "Al-Fatiha",

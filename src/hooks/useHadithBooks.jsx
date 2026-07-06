@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchHadith } from "../api/hadithApi";
+import localApiClient from "../api/hadithApi";
 
 const useHadithBooks = () => {
   const [books, setBooks] = useState([]);
@@ -9,7 +9,8 @@ const useHadithBooks = () => {
   useEffect(() => {
     const getBooks = async () => {
       try {
-        const data = await fetchHadith("books");
+        const response = await localApiClient.get("get-books/");
+        const data = response.data;
         setBooks(data?.books || data?.data || []);
       } catch (err) {
         const status = err.response?.status || "NETWORK";
