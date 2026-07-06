@@ -10,9 +10,14 @@ const HADITH_BOOK_OPTIONS = (t) => [
   { label: t("hadithBookNames.abu-dawood"), value: "abu-dawood" },
   { label: t("hadithBookNames.ibn-e-majah"), value: "ibn-e-majah" },
   { label: t("hadithBookNames.sunan-nasai"), value: "sunan-nasai" },
+  { label: t("hadithBookNames.musnad-ahmad"), value: "musnad-ahmad" },
+  { label: t("hadithBookNames.sunan-darimi"), value: "sunan-darimi" },
+  { label: t("hadithBookNames.muwatta-malik"), value: "muwatta-malik" },
+  { label: t("hadithBookNames.mustadrak-al-hakim"), value: "mustadrak-al-hakim" },
+  { label: t("hadithBookNames.sahih-ibn-khuzaymah"), value: "sahih-ibn-khuzaymah" },
 ];
 
-const BOOKS = ["sahih-bukhari", "sahih-muslim", "al-tirmidhi", "abu-dawood", "ibn-e-majah", "sunan-nasai"];
+const BOOKS = ["sahih-bukhari", "sahih-muslim", "al-tirmidhi", "abu-dawood", "ibn-e-majah", "sunan-nasai", "musnad-ahmad", "sunan-darimi", "muwatta-malik", "mustadrak-al-hakim", "sahih-ibn-khuzaymah"];
 const HADITH_PAGE_SIZE = 100;
 
 const ARABIC_SCRIPT = /[\u0600-\u06FF]/;
