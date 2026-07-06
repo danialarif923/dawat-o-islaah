@@ -275,11 +275,11 @@ const Search = () => {
       const searchQuran = async () => {
         setLoadingMessage("Searching Quran...");
         try {
-          const resp = await localApiClient.get("../quran/search/", {
-            params: { q: keyword, page: 1 },
-          });
+          const params = new URLSearchParams({ q: keyword });
+          const resp = await fetch(`/quran/api/quran/search/?${params}`);
+          const data = await resp.json();
           if (cancelled) return;
-          setQuranResults(resp.data.results || []);
+          setQuranResults(data.results || []);
         } catch {
           if (!cancelled) setQuranResults([]);
         }
@@ -288,8 +288,13 @@ const Search = () => {
       const searchHadith = async () => {
         setLoadingMessage("Searching hadith...");
         try {
+          let searchQuery = keyword;
+          const arabicConverted = romanUrduToArabic(keyword);
+          if (arabicConverted !== keyword) {
+            searchQuery = arabicConverted;
+          }
           const resp = await localApiClient.get("search-hadith/", {
-            params: { q: keyword, page: 1 },
+            params: { q: searchQuery },
           });
           if (cancelled) return;
           setHadithResults(resp.data.results || []);
