@@ -105,7 +105,7 @@ const HadithDetail = () => {
           </div>
           <div className="flex flex-col items-end">
             {hadith?.chapter?.chapterArabic && (
-              <p className="text-xl font-quran text-gray-600 leading-8 w-full" style={{ textAlign: "right" }}>{hadith.chapter.chapterArabic}</p>
+              <p className="text-xl font-hadith text-gray-600 leading-8 w-full" style={{ textAlign: "right" }}>{hadith.chapter.chapterArabic}</p>
             )}
             {hadith?.chapter?.chapterUrdu && hadith.chapter.chapterUrdu !== hadith.chapter.chapterEnglish && (
               <p className="text-md text-gray-500 leading-8 w-full text-right">{hadith.chapter.chapterUrdu}</p>
@@ -121,24 +121,27 @@ const HadithDetail = () => {
             )}
             {hadith?.headingEnglish && " - "} {hadith?.headingEnglish}
           </h3>
-          <p className="text-gray-500 text-3xl pb-4 font-quran flex-1 text-end">{hadith?.headingArabic}</p>
+          <p className="text-gray-500 text-3xl pb-4 font-hadith flex-1 text-end">{hadith?.headingArabic}</p>
         </div>
 
         <div className={`${language === "ur" ? "" : "text-end"}`}>
-          {hadith?.headingUrdu && <p className="text-gray-600 text-lg leading-12">{hadith?.headingUrdu}</p>}
+          {hadith?.headingUrdu && <p className="text-gray-600 text-[1.5rem] leading-12">{hadith?.headingUrdu}</p>}
 
           <div
-            className="text-green-600 leading-12 text-3xl font-quran mt-2"
+            className="text-green-600 leading-12 text-3xl font-hadith mt-2 text-right"
+            dir="rtl"
             dangerouslySetInnerHTML={{ __html: hadith?.hadithArabic?.replace(/<\/?p[^>]*>/g, "") }}
           />
         </div>
 
         <div
-          className="text-lg leading-12 pt-2 text-right"
+          className="text-[1.5rem] leading-12 pt-2 text-right"
+          dir="rtl"
           dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
         />
         <div
-          className="text-gray-800 pt-2 leading-12 text-left"
+          className="text-base text-gray-800 pt-2 leading-12 text-left"
+          dir="ltr"
           dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
         />
 

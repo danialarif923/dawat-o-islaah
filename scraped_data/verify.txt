@@ -1,0 +1,6 @@
+Total: 5 hadiths
+#1: chapter='ایمان کا بیان' (len=13), arabic=560, urdu=183, grade=Sahih
+#2: chapter='ایمان کا بیان' (len=13), arabic=913, urdu=1007, grade=Sahih
+#3: chapter='ایمان کا بیان' (len=13), arabic=903, urdu=220, grade=Sahih
+#4: chapter='ایمان کا بیان' (len=13), arabic=1273, urdu=839, grade=Sahih
+#5: chapter='ایمان کا بیان' (len=13), arabic=1151, urdu=261, grade=Sahih

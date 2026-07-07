@@ -22,6 +22,7 @@ const useSurah = (surahNumber) => {
 
   const [translations, setTranslations] = useState({ en: {}, ur: {} });
   const [audioByQari, setAudioByQari] = useState({});
+  const [wordTimings, setWordTimings] = useState(null);
 
   const [tafseerByAyah, setTafseerByAyah] = useState({});
 
@@ -166,10 +167,11 @@ const useSurah = (surahNumber) => {
       setError(null);
 
       try {
-        const [enTrans, urTrans, audioRes] = await Promise.all([
+        const [enTrans, urTrans, audioRes, wordTimingRes] = await Promise.all([
           backendApi.getSurahTranslations(surahNumber, "en"),
           backendApi.getSurahTranslations(surahNumber, "ur"),
           backendApi.getSurahAudio(surahNumber),
+          backendApi.getWordTimings(surahNumber),
         ]);
 
         const groupByAuthor = (data) => {
@@ -205,6 +207,10 @@ const useSurah = (surahNumber) => {
         });
 
         setAudioByQari(groupedAudio);
+
+        if (wordTimingRes?.timings) {
+          setWordTimings(wordTimingRes.timings);
+        }
       } catch (err) {
         const status = err.response?.status || "NETWORK";
         console.error(`Backend fetch failed [${status}]:`, err.message);
@@ -257,6 +263,7 @@ const useSurah = (surahNumber) => {
 
     translations,
     audioByQari,
+    wordTimings,
     tafseerByAyah,
 
     selectedTranslations,

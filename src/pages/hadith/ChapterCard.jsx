@@ -15,11 +15,11 @@ const ChapterCard = ({ chapter }) => {
       <div className="flex justify-between items-start gap-4">
         {/* LEFT SIDE */}
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-blue-600 leading-snug">
+          <h3 className={`${language === "ur" ? "text-[1.5rem]" : "text-xl"} font-semibold text-blue-600 leading-snug`}>
             {chapter.chapterNumber}. {language === "ur" ? t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) || chapter.chapterEnglish : chapter.chapterEnglish}
           </h3>
 
-          <p className="text-sm text-gray-500 mt-4">
+          <p className={`${language === "ur" ? "text-[1.3rem]" : "text-sm"} text-gray-500 mt-4`}>
             {t("chapterCard.book")}: {t(`hadithBookNames.${chapter.bookSlug}`) || chapter.bookSlug.replace("-", " ")}
           </p>
         </div>

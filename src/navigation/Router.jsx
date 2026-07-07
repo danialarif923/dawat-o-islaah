@@ -11,6 +11,7 @@ import Quran from "../pages/quran";
 import Surah from "../pages/quran/surah";
 import AyahDetail from "../pages/quran/ayah";
 import Juz from "../pages/quran/juz";
+import ReadQuran from "../pages/quran/mushaf";
 import Hadith from "../pages/hadith";
 import HadithList from "../pages/hadith/HadithList";
 import HadithDetail from "../pages/hadith/HadithDetail";
@@ -59,6 +60,7 @@ export default function Router() {
                           <Route path="surah/:surahNumber/ayah/:ayahNumber" element={<AyahDetail />} />
                           <Route path="surah/:surahNumber" element={<Surah />} />
                           <Route path="juz/:juzNumber" element={<Juz />} />
+                          <Route path="read-quran/:slug" element={<ReadQuran />} />
                           <Route path="hadith" element={<Hadith />} />
                           <Route
                             path="hadith/:bookSlug"

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import useSurah from "../../../hooks/useSurah";
-import { FaPlay, FaPause, FaChevronDown, FaArrowLeft } from "react-icons/fa";
+import { FaChevronDown, FaArrowLeft } from "react-icons/fa";
 import { useLanguage } from "../../../context/LanguageContext";
+import WordHighlightedAyah from "../WordHighlightedAyah";
 
 const ShimmerLoader = () => (
   <div className="animate-pulse space-y-3 p-8">
@@ -24,6 +25,7 @@ const AyahDetail = () => {
     qaris,
     translations,
     audioByQari,
+    wordTimings,
     selectedTranslations,
     setSelectedTranslations,
     selectedTafsirAuthor,
@@ -47,17 +49,7 @@ const AyahDetail = () => {
   const [translationsEnabled, setTranslationsEnabled] = useState(false);
   const [tafsirEnabled, setTafsirEnabled] = useState(false);
   const dropdownRef = useRef(null);
-  const audioRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
   const [expandedTafsir, setExpandedTafsir] = useState(false);
-
-  const audioLinks =
-    selectedQari && audioByQari?.[selectedQari]
-      ? audioByQari[selectedQari].map((a) => ({
-          ayah: a.ayah,
-          url: a.url,
-        }))
-      : [];
 
   const toggleDropdown = (lang) =>
     setShowDropdown((prev) => ({ ...prev, [lang]: !prev[lang] }));
@@ -81,31 +73,6 @@ const AyahDetail = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const playAudio = () => {
-    if (!audioLinks.length) return;
-    const audioObj = audioLinks.find(
-      (a) => Number(a.ayah) === Number(ayahNumber)
-    );
-    if (!audioObj?.url) return;
-    if (playing && audioRef.current) {
-      audioRef.current.pause();
-      setPlaying(false);
-      return;
-    }
-    if (audioRef.current) audioRef.current.pause();
-    const audio = new Audio(audioObj.url);
-    audioRef.current = audio;
-    audio.play().catch(console.error);
-    setPlaying(true);
-    audio.onended = () => setPlaying(false);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) audioRef.current.pause();
-    };
   }, []);
 
   useEffect(() => {
@@ -179,11 +146,17 @@ const AyahDetail = () => {
         <p className="text-right text-gray-500 text-sm mb-2">
           {surahNumber}:{ayahNumber}
         </p>
-        <p
-          className="text-5xl text-center leading-relaxed font-quran whitespace-pre-wrap"
-          dangerouslySetInnerHTML={{
-            __html: ayah.text.replace(/<\/?p[^>]*>/g, ""),
-          }}
+        <WordHighlightedAyah
+          ayahText={ayah.text}
+          ayahNumber={ayahNumber}
+          wordTimings={wordTimings}
+          audioUrl={
+            selectedQari && audioByQari?.[selectedQari]
+              ? audioByQari[selectedQari].find(
+                  (a) => Number(a.ayah) === Number(ayahNumber)
+                )?.url
+              : null
+          }
         />
       </div>
 
@@ -202,24 +175,6 @@ const AyahDetail = () => {
             </option>
           ))}
         </select>
-        <button
-          onClick={playAudio}
-          disabled={!selectedQari}
-          className={`flex items-center gap-2 px-4 py-2 rounded font-medium ${
-            selectedQari
-              ? "bg-emerald-600 text-white hover:bg-emerald-700"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          {playing ? <FaPause /> : <FaPlay />}
-          {playing
-            ? isRtl
-              ? "روکیں"
-              : "Pause"
-            : isRtl
-              ? "سنیں"
-              : "Play"}
-        </button>
       </div>
 
       <div className={`flex items-center gap-6 my-6 ${isRtl ? "flex-row-reverse" : ""}`}>

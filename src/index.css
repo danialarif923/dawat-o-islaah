@@ -20,9 +20,29 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Jameel Noori Nastaleeq Regular";
+  src: url("/fonts/Jameel Noori Nastaleeq Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "indopak-nastaleeq";
+  src: url("/fonts/indopak-nastaleeq.woff2") format("woff2"),
+       url("/fonts/indopak-nastaleeq.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SurahNameV2";
+  src: url("/fonts/surah-name-v2.woff2") format("woff2"),
+       url("/fonts/surah-name-v2.ttf") format("truetype");
+  font-display: swap;
+}
+
 /* =====================================================
-   2. DYNAMIC QURAN FONT SYSTEM
-   ===================================================== */
+    2. DYNAMIC QURAN FONT SYSTEM
+    ===================================================== */
 :root {
   /* Default fallback if the Admin API fails */
   --quran-font: "1 MUHAMMADI QURANIC", "Amiri", serif;
@@ -39,7 +59,34 @@
 }
 
 .font-hadith {
-  font-family: "TraditionNaskh", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", serif;
+  font-family: "TraditionNaskh", "Jameel Noori Nastaleeq Regular", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", serif;
+  font-size: 1.8rem;
+  line-height: 2;
+}
+
+.font-urdu {
+  font-size: 2.5rem;
+  line-height: 2;
+}
+
+.font-surah-name {
+  font-family: "SurahNameV2", serif;
+  font-display: swap;
+}
+
+/* =====================================================
+    4. URDU (RTL) ADJUSTMENTS
+    ===================================================== */
+html[dir="rtl"] body {
+  font-size: 30px;
+}
+
+html[dir="rtl"] .services-grid {
+  flex-wrap: nowrap;
+}
+html[dir="rtl"] .services-grid a {
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 /* =====================================================
@@ -48,7 +95,7 @@
 body {
   background-color: #f8f9fa;
   color: #111827;
-  font-family: "Merriweather", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", "Alvi Nastaleeq", "Nafees Nastaleeq", serif;
+  font-family: "Merriweather", "Jameel Noori Nastaleeq Regular", "Noto Nastaliq Urdu Local", "Noto Nastaliq Urdu", "Urdu Typesetting", "Alvi Nastaleeq", "Nafees Nastaleeq", serif;
 }
 
 .dark body {

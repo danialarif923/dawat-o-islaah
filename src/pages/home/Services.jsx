@@ -80,7 +80,7 @@ const Services = () => {
           {t("services.sectionTitle")}
         </h2>
       </div>
-      <div className="flex flex-wrap justify-center xl:justify-between gap-6">
+      <div className="services-grid flex flex-wrap justify-center xl:justify-between gap-6">
         {cards.map((card) => (
           <Link
             to={card.route}

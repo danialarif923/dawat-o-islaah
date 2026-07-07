@@ -153,11 +153,14 @@ const Search = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [resultsPerPage, setResultsPerPage] = useState(10);
   const [searchTerms, setSearchTerms] = useState([]);
+  const [quranSurahProgress, setQuranSurahProgress] = useState({});
+  const [hadithBookProgress, setHadithBookProgress] = useState({});
 
   // QURAN FILTERS
   const [quranLanguage, setQuranLanguage] = useState("all");
   const [quranAyah, setQuranAyah] = useState("");
   const [quranSurah, setQuranSurah] = useState("");
+  const [rootSearch, setRootSearch] = useState(false);
 
   // HADITH FILTERS
   const [hadithLanguage, setHadithLanguage] = useState("all");
@@ -272,45 +275,124 @@ const Search = () => {
       searchTerms.forEach((t) => { const k = t.toLowerCase(); if (!lowerMap.has(k)) lowerMap.set(k, t); });
       setSearchTerms(Array.from(lowerMap.values()));
 
-      const searchQuran = async () => {
-        setLoadingMessage("Searching Quran...");
+      const searchQuranSequential = async () => {
+        setQuranResults([]);
+        const progress = {};
+        for (let n = 1; n <= 114; n++) progress[n] = "loading";
+        setQuranSurahProgress(progress);
+
+        const allResults = [];
+        const surahs = Array.from({ length: 114 }, (_, i) => i + 1);
+        const CHUNK = 5;
+
+        for (let i = 0; i < surahs.length; i += CHUNK) {
+          if (cancelled) return;
+          const chunk = surahs.slice(i, i + CHUNK);
+          setLoadingMessage(`Searching Quran: surah ${chunk[0]}-${chunk[chunk.length-1]} (${allResults.length} found)...`);
+          const responses = await Promise.allSettled(
+            chunk.map(async (surahNum) => {
+              const params = new URLSearchParams({ q: keyword, surah: surahNum });
+              const resp = await fetch(`/quran/api/quran/search/?${params}`);
+              const data = await resp.json();
+              return { surahNum, results: data.results || [] };
+            })
+          );
+          if (cancelled) return;
+
+          const progressUpdate = {};
+          for (let idx = 0; idx < responses.length; idx++) {
+            const res = responses[idx];
+            const surahNum = chunk[idx];
+            if (res.status === "fulfilled") {
+              const { results } = res.value;
+              if (results.length > 0) allResults.push(...results);
+              progressUpdate[surahNum] = results.length > 0 ? "done" : "empty";
+            } else {
+              progressUpdate[surahNum] = "empty";
+            }
+          }
+          setQuranResults([...allResults]);
+          setQuranSurahProgress((prev) => ({ ...prev, ...progressUpdate }));
+        }
+      };
+
+      const searchHadithSequential = async () => {
+        setHadithResults([]);
+        setBookCounts({});
+
+        const progress = {};
+        for (const slug of BOOKS) progress[slug] = "loading";
+        setHadithBookProgress(progress);
+
+        const allResults = [];
+        const bookCountsAcc = {};
+        const CHUNK_H = 3;
+
+        for (let i = 0; i < BOOKS.length; i += CHUNK_H) {
+          if (cancelled) return;
+          const chunk = BOOKS.slice(i, i + CHUNK_H);
+          setLoadingMessage(`Searching hadith: ${chunk.join(", ")} (${allResults.length} found)...`);
+          const responses = await Promise.allSettled(
+            chunk.map(async (bookSlug) => {
+              const resp = await localApiClient.get("search-hadith/", {
+                params: { q: keyword, book: bookSlug },
+              });
+              return {
+                bookSlug,
+                results: resp.data.results || [],
+                counts: resp.data.book_counts || {},
+              };
+            })
+          );
+          if (cancelled) return;
+
+          const progressUpdate = {};
+          for (let idx = 0; idx < responses.length; idx++) {
+            const res = responses[idx];
+            const bookSlug = chunk[idx];
+            if (res.status === "fulfilled") {
+              const { results, counts } = res.value;
+              if (results.length > 0) allResults.push(...results);
+              bookCountsAcc[bookSlug] = counts?.[bookSlug] || (results.length > 0 ? results.length : 0);
+              progressUpdate[bookSlug] = results.length > 0 ? "done" : "empty";
+            } else {
+              bookCountsAcc[bookSlug] = 0;
+              progressUpdate[bookSlug] = "empty";
+            }
+          }
+          setHadithResults([...allResults]);
+          setBookCounts({ ...bookCountsAcc });
+          setHadithBookProgress((prev) => ({ ...prev, ...progressUpdate }));
+        }
+      };
+
+      if (rootSearch) {
+        setQuranResults([]);
+        setQuranSurahProgress({});
+        setLoadingMessage("Searching Quran by root word...");
         try {
           const params = new URLSearchParams({ q: keyword });
-          const resp = await fetch(`/quran/api/quran/search/?${params}`);
+          const resp = await fetch(`/quran/api/quran/search-by-root/?${params}`);
           const data = await resp.json();
-          if (cancelled) return;
-          setQuranResults(data.results || []);
+          if (!cancelled) setQuranResults(data.results || []);
         } catch {
           if (!cancelled) setQuranResults([]);
         }
-      };
+      } else {
+        await searchQuranSequential();
+      }
+      await searchHadithSequential();
 
-      const searchHadith = async () => {
-        setLoadingMessage("Searching hadith...");
-        try {
-          const resp = await localApiClient.get("search-hadith/", {
-            params: { q: keyword },
-          });
-          if (cancelled) return;
-          setHadithResults(resp.data.results || []);
-          setBookCounts(resp.data.book_counts || {});
-        } catch {
-          if (!cancelled) {
-            setHadithResults([]);
-            setBookCounts({});
-          }
-        }
-      };
-
-      await Promise.all([searchQuran(), searchHadith()]);
-
-      if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+        setLoadingMessage("");
+      }
     };
 
     fetchResults();
 
     return () => { cancelled = true; };
-  }, [keyword]);
+  }, [keyword, rootSearch]);
 
   // HADITH NUMBER SEARCH
   const searchHadithNumber = useCallback(async () => {
@@ -416,6 +498,76 @@ const Search = () => {
         </div>
       )}
 
+      {/* QURAN PROGRESS PANEL */}
+      {loading && !rootSearch && Object.keys(quranSurahProgress).length > 0 && (
+        <div className="mb-4 p-3 bg-white border border-green-100 rounded-lg">
+          <div className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-2">
+            <svg className="animate-spin h-3 w-3 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Quran: {Object.values(quranSurahProgress).filter(v => v === "done" || v === "empty").length}/114 surahs searched ({quranResults.length} results)
+          </div>
+          <div className="flex flex-wrap gap-1 text-xs max-h-24 overflow-y-auto">
+            {Array.from({ length: 114 }, (_, i) => i + 1).map((num) => {
+              const status = quranSurahProgress[num];
+              return (
+                <span
+                  key={num}
+                  className={`inline-block w-5 h-5 rounded text-center leading-5 text-[10px] ${
+                    status === "done"
+                      ? "bg-green-100 text-green-700"
+                      : status === "empty"
+                        ? "bg-gray-100 text-gray-400"
+                        : status === "loading"
+                          ? "bg-yellow-100 text-yellow-700 animate-pulse"
+                          : "bg-gray-50 text-gray-300"
+                  }`}
+                  title={`${num}. ${t("surahNames." + num)} - ${status === "done" ? "Results found" : status === "empty" ? "No results" : status === "loading" ? "Searching..." : "Pending"}`}
+                >
+                  {num}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* HADITH PROGRESS PANEL */}
+      {loading && Object.keys(hadithBookProgress).length > 0 && (
+        <div className="mb-4 p-3 bg-white border border-blue-100 rounded-lg">
+          <div className="text-xs font-semibold text-blue-700 mb-2 flex items-center gap-2">
+            <svg className="animate-spin h-3 w-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Hadith: {Object.values(hadithBookProgress).filter(v => v === "done" || v === "empty").length}/{BOOKS.length} books searched ({hadithResults.length} results)
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {BOOKS.map((slug) => {
+              const status = hadithBookProgress[slug];
+              return (
+                <span
+                  key={slug}
+                  className={`px-2 py-0.5 rounded ${
+                    status === "done"
+                      ? "bg-blue-100 text-blue-700"
+                      : status === "empty"
+                        ? "bg-gray-100 text-gray-400"
+                        : status === "loading"
+                          ? "bg-yellow-100 text-yellow-700 animate-pulse"
+                          : "bg-gray-50 text-gray-300"
+                  }`}
+                >
+                  {slug.replace("al-", "").replace(/-/g, " ")}
+                  {status === "done" ? " \u2713" : status === "loading" ? " \u23F3" : ""}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* QURAN FILTERS */}
       {activeSection === "quran" && (
         <div className="flex flex-wrap gap-4 mb-4">
@@ -460,6 +612,17 @@ const Search = () => {
             <option value={25}>25 per page</option>
             <option value={50}>50 per page</option>
           </select>
+          <button
+            onClick={() => setRootSearch((prev) => !prev)}
+            className={`px-3 py-1 rounded border text-sm font-medium transition-colors ${
+              rootSearch
+                ? "bg-purple-600 text-white border-purple-600"
+                : "bg-white text-purple-600 border-purple-300 hover:bg-purple-50"
+            }`}
+            title="Search by root word instead of exact text"
+          >
+            {rootSearch ? "Root word ON" : "Root word"}
+          </button>
         </div>
       )}
 

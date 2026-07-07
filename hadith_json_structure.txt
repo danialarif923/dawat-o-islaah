@@ -1,0 +1,23 @@
+ahmed.json:
+  Metadata book_id=None, arabic_name=
+  Hadiths type: list
+  Hadith count: 1374
+  Chapters count: 8
+  First chapter keys: ['id', 'bookId', 'arabic', 'english']
+  First chapter id=1
+
+darimi.json:
+  Metadata book_id=None, arabic_name=
+  Hadiths type: list
+  Hadith count: 3406
+  Chapters count: 24
+  First chapter keys: ['id', 'bookId', 'arabic', 'english']
+  First chapter id=1
+
+malik.json:
+  Metadata book_id=None, arabic_name=
+  Hadiths type: list
+  Hadith count: 1985
+  Chapters count: 61
+  First chapter keys: ['id', 'bookId', 'arabic', 'english']
+  First chapter id=1

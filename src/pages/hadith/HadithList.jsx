@@ -77,7 +77,7 @@ const HadithList = () => {
       {hadiths[0]?.chapter?.chapterEnglish && (
         <div className="text-center mb-6">
           {hadiths[0]?.chapter?.chapterArabic && (
-            <p className="text-2xl font-quran text-gray-700 mb-2 leading-loose">
+            <p className="text-2xl font-hadith text-gray-700 mb-2 leading-loose" dir="rtl">
               {hadiths[0].chapter.chapterArabic}
             </p>
           )}
@@ -85,7 +85,7 @@ const HadithList = () => {
             &#34; {language === "ur" ? t(`hadithChapterNames.${bookSlug}.${hadiths[0].chapter.chapterNumber}`) || hadiths[0].chapter.chapterEnglish : hadiths[0].chapter.chapterEnglish} &#34;
           </h2>
           {hadiths[0]?.chapter?.chapterUrdu && (
-            <p className="text-lg text-gray-600 mt-1">
+            <p className="text-[1.5rem] text-gray-600 mt-1" dir="rtl">
               {hadiths[0].chapter.chapterUrdu}
             </p>
           )}

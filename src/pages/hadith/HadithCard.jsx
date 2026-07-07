@@ -38,23 +38,26 @@ const HadithCard = ({ hadith }) => {
       </div>
 
       <div
-        className={`text-green-600 leading-12 text-3xl font-quran mt-2 ${
+        className={`text-green-600 leading-12 text-3xl font-hadith mt-2 text-right ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
         }`}
+        dir="rtl"
         dangerouslySetInnerHTML={{ __html: hadith?.hadithArabic?.replace(/<\/?p[^>]*>/g, "") }}
       />
 
       <div
-        className={`text-lg leading-12 pt-2 ${
+        className={`text-[1.5rem] leading-12 pt-2 text-right ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
         }`}
+        dir="rtl"
         dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
       />
 
       <div
-        className={`text-gray-800 pt-2 leading-12 ${
+        className={`text-left text-base text-gray-800 pt-2 leading-12 ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
         }`}
+        dir="ltr"
         dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
       />
 

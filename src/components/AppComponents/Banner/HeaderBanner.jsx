@@ -249,7 +249,7 @@ const HeaderBanner = () => {
   }, []);
 
   return (
-    <div className="bg-[#1E3A5F] py-2 px-5 md:px-10 text-white text-sm">
+    <div className={`bg-[#1E3A5F] py-2 px-5 md:px-10 text-white ${language === "ur" ? "text-[1.3rem]" : "text-base"}`}>
       {/* Location Request Section - Only show if location not requested and not saved */}
       {!locationRequested && !savedLocation && (
         <div className="flex items-center justify-center py-2 mb-2 bg-[#2A4A6B] rounded">

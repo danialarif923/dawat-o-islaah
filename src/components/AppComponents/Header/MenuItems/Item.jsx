@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useTranslation } from "../../../../hooks/useTranslation";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../../../context/LanguageContext";
 
 const Item = ({ item, closeMenu, isMobile }) => {
   const translation = useTranslation();
+  const { language } = useLanguage();
   const itemWord = translation?.header?.[item] || item;
   const [isHovered, setIsHovered] = useState(false);
 
@@ -43,8 +45,8 @@ const Item = ({ item, closeMenu, isMobile }) => {
           isHovered ? "text-white" : "text-[#1E3A5F]"
         } ${
           isMobile
-            ? "block text-xl py-1 px-4 hover:bg-[#1E3A5F]/10 rounded-lg"
-            : "text-base"
+            ? `block ${language === "ur" ? "text-3xl" : "text-xl"} py-1 px-4 hover:bg-[#1E3A5F]/10 rounded-lg`
+            : `${language === "ur" ? "text-[1.5rem]" : "text-lg"}`
         }`}
       >
         {itemWord}

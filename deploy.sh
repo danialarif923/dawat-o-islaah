@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy merged data and import command to the server
+# Deploy merged data, import command, and root-word search files to the server
 # Usage: bash deploy.sh
 
 SERVER="ubuntu@13.127.232.43"
@@ -18,4 +18,25 @@ scp -i "$KEY" -o StrictHostKeyChecking=no hadith/management/commands/import_merg
 echo "Running import..."
 ssh -i "$KEY" -o StrictHostKeyChecking=no "$SERVER" "cd $REMOTE_DIR && source venv/bin/activate && python manage.py import_merged --all --dir=merged_data"
 
-echo "Done!"
+# ============================================================
+# Root Word Search deployment
+# ============================================================
+echo ""
+echo "=== Root Word Search Deployment ==="
+
+echo "Uploading management command..."
+scp -i "$KEY" -o StrictHostKeyChecking=no hadith/management/commands/import_word_roots.py "$SERVER:$REMOTE_DIR/hadith/management/commands/"
+
+echo "Uploading server patch script and quran modules..."
+scp -i "$KEY" -o StrictHostKeyChecking=no patch_server.py "$SERVER:$REMOTE_DIR/"
+scp -i "$KEY" -o StrictHostKeyChecking=no quran/root_models.py "$SERVER:$REMOTE_DIR/quran/"
+scp -i "$KEY" -o StrictHostKeyChecking=no quran/root_search.py "$SERVER:$REMOTE_DIR/quran/"
+
+echo "Uploading rewrite_urls.py..."
+scp -i "$KEY" -o StrictHostKeyChecking=no rewrite_urls.py "$SERVER:$REMOTE_DIR/"
+
+echo "Running server patch..."
+ssh -i "$KEY" -o StrictHostKeyChecking=no "$SERVER" "cd $REMOTE_DIR && python patch_server.py"
+
+echo ""
+echo "Done! Root word search deployed."

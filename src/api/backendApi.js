@@ -170,6 +170,13 @@ export const getSurahAudio = (surahId) =>
 export const getQaris = () => getWithParams("api/qaris/");
 
 /* =====================================================
+   WORD TIMINGS (Word-by-Word Highlighting)
+===================================================== */
+
+export const getWordTimings = (surahNumber) =>
+  getWithParams("api/word-timings/", { surah: surahNumber });
+
+/* =====================================================
    AUTHOR MANAGEMENT (Admin Tools)
 ===================================================== */
 

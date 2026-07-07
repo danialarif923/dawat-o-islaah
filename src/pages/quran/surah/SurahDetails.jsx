@@ -8,7 +8,7 @@ const SurahDetails = () => {
   const { t } = useLanguage();
   const { surahNumber } = useParams();
 
-  const { surahDetails, verses, loadingDetails, loadingVerses, error } =
+  const { surahDetails, verses, wordTimings, audioByQari, selectedQari, loadingDetails, loadingVerses, error } =
     useSurah(surahNumber);
 
   if (loadingDetails || loadingVerses) return <ShimmerLoader />;
@@ -20,8 +20,10 @@ const SurahDetails = () => {
   return (
     <div className="container mx-auto px-6 md:px-20 py-12">
       <div className="text-center mb-6">
-        <p className="text-3xl text-blue-600 font-semibold font-quran">
-          {surahDetails.name}
+        <p className="text-3xl text-blue-600 font-semibold">
+          <span className="font-surah-name" aria-label={surahDetails.name}>
+            {`surah${String(surahNumber).padStart(3, "0")}`}
+          </span>
         </p>
         <h1 className="text-3xl md:text-4xl font-bold mt-4">
           {t(`surahNames.${surahNumber}`)}
@@ -32,7 +34,7 @@ const SurahDetails = () => {
         </p>
       </div>
 
-      <VerseCard verses={verses} surahNo={surahNumber} />
+      <VerseCard verses={verses} surahNo={surahNumber} wordTimings={wordTimings} audioByQari={audioByQari} selectedQari={selectedQari} />
     </div>
   );
 };

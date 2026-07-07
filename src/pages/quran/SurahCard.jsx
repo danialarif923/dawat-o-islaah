@@ -10,7 +10,7 @@ const SurahCard = ({
   revelationType,
   arabicName,
 }) => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   // Use translation for revelationType if available
   const revType = t(`quran.revelationType.${revelationType}`) || revelationType;
 
@@ -33,9 +33,11 @@ const SurahCard = ({
           </p>
         </div>
 
-        {/* Right Side - Arabic Name (or Urdu name when language is Urdu) */}
-        <div className="text-blue-600 text-2xl md:text-4xl text-right font-quran">
-          {language === "ur" ? t(`surahNames.${number}`) : arabicName}
+        {/* Right Side - Arabic surah name */}
+        <div className="text-blue-600 text-right">
+          <span className="font-surah-name text-[4rem]" aria-label={arabicName}>
+            {`surah${String(number).padStart(3, "0")}`}
+          </span>
         </div>
 
         {/* Horizontal Rule (disappears on hover) */}
