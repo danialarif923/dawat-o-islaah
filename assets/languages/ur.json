@@ -118,6 +118,7 @@
     "tabSurah": "سورت",
     "tabJuz": "جز",
     "tabReadQuran": "قرآن پڑھیں",
+    "tabTajweed": "تجوید",
     "selectMushaf": "مشق منتخب کریں",
     "page": "صفحہ",
     "of": "میں سے",
@@ -132,6 +133,16 @@
       "Meccan": "مکی",
       "Medinan": "مدنی"
     }
+  },
+  "tajweed": {
+    "selectSurah": "سورت منتخب کریں",
+    "loading": "تجوید ڈیٹا لوڈ ہو رہا ہے...",
+    "surahNotFound": "سورت نہیں ملی",
+    "noData": "اس آیت کے لیے تجوید کا ڈیٹا نہیں ہے",
+    "themeLight": "روشن",
+    "themeDark": "اندھیرا",
+    "themeSepia": "سیپیا",
+    "themeBlack": "سیاہ"
   },
   "quranDetails": {
     "ayah": "آیت",

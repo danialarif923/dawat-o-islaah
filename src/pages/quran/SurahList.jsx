@@ -1,13 +1,15 @@
 import useSurahList from "../../hooks/useSurahList";
 import SurahCard from "./SurahCard";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import juzData from "../../../assets/juzData.json";
 import JuzCard from "./JuzCard";
 import ReadQuranList from "./ReadQuranList";
 import { useLanguage } from "../../context/LanguageContext";
 
-const tabKeys = ["Surah", "Juzz", "ReadQuran"];
+const TajweedSurahList = lazy(() => import("./tajweed/TajweedSurahList"));
+
+const tabKeys = ["Surah", "Juzz", "ReadQuran", "Tajweed"];
 
 const SurahList = () => {
   const { t } = useLanguage();
@@ -66,6 +68,12 @@ const SurahList = () => {
 
   const readQuranList = <ReadQuranList />;
 
+  const tajweedList = (
+    <Suspense fallback={<p className="text-center py-8 text-gray-400">{t("tajweed.loading") || "Loading..."}</p>}>
+      <TajweedSurahList />
+    </Suspense>
+  );
+
   return (
     <div className="container mx-auto px-6 pt-4 sm:pt-8">
       <h1 className="text-3xl font-bold text-center">
@@ -92,7 +100,7 @@ const SurahList = () => {
           ))}
         </div>
       </div>
-      {activeTab === "Surah" ? surahList : activeTab === "Juzz" ? juzList : readQuranList}
+      {activeTab === "Surah" ? surahList : activeTab === "Juzz" ? juzList : activeTab === "ReadQuran" ? readQuranList : tajweedList}
     </div>
   );
 };

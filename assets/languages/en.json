@@ -118,6 +118,7 @@
     "tabSurah": "Surah",
     "tabJuz": "Juzz",
     "tabReadQuran": "Read Quran",
+    "tabTajweed": "Tajweed",
     "selectMushaf": "Select a Mushaf layout to start reading",
     "page": "Page",
     "of": "of",
@@ -132,6 +133,16 @@
       "Meccan": "Meccan",
       "Medinan": "Medinan"
     }
+  },
+  "tajweed": {
+    "selectSurah": "Select a Surah",
+    "loading": "Loading Tajweed data...",
+    "surahNotFound": "Surah not found",
+    "noData": "No Tajweed data for this ayah",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSepia": "Sepia",
+    "themeBlack": "Black"
   },
   "quranDetails": {
     "ayah": "Ayah",
