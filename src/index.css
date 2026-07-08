@@ -89,6 +89,24 @@ html[dir="rtl"] .services-grid a {
   flex-shrink: 1;
 }
 
+/* QnA Section: Increase Urdu font size to 1.3rem */
+#qna-root[dir="rtl"] {
+  font-size: 1.3rem;
+}
+
+#qna-root[dir="rtl"] .qna-heading,
+#qna-root[dir="rtl"] .qna-login-text,
+#qna-root[dir="rtl"] .qna-text-dark {
+  font-size: 1.3rem;
+}
+
+#qna-root[dir="rtl"] input,
+#qna-root[dir="rtl"] textarea,
+#qna-root[dir="rtl"] select,
+#qna-root[dir="rtl"] button {
+  font-size: 1.3rem;
+}
+
 /* =====================================================
    3. GLOBAL UI STYLES
    ===================================================== */
