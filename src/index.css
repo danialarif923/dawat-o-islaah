@@ -107,6 +107,10 @@ html[dir="rtl"] .services-grid a {
   font-size: 1.3rem;
 }
 
+#qna-root[dir="rtl"] .text-xs {
+  font-size: 1.3rem;
+}
+
 /* =====================================================
    3. GLOBAL UI STYLES
    ===================================================== */
