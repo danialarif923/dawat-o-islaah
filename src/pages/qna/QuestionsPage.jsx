@@ -228,7 +228,7 @@ const QuestionsPage = () => {
   };
 
   return (
-    <div id="qna-root" className={`min-h-screen theme-bg-page transition-colors duration-300 ${qnaTheme === "dark" ? "qna-mode-dark" : ""}`}>
+    <div id="qna-root" dir={isRtl ? "rtl" : "ltr"} className={`min-h-screen theme-bg-page transition-colors duration-300 ${qnaTheme === "dark" ? "qna-mode-dark" : ""}`}>
       
       {qnaTheme !== globalTheme && (
         <style>{`
