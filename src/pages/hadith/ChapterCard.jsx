@@ -1,14 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import ur from "../../../assets/languages/ur.json";
+
+function getUrduName(bookSlug, chapterNumber) {
+  return ur?.hadithChapterNames?.[bookSlug]?.[String(chapterNumber)];
+}
 
 const ChapterCard = ({ chapter }) => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const chapterNum = chapter.chapterNumber;
+  const urduName = chapter.chapterUrdu || getUrduName(chapter.bookSlug, chapterNum);
 
   return (
     <div
       onClick={() =>
-        navigate(`/hadith/${chapter.bookSlug}/${chapter.chapterNumber}`)
+        navigate(`/hadith/${chapter.bookSlug}/${chapterNum}`)
       }
       className="cursor-pointer bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 border border-gray-100"
     >
@@ -16,12 +23,12 @@ const ChapterCard = ({ chapter }) => {
         {/* LEFT SIDE */}
         <div className="flex-1">
           <h3 className={`${language === "ur" ? "text-[1.5rem]" : "text-xl"} font-semibold text-blue-600 leading-snug`}>
-            {chapter.chapterNumber}. {language === "ur" ? (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames.") ? n : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`; })() : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`}
+            {chapterNum}. {language === "ur" ? (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapterNum}`); return n && !n.startsWith("hadithChapterNames.") ? n : chapter.chapterEnglish || `Chapter ${chapterNum}`; })() : chapter.chapterEnglish || `Chapter ${chapterNum}`}
           </h3>
 
-          {language === "en" && (
+          {language === "en" && urduName && (
             <p className="text-sm text-gray-500 mt-4 leading-relaxed">
-              {chapter.chapterUrdu || t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) || chapter.chapterEnglish}
+              {urduName}
             </p>
           )}
         </div>
@@ -34,12 +41,12 @@ const ChapterCard = ({ chapter }) => {
 
           {language === "ur" ? (
             <p className="text-md text-gray-500 mt-2 leading-relaxed">
-              {chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`}
+              {chapter.chapterEnglish || `Chapter ${chapterNum}`}
             </p>
           ) : (
-            chapter.chapterUrdu && (
+            urduName && (
               <p className="text-md text-gray-500 mt-2 leading-relaxed">
-                {chapter.chapterUrdu}
+                {urduName}
               </p>
             )
           )}
