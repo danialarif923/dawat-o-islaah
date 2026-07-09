@@ -17,6 +17,7 @@ function getIslamicDate() {
 
 function getGregorianDate() {
   const formatter = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -86,7 +87,7 @@ const downloadScreenshotVotd = async (item, type) => {
 
   const badgeHtml = `
     <div style="text-align: center; margin-bottom: 20px;">
-      <span style="display: inline-flex; align-items: center; justify-content: center; background: ${accentColor}; color: ${isVerse ? "#157347" : "#ffffff"}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; padding: 5px 14px; border-radius: 20px; line-height: 1;">${typeLabel}</span>
+      <span style="display: inline-block; background: ${accentColor}; color: ${isVerse ? "#157347" : "#ffffff"}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; height: 22px; line-height: 22px; padding: 0 14px; border-radius: 11px;">${typeLabel}</span>
     </div>
   `;
 
