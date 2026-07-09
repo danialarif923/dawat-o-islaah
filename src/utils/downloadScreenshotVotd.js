@@ -98,9 +98,9 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
             <span style="font-size: 15px; color: #ffffff;">dawatoislaah.com</span>
           </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"}; word-spacing: ${isUrdu ? "0.15em" : "normal"};" dir="ltr">
-          <div style="text-align: left; flex: 1;">${getGregorianDate(isUrdu)}</div>
-          <div style="text-align: right; flex: 1;">${getIslamicDate(isUrdu)}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"}; word-spacing: ${isUrdu ? "0.15em" : "normal"};">
+          <div style="text-align: left; flex: 1; unicode-bidi: plaintext;">${getGregorianDate(isUrdu)}</div>
+          <div style="text-align: right; flex: 1; unicode-bidi: plaintext;">${getIslamicDate(isUrdu)}</div>
         </div>
       </div>
       <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
@@ -109,7 +109,7 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
     const badgeHtml = `
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
         <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, ${accentColor});"></div>
-        <span style="color: ${accentColor}; font-size: ${isUrdu ? "20px" : "11px"}; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; line-height: 1; margin-top: -1px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">${typeLabel}</span>
+        <span style="color: ${accentColor}; font-size: ${isUrdu ? "23px" : "11px"}; font-weight: bold; ${isUrdu ? "" : "text-transform: uppercase; letter-spacing: 0.08em;"} white-space: nowrap; line-height: 1; margin-top: -1px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">${typeLabel}</span>
         <div style="flex: 1; height: 1px; background: linear-gradient(to left, transparent, ${accentColor});"></div>
       </div>
     `;
