@@ -98,9 +98,9 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
             <span style="font-size: 11px; color: #ffffff;">dawatoislaah.com</span>
           </div>
         </div>
-        <div style="font-size: 11px; color: #ffffff; line-height: 1.6; unicode-bidi: plaintext;">
-          <div>${getGregorianDate(isUrdu)}</div>
-          <div>${getIslamicDate(isUrdu)}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 15px; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};" dir="ltr">
+          <div style="text-align: left; flex: 1;">${getGregorianDate(isUrdu)}</div>
+          <div style="text-align: right; flex: 1;">${getIslamicDate(isUrdu)}</div>
         </div>
       </div>
       <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
@@ -133,14 +133,14 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
     `;
 
     const refHtml = `
-      <div style="font-size: 13px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px;">
+      <div style="font-size: 15px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
         <span>${refText}</span>
       </div>
     `;
 
     const footerHtml = `
       <div style="height: 1px; background-color: ${accentColor}; opacity: 0.3; margin-bottom: 15px;"></div>
-      <div style="text-align: center; font-size: 11px; color: #ffffff;">
+      <div style="text-align: center; font-size: 15px; color: #ffffff; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
         ${footerText}
       </div>
     `;
