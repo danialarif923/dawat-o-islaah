@@ -42,113 +42,115 @@ function translateRef(ref, t) {
 }
 
 const downloadScreenshotVotd = async (item, type, lang, t) => {
-  const isVerse = type === "verse";
-  const isUrdu = lang === "ur";
+  let container = null;
+  try {
+    const isVerse = type === "verse";
+    const isUrdu = lang === "ur";
 
-  const typeLabel = isVerse
-    ? t("dailyVerseHadees.verseOfTheDay")
-    : t("dailyVerseHadees.hadeesOfTheDay");
+    const typeLabel = isVerse
+      ? t("dailyVerseHadees.verseOfTheDay")
+      : t("dailyVerseHadees.hadeesOfTheDay");
 
-  const footerText = isUrdu
-    ? "مزید مستند اسلامی معلومات کے لیے ملاحظہ کریں dawatoislaah.com"
-    : "For more authentic Islamic knowledge, visit dawatoislaah.com";
+    const footerText = isUrdu
+      ? "مزید مستند اسلامی معلومات کے لیے ملاحظہ کریں dawatoislaah.com"
+      : "For more authentic Islamic knowledge, visit dawatoislaah.com";
 
-  const bgColor = isVerse ? EMERALD : GOLD;
-  const accentColor = isVerse ? GOLD : EMERALD;
-  const borderColor = isVerse ? "#c9a227" : EMERALD;
-  const logoBorder = isVerse ? GOLD : EMERALD;
+    const bgColor = isVerse ? EMERALD : GOLD;
+    const accentColor = isVerse ? GOLD : EMERALD;
+    const borderColor = isVerse ? "#c9a227" : EMERALD;
+    const logoBorder = isVerse ? GOLD : EMERALD;
 
-  const arabicFont = isVerse
-    ? getQuranFont()
-    : '"TraditionNaskh", serif';
-  const filename = `${type}-${(item.reference || type).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}.png`;
+    const arabicFont = isVerse
+      ? getQuranFont()
+      : '"TraditionNaskh", serif';
+    const filename = `${type}-${(item.reference || type).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}.png`;
 
-  const refText = isUrdu && isVerse ? translateRef(item.reference, t) : item.reference;
-  const brandName = isUrdu ? t("footer.brand") : "Dawat o Islaah";
+    const refText = isUrdu && isVerse ? translateRef(item.reference, t) : item.reference;
+    const brandName = isUrdu ? t("footer.brand") : "Dawat o Islaah";
 
-  const container = document.createElement("div");
-  container.style.position = "absolute";
-  container.style.left = "-9999px";
-  container.style.top = "-9999px";
-  container.style.width = "650px";
-  container.style.padding = "40px";
-  container.style.backgroundColor = bgColor;
-  container.style.color = "#ffffff";
-  container.style.borderRadius = "16px";
-  container.style.border = `2px solid ${borderColor}`;
-  container.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.3)";
-  container.style.fontFamily = "'OptimaNovaLTPro', serif";
-  container.style.direction = isUrdu ? "rtl" : "ltr";
-  container.style.textAlign = "center";
+    container = document.createElement("div");
+    container.style.position = "absolute";
+    container.style.left = "-9999px";
+    container.style.top = "-9999px";
+    container.style.width = "650px";
+    container.style.padding = "40px";
+    container.style.backgroundColor = bgColor;
+    container.style.color = "#ffffff";
+    container.style.borderRadius = "16px";
+    container.style.border = `2px solid ${borderColor}`;
+    container.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.3)";
+    container.style.fontFamily = "'OptimaNovaLTPro', serif";
+    container.style.direction = isUrdu ? "rtl" : "ltr";
+    container.style.textAlign = "center";
 
-  const headerHtml = `
-    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px;">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-        <img src="/assets/logo.jpeg" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid ${logoBorder};" />
-        <div>
-          <h2 style="margin: 0; font-size: 18px; color: ${accentColor}; font-weight: bold;">${brandName}</h2>
-          <span style="font-size: 11px; color: #ffffff;">dawatoislaah.com</span>
+    const headerHtml = `
+      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          <img src="/assets/logo.jpeg" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid ${logoBorder};" />
+          <div>
+            <h2 style="margin: 0; font-size: 18px; color: ${accentColor}; font-weight: bold;">${brandName}</h2>
+            <span style="font-size: 11px; color: #ffffff;">dawatoislaah.com</span>
+          </div>
+        </div>
+        <div style="font-size: 11px; color: #ffffff; line-height: 1.6; unicode-bidi: plaintext;">
+          <div>${getGregorianDate(isUrdu)}</div>
+          <div>${getIslamicDate(isUrdu)}</div>
         </div>
       </div>
-      <div style="font-size: 11px; color: #ffffff; line-height: 1.6; unicode-bidi: plaintext;">
-        <div>${getGregorianDate(isUrdu)}</div>
-        <div>${getIslamicDate(isUrdu)}</div>
+      <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
+    `;
+
+    const badgeHtml = `
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+        <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, ${accentColor});"></div>
+        <span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; line-height: 1; margin-top: -1px;">${typeLabel}</span>
+        <div style="flex: 1; height: 1px; background: linear-gradient(to left, transparent, ${accentColor});"></div>
       </div>
-    </div>
-    <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
-  `;
+    `;
 
-  const badgeHtml = `
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-      <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, ${accentColor});"></div>
-      <span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; line-height: 1; margin-top: -1px;">${typeLabel}</span>
-      <div style="flex: 1; height: 1px; background: linear-gradient(to left, transparent, ${accentColor});"></div>
-    </div>
-  `;
+    const arabicHtml = `
+      <div style='font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 32px; color: #ffffff; word-spacing: 0.1em;'>
+        ${item.arabic}
+      </div>
+    `;
 
-  const arabicHtml = `
-    <div style='font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 32px; color: #ffffff; word-spacing: 0.1em;'>
-      ${item.arabic}
-    </div>
-  `;
+    const urduHtml = `
+      <div style="font-family: 'Jameel Noori Nastaleeq Regular', serif; font-size: 27px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: #ffffff;">
+        ${item.urdu}
+      </div>
+    `;
 
-  const urduHtml = `
-    <div style="font-family: 'Jameel Noori Nastaleeq Regular', serif; font-size: 27px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: #ffffff;">
-      ${item.urdu}
-    </div>
-  `;
+    const englishHtml = `
+      <div style="font-family: 'OptimaNovaLTPro', serif; font-size: 25px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: #ffffff;">
+        ${item.english}
+      </div>
+    `;
 
-  const englishHtml = `
-    <div style="font-family: 'OptimaNovaLTPro', serif; font-size: 25px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: #ffffff;">
-      ${item.english}
-    </div>
-  `;
+    const refHtml = `
+      <div style="font-size: 13px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px;">
+        <span>${refText}</span>
+      </div>
+    `;
 
-  const refHtml = `
-    <div style="font-size: 13px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px;">
-      <span>${refText}</span>
-    </div>
-  `;
+    const footerHtml = `
+      <div style="height: 1px; background-color: ${accentColor}; opacity: 0.3; margin-bottom: 15px;"></div>
+      <div style="text-align: center; font-size: 11px; color: #ffffff;">
+        ${footerText}
+      </div>
+    `;
 
-  const footerHtml = `
-    <div style="height: 1px; background-color: ${accentColor}; opacity: 0.3; margin-bottom: 15px;"></div>
-    <div style="text-align: center; font-size: 11px; color: #ffffff;">
-      ${footerText}
-    </div>
-  `;
+    container.innerHTML = [
+      headerHtml,
+      badgeHtml,
+      arabicHtml,
+      urduHtml,
+      englishHtml,
+      refHtml,
+      footerHtml,
+    ].join("\n");
 
-  container.innerHTML = `
-    ${headerHtml}
-    ${badgeHtml}
-    ${arabicHtml}
-    ${urduHtml}
-    ${englishHtml}
-    ${refHtml}
-    ${footerHtml}
-  `;
-  document.body.appendChild(container);
+    document.body.appendChild(container);
 
-  try {
     const canvas = await html2canvas(container, {
       backgroundColor: bgColor,
       useCORS: true,
@@ -167,7 +169,9 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
     console.error("Screenshot capture failed:", error);
     throw error;
   } finally {
-    document.body.removeChild(container);
+    if (container && container.parentNode) {
+      document.body.removeChild(container);
+    }
   }
 };
 
