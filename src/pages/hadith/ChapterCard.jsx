@@ -29,31 +29,41 @@ const ChapterCard = ({ chapter }) => {
       className="cursor-pointer bg-white rounded-2xl shadow-md hover:shadow-lg transition-all p-6 border border-gray-100"
     >
       <div className="flex justify-between items-start gap-4">
-        {/* LEFT SIDE */}
-        <div className="flex-1">
-          <h3 className={`${language === "ur" ? "text-[1.5rem]" : "text-xl"} font-semibold text-blue-600 leading-snug`}>
-            {displayChapter}. {language === "ur" ? (getTranslationLabel(t, chapter.bookSlug, chapterNum) || chapter.chapterEnglish || `Chapter ${displayChapter}`) : chapter.chapterEnglish || `Chapter ${displayChapter}`}
-          </h3>
+        {language === "ur" ? (
+          <>
+            {/* LEFT — Arabic + English for UR mode */}
+            <div className="flex-1">
+              <p className="text-2xl font-bold font-hadith text-gray-700 leading-loose">
+                {chapter.chapterArabic || "—"}
+              </p>
+              <p className="text-[1.25rem] text-gray-500 mt-2 leading-relaxed">
+                {chapter.chapterEnglish || `Chapter ${displayChapter}`}
+              </p>
+            </div>
+            <div className="flex-1" />
+          </>
+        ) : (
+          <>
+            {/* LEFT — English heading + Urdu name for EN mode */}
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-blue-600 leading-snug">
+                {displayChapter}. {chapter.chapterEnglish || `Chapter ${displayChapter}`}
+              </h3>
+              {urduName && (
+                <p className="text-[1.3rem] text-gray-500 mt-4 leading-relaxed">
+                  {urduName}
+                </p>
+              )}
+            </div>
 
-          {language === "en" && urduName && (
-            <p className="text-[1.3rem] text-gray-500 mt-4 leading-relaxed">
-              {urduName}
-            </p>
-          )}
-        </div>
-
-        {/* RIGHT SIDE (ARABIC & SECONDARY) */}
-        <div className="flex-1 text-right">
-          <p className="text-2xl font-bold font-hadith text-gray-700 leading-loose">
-            {chapter.chapterArabic || "—"}
-          </p>
-
-          {language === "ur" && (
-            <p className="text-md text-gray-500 mt-2 leading-relaxed">
-              {chapter.chapterEnglish || `Chapter ${displayChapter}`}
-            </p>
-          )}
-        </div>
+            {/* RIGHT — Arabic for EN mode */}
+            <div className="flex-1 text-right">
+              <p className="text-2xl font-bold font-hadith text-gray-700 leading-loose">
+                {chapter.chapterArabic || "—"}
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
