@@ -86,8 +86,10 @@ const downloadScreenshotVotd = async (item, type) => {
   `;
 
   const badgeHtml = `
-    <div style="text-align: center; margin-bottom: 20px;">
-      <span style="display: inline-block; background: ${accentColor}; color: ${isVerse ? "#157347" : "#ffffff"}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; height: 22px; line-height: 22px; padding: 0 14px; border-radius: 11px;">${typeLabel}</span>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+      <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, ${accentColor});"></div>
+      <span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap;">${typeLabel}</span>
+      <div style="flex: 1; height: 1px; background: linear-gradient(to left, transparent, ${accentColor});"></div>
     </div>
   `;
 

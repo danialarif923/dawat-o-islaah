@@ -19,27 +19,29 @@ const ChapterCard = ({ chapter }) => {
             {chapter.chapterNumber}. {language === "ur" ? (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames.") ? n : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`; })() : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`}
           </h3>
 
-          <p className={`${language === "ur" ? "text-[1.3rem]" : "text-sm"} text-gray-500 mt-4`}>
-            {t("chapterCard.book")}: {t(`hadithBookNames.${chapter.bookSlug}`) || chapter.bookSlug.replace("-", " ")}
-          </p>
+          {language === "en" && (
+            <p className="text-sm text-gray-500 mt-4 leading-relaxed">
+              {chapter.chapterUrdu || t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) || chapter.chapterEnglish}
+            </p>
+          )}
         </div>
 
-        {/* RIGHT SIDE (ARABIC & URDU) */}
+        {/* RIGHT SIDE (ARABIC & SECONDARY) */}
         <div className="flex-1 text-right">
           <p className="text-2xl font-bold font-hadith text-gray-700 leading-loose">
             {chapter.chapterArabic || "—"}
           </p>
 
-          {chapter.chapterUrdu && (
+          {language === "ur" ? (
             <p className="text-md text-gray-500 mt-2 leading-relaxed">
-              {chapter.chapterUrdu}
+              {chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`}
             </p>
-          )}
-
-          {!chapter.chapterUrdu && language === "ur" && (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames."); })() && (
-            <p className="text-gray-500 mt-2 leading-relaxed">
-              {t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`)}
-            </p>
+          ) : (
+            chapter.chapterUrdu && (
+              <p className="text-md text-gray-500 mt-2 leading-relaxed">
+                {chapter.chapterUrdu}
+              </p>
+            )
           )}
         </div>
       </div>
