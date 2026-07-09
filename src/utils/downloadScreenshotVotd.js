@@ -75,7 +75,7 @@ const downloadScreenshotVotd = async (item, type) => {
 
   const badgeHtml = `
     <div style="text-align: center; margin-bottom: 20px;">
-      <span style="display: inline-block; background: ${accentColor}; color: #ffffff; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 20px; text-align: center;">${typeLabel}</span>
+      <span style="display: inline-flex; align-items: center; background: ${accentColor}; color: #ffffff; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 20px;">${typeLabel}</span>
     </div>
   `;
 
