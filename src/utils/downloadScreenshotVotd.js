@@ -94,11 +94,11 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
           <img src="/assets/logo.jpeg" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid ${logoBorder};" />
           <div>
-            <h2 style="margin: 0; font-size: 18px; color: ${accentColor}; font-weight: bold;">${brandName}</h2>
-            <span style="font-size: 11px; color: #ffffff;">dawatoislaah.com</span>
+            <h2 style="margin: 0; font-size: ${isUrdu ? "30px" : "18px"}; color: ${accentColor}; font-weight: bold; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">${brandName}</h2>
+            <span style="font-size: 15px; color: #ffffff;">dawatoislaah.com</span>
           </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 15px; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};" dir="ltr">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"}; word-spacing: ${isUrdu ? "0.15em" : "normal"};" dir="ltr">
           <div style="text-align: left; flex: 1;">${getGregorianDate(isUrdu)}</div>
           <div style="text-align: right; flex: 1;">${getIslamicDate(isUrdu)}</div>
         </div>
@@ -109,7 +109,7 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
     const badgeHtml = `
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
         <div style="flex: 1; height: 1px; background: linear-gradient(to right, transparent, ${accentColor});"></div>
-        <span style="color: ${accentColor}; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; line-height: 1; margin-top: -1px;">${typeLabel}</span>
+        <span style="color: ${accentColor}; font-size: ${isUrdu ? "20px" : "11px"}; font-weight: bold; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; line-height: 1; margin-top: -1px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">${typeLabel}</span>
         <div style="flex: 1; height: 1px; background: linear-gradient(to left, transparent, ${accentColor});"></div>
       </div>
     `;
@@ -133,14 +133,14 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
     `;
 
     const refHtml = `
-      <div style="font-size: 15px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
+      <div style="font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
         <span>${refText}</span>
       </div>
     `;
 
     const footerHtml = `
       <div style="height: 1px; background-color: ${accentColor}; opacity: 0.3; margin-bottom: 15px;"></div>
-      <div style="text-align: center; font-size: 15px; color: #ffffff; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
+      <div style="text-align: center; font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"};">
         ${footerText}
       </div>
     `;
