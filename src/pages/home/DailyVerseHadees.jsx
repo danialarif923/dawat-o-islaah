@@ -76,7 +76,7 @@ ${item.english}
       await downloadScreenshotVotd(item, type, language, t);
     } catch (error) {
       console.error("Failed to download image:", error);
-      alert("Error: " + (error.message || error));
+      alert("Failed to generate image. Please try again.");
     }
     setModalItem(null);
     setModalType(null);
