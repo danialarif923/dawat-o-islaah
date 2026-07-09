@@ -114,12 +114,11 @@
     "nearestMosque": "قریب ترین مسجد"
   },
   "quran": {
-    "surahListTitle": "قرآن سورتیں",
+    "surahListTitle": "قرآن مجید",
     "tabSurah": "سورت",
-    "tabJuz": "جز",
-    "tabReadQuran": "قرآن پڑھیں",
+    "tabJuz": "پارہ",
+    "tabReadQuran": "تلاوت",
     "tabTajweed": "تجوید",
-    "selectMushaf": "مشق منتخب کریں",
     "page": "صفحہ",
     "of": "میں سے",
     "jumpToPage": "صفحہ پر جائیں",

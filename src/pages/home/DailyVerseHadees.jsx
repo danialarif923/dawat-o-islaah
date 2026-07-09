@@ -19,7 +19,7 @@ const COLORS = {
 };
 
 const DailyVerseHadees = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const currentDay = new Date().getDate();
 
   const verseIndex = (currentDay - 1) % verses.length;
@@ -73,7 +73,7 @@ ${item.english}
 
   const handleDownloadImage = async (item, type) => {
     try {
-      await downloadScreenshotVotd(item, type);
+      await downloadScreenshotVotd(item, type, language, t);
     } catch (error) {
       console.error("Failed to download image:", error);
       alert("Failed to generate image. Please try again.");

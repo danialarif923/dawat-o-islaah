@@ -1,67 +1,53 @@
 import html2canvas from "html2canvas";
-import en from "../../assets/languages/en.json";
-import ur from "../../assets/languages/ur.json";
-
-function getLang() {
-  return localStorage.getItem("language") || "en";
-}
-
-function tr(key) {
-  const lang = getLang();
-  const data = lang === "ur" ? ur : en;
-  const keys = key.split(".");
-  let val = data;
-  for (const k of keys) {
-    val = val?.[k];
-    if (val === undefined) return key;
-  }
-  return val;
-}
-
-function getIslamicDate() {
-  const locale = getLang() === "ur" ? "ur-PK-u-ca-islamic" : "en-u-ca-islamic";
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric", month: "long", year: "numeric",
-  }).format(new Date());
-}
-
-function getGregorianDate() {
-  const locale = getLang() === "ur" ? "ur-PK" : "en-US";
-  return new Intl.DateTimeFormat(locale, {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  }).format(new Date());
-}
-
-function translateReference(ref) {
-  if (!ref) return ref;
-  const match = ref.match(/(\d+):\d+/);
-  if (match) {
-    const num = match[1];
-    const name = ur.surahNames?.[num];
-    if (name) return ref.replace(/Surah\s+\S+/, `سورہ ${name}`);
-  }
-  return ref;
-}
-
-function parseReference(ref) {
-  const parts = ref.split(" - Hadith ");
-  if (parts.length === 2) {
-    return { book: parts[0], number: `Hadith ${parts[1]}` };
-  }
-  return { book: ref, number: "" };
-}
 
 const EMERALD = "#157347";
 const GOLD = "#c9a227";
 
-const downloadScreenshotVotd = async (item, type) => {
-  const lang = getLang();
+function getIslamicDate(isUrdu) {
+  try {
+    const locale = isUrdu ? "ur-PK-u-ca-islamic" : "en-u-ca-islamic";
+    return new Intl.DateTimeFormat(locale, {
+      day: "numeric", month: "long", year: "numeric",
+    }).format(new Date());
+  } catch (e) {
+    return new Intl.DateTimeFormat("en-u-ca-islamic", {
+      day: "numeric", month: "long", year: "numeric",
+    }).format(new Date());
+  }
+}
+
+function getGregorianDate(isUrdu) {
+  try {
+    const locale = isUrdu ? "ur-PK" : "en-US";
+    return new Intl.DateTimeFormat(locale, {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    }).format(new Date());
+  } catch (e) {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    }).format(new Date());
+  }
+}
+
+function translateRef(ref, t) {
+  if (!ref) return ref;
+  const m = ref.match(/(\d+):\d+/);
+  if (m) {
+    const name = t("surahNames." + m[1]);
+    if (name && name.indexOf("surahNames.") !== 0) {
+      return ref.replace(/Surah\s+\S+/, "سورہ " + name);
+    }
+  }
+  return ref;
+}
+
+const downloadScreenshotVotd = async (item, type, lang, t) => {
   const isVerse = type === "verse";
   const isUrdu = lang === "ur";
 
   const typeLabel = isVerse
-    ? tr("dailyVerseHadees.verseOfTheDay")
-    : tr("dailyVerseHadees.hadeesOfTheDay");
+    ? t("dailyVerseHadees.verseOfTheDay")
+    : t("dailyVerseHadees.hadeesOfTheDay");
 
   const footerText = isUrdu
     ? "مزید مستند اسلامی معلومات کے لیے ملاحظہ کریں dawatoislaah.com"
@@ -77,8 +63,8 @@ const downloadScreenshotVotd = async (item, type) => {
     : '"TraditionNaskh", serif';
   const filename = `${type}-${(item.reference || type).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}.png`;
 
-  const refText = isUrdu && isVerse ? translateReference(item.reference) : item.reference;
-  const brandName = isUrdu ? tr("footer.brand") : "Dawat o Islaah";
+  const refText = isUrdu && isVerse ? translateRef(item.reference, t) : item.reference;
+  const brandName = isUrdu ? t("footer.brand") : "Dawat o Islaah";
 
   const container = document.createElement("div");
   container.style.position = "absolute";
@@ -105,8 +91,8 @@ const downloadScreenshotVotd = async (item, type) => {
         </div>
       </div>
       <div style="font-size: 11px; color: #ffffff; line-height: 1.6; unicode-bidi: plaintext;">
-        <div>${getGregorianDate()}</div>
-        <div>${getIslamicDate()}</div>
+        <div>${getGregorianDate(isUrdu)}</div>
+        <div>${getIslamicDate(isUrdu)}</div>
       </div>
     </div>
     <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
