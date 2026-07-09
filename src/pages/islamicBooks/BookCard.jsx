@@ -43,12 +43,42 @@ const BookCard = ({
   const [pageGenerating, setPageGenerating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [pageInput, setPageInput] = useState("");
+  const [currentProcessingStatus, setCurrentProcessingStatus] = useState(processingStatus);
   const retryRef = useRef(null);
   const retryCountRef = useRef(0);
+  const pollRef = useRef(null);
 
   const isSplit = propIsSplit;
   const pagesUrlPrefix = propPagesUrlPrefix ? `${propPagesUrlPrefix.replace(/\/?$/, '/')}` : '';
   const imgCacheRef = useRef(new Set());
+
+  useEffect(() => {
+    setCurrentProcessingStatus(processingStatus);
+  }, [processingStatus]);
+
+  // Poll book status while processing
+  useEffect(() => {
+    if (!isOpen || currentProcessingStatus !== "processing" && currentProcessingStatus !== "pending") {
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+      return;
+    }
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/books/${id}/`);
+        const data = await res.json();
+        setCurrentProcessingStatus(data.processing_status);
+        if (data.processing_status === "completed") {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          retryCountRef.current = 0;
+          if (imgRef.current) {
+            imgRef.current.src = `${pagesUrlPrefix}page-${currentPage}.jpg?t=${Date.now()}`;
+          }
+        }
+      } catch {}
+    }, 3000);
+    return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+  }, [isOpen, currentProcessingStatus, id, pagesUrlPrefix, currentPage]);
 
   // Preload page 1 for split books (instant open)
   useEffect(() => {
@@ -57,10 +87,14 @@ const BookCard = ({
     img.src = `${pagesUrlPrefix}page-1.jpg`;
   }, [isSplit, pagesUrlPrefix]);
 
-  // Preload adjacent pages for split books
+  // Preload adjacent pages for split books (batch of 10)
   useEffect(() => {
     if (!isSplit || !pagesUrlPrefix || totalPages <= 1) return;
-    const pagesToPreload = [currentPage + 1, currentPage - 1];
+    const pagesToPreload = [];
+    for (let i = 1; i <= 10; i++) {
+      pagesToPreload.push(currentPage + i);
+      pagesToPreload.push(currentPage - i);
+    }
     pagesToPreload.forEach((p) => {
       if (p < 1 || p > totalPages || imgCacheRef.current.has(p)) return;
       imgCacheRef.current.add(p);
@@ -1181,7 +1215,7 @@ const BookCard = ({
                           }}
                             onError={() => {
                             if (isSplit || currentPage === 1) {
-                              if (processingStatus === "processing" || processingStatus === "pending") {
+                              if (currentProcessingStatus === "processing" || currentProcessingStatus === "pending") {
                                 if (retryCountRef.current < 60) {
                                   setPageGenerating(true); setImgLoaded(false);
                                   retryCountRef.current += 1;
