@@ -1,5 +1,10 @@
 import html2canvas from "html2canvas";
 
+function getQuranFont() {
+  const quranFont = getComputedStyle(document.documentElement).getPropertyValue("--quran-font").trim();
+  return quranFont || '"Amiri", serif';
+}
+
 function getIslamicDate() {
   const formatter = new Intl.DateTimeFormat("en-u-ca-islamic", {
     day: "numeric",
@@ -31,7 +36,7 @@ const downloadScreenshotVotd = async (item, type) => {
   const typeLabel = isVerse ? "Verse of the Day" : "Hadith of the Day";
   const accentColor = isVerse ? "#22c55e" : "#3b82f6";
   const arabicFont = isVerse
-    ? '"Amiri", serif'
+    ? getQuranFont()
     : '"TraditionNaskh", serif';
   const filename = `${type}-${(item.reference || type).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}.png`;
 
@@ -68,13 +73,13 @@ const downloadScreenshotVotd = async (item, type) => {
   `;
 
   const badgeHtml = `
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-      <span style="background: ${accentColor}; color: #ffffff; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 20px;">${typeLabel}</span>
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+      <span style="background: ${accentColor}; color: #ffffff; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 12px; border-radius: 20px; text-align: center;">${typeLabel}</span>
     </div>
   `;
 
   const arabicHtml = `
-    <div style="font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 20px; color: #ffffff; word-spacing: 0.1em;">
+    <div style="font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 32px; color: #ffffff; word-spacing: 0.1em;">
       ${item.arabic}
     </div>
   `;
