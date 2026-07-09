@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import ZikrOAzkar from "./ZikrOAzkar";
+import SourceSearch from "../../components/AppComponents/Home/SourceSearch";
 import Books from "./Books";
 
 // Lazy load all components
@@ -15,6 +16,10 @@ const Index = () => {
   return (
     <div className="flex flex-col gap-y-16 py-16 md:py-0 md:gap-y-28 mb-20 ">
       <ZikrOAzkar />
+
+      <div className="flex justify-center -mt-12 md:-mt-20">
+        <SourceSearch />
+      </div>
 
       <Books />
 

@@ -26,32 +26,30 @@ const BookCard = ({
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activePage, setActivePage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [pageTransition, setPageTransition] = useState(0);
   const [matchCount, setMatchCount] = useState(0);
   const [noTextContent, setNoTextContent] = useState(false);
   const [showTextPanel, setShowTextPanel] = useState(false);
   const [ocrText, setOcrText] = useState("");
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState(null);
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  const [pageGenerating, setPageGenerating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [pageInput, setPageInput] = useState("");
   const [currentProcessingStatus, setCurrentProcessingStatus] = useState(processingStatus);
-  const retryRef = useRef(null);
-  const retryCountRef = useRef(0);
   const pollRef = useRef(null);
+  const scrollRef = useRef(null);
+  const pageRefs = useRef({});
+  const imgRefs = useRef({});
+  const overlayRefs = useRef({});
+  const retryCountsRef = useRef({});
+  const imgErrorStatesRef = useRef({});
 
   const isSplit = propIsSplit;
   const pagesUrlPrefix = propPagesUrlPrefix ? `${propPagesUrlPrefix.replace(/\/?$/, '/')}` : '';
-  const imgCacheRef = useRef(new Set());
-  const preloadedImgsRef = useRef(new Map());
 
   useEffect(() => {
     setCurrentProcessingStatus(processingStatus);
@@ -71,66 +69,36 @@ const BookCard = ({
         if (data.processing_status === "completed") {
           clearInterval(pollRef.current);
           pollRef.current = null;
-          retryCountRef.current = 0;
-          if (imgRef.current) {
-            imgRef.current.src = `${pagesUrlPrefix}page-${currentPage}.jpg?t=${Date.now()}`;
-          }
+          retryCountsRef.current = {};
+          imgErrorStatesRef.current = {};
         }
       } catch {}
     }, 3000);
     return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
-  }, [isOpen, currentProcessingStatus, id, pagesUrlPrefix, currentPage]);
-
-  // Preload first 10 pages for split books (instant open)
-  const totalPagesNum = propTotalPages || totalPages || 999;
-  useEffect(() => {
-    if (!isSplit || !pagesUrlPrefix) return;
-    const limit = Math.min(10, totalPagesNum);
-    for (let p = 1; p <= limit; p++) {
-      if (preloadedImgsRef.current.has(p)) continue;
-      const img = new Image();
-      img.src = `${pagesUrlPrefix}page-${p}.jpg`;
-      preloadedImgsRef.current.set(p, img);
-    }
-  }, [isSplit, pagesUrlPrefix, totalPagesNum]);
-
-  // Preload adjacent pages for split books (batch of 10)
-  useEffect(() => {
-    if (!isSplit || !pagesUrlPrefix || totalPages <= 1) return;
-    const pagesToPreload = [];
-    for (let i = 1; i <= 10; i++) {
-      pagesToPreload.push(currentPage + i);
-      pagesToPreload.push(currentPage - i);
-    }
-    pagesToPreload.forEach((p) => {
-      if (p < 1 || p > totalPages || imgCacheRef.current.has(p)) return;
-      imgCacheRef.current.add(p);
-      const img = new Image();
-      img.src = `${pagesUrlPrefix}page-${p}.jpg`;
-    });
-  }, [isSplit, pagesUrlPrefix, totalPages, currentPage]);
+  }, [isOpen, currentProcessingStatus, id]);
 
   const canvasRef = useRef(null);
   const overlayCanvasRef = useRef(null);
-  const pdfDocRef = useRef(null);
   const imgRef = useRef(null);
+  const pdfDocRef = useRef(null);
   const pageRef = useRef(null);
   const viewportRef = useRef(null);
   const scaleRef = useRef(2);
   const ocrCacheRef = useRef(new Map());
-  const ocrWordsRef = useRef(null);
   const ocrBusyRef = useRef(false);
   const latestSearchRef = useRef("");
-  const isScannedRef = useRef(false);
   const textContentRef = useRef("");
   const textItemsRef = useRef(null);
+  const ocrWordsRef = useRef(null);
+  const isScannedRef = useRef(false);
   const pendingSearchRef = useRef("");
   const splitTextItemsCacheRef = useRef(new Map());
   const splitViewportCacheRef = useRef(new Map());
   const readTrackedRef = useRef(false);
   const pageCacheRef = useRef(new Map());
   const preRenderRef = useRef(null);
-  const pageTextLoadingRef = useRef(new Map()); // pageNum -> Promise<result>
+  const pageTextLoadingRef = useRef(new Map());
+  const retryRef = useRef(null);
 
   useEffect(() => {
     readTrackedRef.current = false;
@@ -149,10 +117,7 @@ const BookCard = ({
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-      if (retryRef.current) clearTimeout(retryRef.current);
-    };
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Sync counts from server whenever props change (handles refresh / navigation)
@@ -175,25 +140,17 @@ const BookCard = ({
     if (!isOpen || !pdfFile) return;
 
     setError(null);
-    setCurrentPage(1);
+    setActivePage(1);
 
     if (isSplit && propTotalPages > 0) {
       setTotalPages(propTotalPages);
-      setImgLoaded(true);
-      setImgError(false);
-      setPageGenerating(false);
-      retryCountRef.current = 0;
-      if (retryRef.current) {
-        clearTimeout(retryRef.current);
-        retryRef.current = null;
-      }
+      retryCountsRef.current = {};
+      imgErrorStatesRef.current = {};
       return;
     }
 
     // Non-split - load PDF page by page (no blocking)
     setTotalPages(0);
-    setImgError(false);
-    setImgLoaded(false);
     (async () => {
       try {
         const pdf = await pdfjsLib.getDocument({
@@ -203,15 +160,21 @@ const BookCard = ({
         }).promise;
         pdfDocRef.current = pdf;
         setTotalPages(pdf.numPages);
-        setPageGenerating(false);
-        // Render current page (user might have navigated while PDF was loading)
-        renderPage(pdf, currentPage, searchQuery);
+        renderPage(pdf, activePage, searchQuery);
       } catch (err) {
         setError(err.message || "Failed to load PDF");
         console.error("PDF loading error:", err);
       }
     })();
   }, [isOpen, pdfFile]);
+
+  // Clear all overlay canvases
+  const clearAllOverlays = useCallback(() => {
+    Object.values(overlayRefs.current).forEach(canvas => {
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+  }, []);
 
   // Reactive search: runs on every searchQuery and page change
   useEffect(() => {
@@ -220,71 +183,47 @@ const BookCard = ({
 
     if (!query.trim()) {
       setMatchCount(0);
-      const ctx = overlayCanvasRef.current?.getContext("2d");
-      if (ctx) ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      clearAllOverlays();
       return;
     }
 
-    const applySearch = () => {
-      if (isSplit) {
-        if (ocrCacheRef.current.has(currentPage)) {
-          const cached = ocrCacheRef.current.get(currentPage);
-          doSearch(cached, query);
-          if (ocrWordsRef.current) {
-            drawSplitSearchHighlights(query);
-          } else if (splitTextItemsCacheRef.current.has(currentPage)) {
-            const items = splitTextItemsCacheRef.current.get(currentPage);
-            const vp = splitViewportCacheRef.current.get(currentPage);
-            if (items && vp) {
-              drawSplitPageHighlights({ items }, vp, query);
-            }
-          }
-        } else {
-          loadSplitPageForSearch(currentPage, query);
-        }
-        return true;
+    if (isSplit) {
+      // For split books, search the currently active page
+      const page = activePage;
+      if (!page) return;
+      if (ocrCacheRef.current.has(page)) {
+        const cached = ocrCacheRef.current.get(page);
+        doSearch(cached, query);
+        drawHighlightsOnPage(page, query);
+      } else {
+        loadSplitPageForSearch(page, query);
       }
-
-      if (isScannedRef.current) {
-        if (ocrWordsRef.current) {
-          drawOcrHighlights(query);
-        } else if (textContentRef.current) {
-          doSearch(textContentRef.current, query);
-        } else {
-          extractText();
-        }
-        return true;
-      }
-
-      const vp = viewportRef.current;
-      const overlay = overlayCanvasRef.current;
-      if (textItemsRef.current && vp && overlay) {
-        const ctx = overlay.getContext("2d");
-        drawTextHighlights(ctx, vp, scaleRef.current, textItemsRef.current, query);
-        return true;
-      }
-
-      // Non-split: try page-{n}.txt+json for instant search (any page, before or after pdf.js loads)
-      if (!textItemsRef.current && overlay) {
-        loadSplitPageForSearch(currentPage, query);
-        return true;
-      }
-
-      return false;
-    };
-
-    if (!applySearch()) {
-      pendingSearchRef.current = query;
-    } else {
-      pendingSearchRef.current = "";
+      return;
     }
-  }, [searchQuery, currentPage]);
 
-  // Pre-load page text on mount/navigation for split books (instant search)
-  useEffect(() => {
-    if (!isOpen || !isSplit || !propTotalPages) return;
-    ensurePageText(currentPage);
-  }, [currentPage, isOpen, isSplit]);
+    // Non-split: use existing single-page logic
+    if (isScannedRef.current) {
+      if (ocrWordsRef.current) {
+        drawOcrHighlights(query);
+      } else if (textContentRef.current) {
+        doSearch(textContentRef.current, query);
+      } else {
+        extractText();
+      }
+      return;
+    }
+
+    if (textItemsRef.current) {
+      const overlay = overlayRefs.current[activePage];
+      if (overlay) {
+        const ctx = overlay.getContext("2d");
+        if (ctx) drawTextHighlights(ctx, null, 1, textItemsRef.current, query);
+      }
+      return;
+    }
+
+    loadSplitPageForSearch(activePage, query);
+  }, [searchQuery, activePage, isSplit]);
 
   // Render a single page to a given canvas context
   const renderPageToCtx = async (pdf, pageNum, ctx, width, height, scale) => {
@@ -320,7 +259,6 @@ const BookCard = ({
         isScannedRef.current = cached.isScanned;
         setNoTextContent(cached.isScanned);
         setMatchCount(0);
-        setPageGenerating(false);
         return;
       }
 
@@ -424,35 +362,37 @@ const BookCard = ({
           }
         }, 200);
       }
-      setPageGenerating(false);
     } catch (err) {
       console.error("Page rendering error:", err);
-      setPageGenerating(false);
     }
   };
 
-  const setupOverlayForSplit = () => {
-    const img = imgRef.current;
-    const overlay = overlayCanvasRef.current;
-    if (!img || !overlay) return false;
-    const rect = img.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return false;
-    overlay.width = rect.width;
-    overlay.height = rect.height;
-    return true;
-  };
-
-  const drawOcrHighlights = (query) => {
+  const drawOcrHighlights = (query, pageNum) => {
     const words = ocrWordsRef.current;
-    const ctx = overlayCanvasRef.current?.getContext("2d");
+    const overlay = pageNum ? overlayRefs.current[pageNum] : overlayCanvasRef.current;
+    const ctx = overlay?.getContext("2d");
     if (!ctx) return;
     const vp = viewportRef.current;
 
-    if (!isSplit) {
-      if (!vp) return;
-      ctx.clearRect(0, 0, vp.width, vp.height);
+    if (!pageNum) {
+      if (!isSplit) {
+        if (!vp) return;
+        ctx.clearRect(0, 0, vp.width, vp.height);
+      } else {
+        const img = imgRef.current;
+        if (!img) return;
+        const rect = img.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+        overlayCanvasRef.current.width = rect.width;
+        overlayCanvasRef.current.height = rect.height;
+      }
     } else {
-      if (!setupOverlayForSplit()) return;
+      const img = imgRefs.current[pageNum];
+      if (!img) return;
+      const rect = img.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      overlay.width = rect.width;
+      overlay.height = rect.height;
     }
 
     if (!query.trim() || !words) return;
@@ -491,23 +431,29 @@ const BookCard = ({
     if (count > 0) setShowTextPanel(true);
   };
 
-  const drawSplitSearchHighlights = (query) => {
-    const words = ocrWordsRef.current;
-    const ctx = overlayCanvasRef.current?.getContext("2d");
-    const img = imgRef.current;
-    if (!ctx || !img) return;
-    if (!setupOverlayForSplit()) return;
+  // Draw highlights on a specific page's overlay canvas
+  const drawHighlightsOnPage = (pageNum, query) => {
+    const canvas = overlayRefs.current[pageNum];
+    const img = imgRefs.current[pageNum];
+    if (!canvas || !img || !query.trim()) return;
 
-    if (!query.trim() || !words) return;
+    const rect = img.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const words = ocrWordsRef.current;
+    if (!words) return;
 
     const lower = query.toLowerCase().trim();
-    let count = 0;
     for (const w of words) {
       if (!w.text) continue;
       const wordText = w.text.trim();
       if (!wordText) continue;
-      const wordTextLower = wordText.toLowerCase();
-      if (!wordTextLower.includes(lower)) continue;
+      if (!wordText.toLowerCase().includes(lower)) continue;
 
       const b = w.bbox;
       if (!b || typeof b.x0 !== "number") continue;
@@ -516,21 +462,27 @@ const BookCard = ({
       const wordHeight = b.y1 - b.y0;
       if (wordWidth <= 0 || wordHeight <= 0) continue;
 
+      const imgRect = img.getBoundingClientRect();
+      const natW = img.naturalWidth || 1;
+      const natH = img.naturalHeight || 1;
+      const scaleX = imgRect.width / natW;
+      const scaleY = imgRect.height / natH;
+
       let startIdx = 0;
-      while ((startIdx = wordTextLower.indexOf(lower, startIdx)) !== -1) {
-        count++;
+      while ((startIdx = wordText.toLowerCase().indexOf(lower, startIdx)) !== -1) {
         const endIdx = startIdx + lower.length;
         const charWidth = wordWidth / wordText.length;
-        const cx = b.x0 + startIdx * charWidth;
-        const cw = (endIdx - startIdx) * charWidth;
+        const cx = b.x0 * scaleX + startIdx * charWidth * scaleX;
+        const cw = (endIdx - startIdx) * charWidth * scaleX;
+        const cy = b.y0 * scaleY;
+        const ch = wordHeight * scaleY;
 
         ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
-        ctx.fillRect(cx, b.y0, cw, wordHeight);
+        ctx.fillRect(cx, cy, cw, ch);
 
         startIdx = endIdx;
       }
     }
-    setMatchCount(count);
   };
 
   // Build full-text index from text items for multi-span match support
@@ -624,36 +576,60 @@ const BookCard = ({
     if (pageNum < 1) return;
     if (totalPages > 0 && pageNum > totalPages) return;
 
-    setPageTransition(pageNum > currentPage ? 1 : -1);
-    setCurrentPage(pageNum);
-    setImgLoaded(false);
-    setImgError(false);
-    setPageGenerating(false);
-    retryCountRef.current = 0;
-    if (retryRef.current) {
-      clearTimeout(retryRef.current);
-      retryRef.current = null;
+    if (isSplit) {
+      // Scroll to the page element in vertical layout
+      const el = pageRefs.current[pageNum];
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActivePage(pageNum);
+      return;
     }
 
-    if (isSplit) return;
     if (pdfDocRef.current) {
       renderPage(pdfDocRef.current, pageNum, searchQuery);
-    } else {
-      setPageGenerating(true);
     }
   };
 
   const goToNextPage = () => {
-    goToPage(currentPage + 1);
+    goToPage(activePage + 1);
   };
 
   const goToPreviousPage = () => {
-    goToPage(currentPage - 1);
+    goToPage(activePage - 1);
   };
 
-  const extractText = async () => {
-    if (ocrCacheRef.current.has(currentPage)) {
-      const t = ocrCacheRef.current.get(currentPage);
+  // Track active page via IntersectionObserver
+  useEffect(() => {
+    if (!isOpen || !isSplit || totalPages <= 0) return;
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let best = null;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            if (!best || entry.intersectionRatio > best.intersectionRatio) {
+              best = entry;
+            }
+          }
+        }
+        if (best) setActivePage(parseInt(best.target.dataset.page));
+      },
+      {
+        root: container,
+        threshold: [0, 0.5],
+        rootMargin: '-60px 0px -40% 0px',
+      }
+    );
+
+    container.querySelectorAll('[data-page]').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isOpen, isSplit, totalPages]);
+
+  const extractText = async (pageNum) => {
+    const p = pageNum || activePage;
+    if (ocrCacheRef.current.has(p)) {
+      const t = ocrCacheRef.current.get(p);
       textContentRef.current = t;
       setOcrText(t);
       if (latestSearchRef.current.trim()) {
@@ -678,11 +654,11 @@ const BookCard = ({
       const text = data.text || "";
       console.log("OCR extracted:", text.substring(0, 200));
       textContentRef.current = text;
-      ocrCacheRef.current.set(currentPage, text);
+      ocrCacheRef.current.set(p, text);
       ocrWordsRef.current = data.words || null;
       setOcrText(text);
       if (latestSearchRef.current.trim()) {
-        drawOcrHighlights(latestSearchRef.current);
+        drawOcrHighlights(latestSearchRef.current, p);
         if (!ocrWordsRef.current) doSearch(text, latestSearchRef.current);
       }
     } catch (err) {
@@ -706,15 +682,13 @@ const BookCard = ({
     if (count > 0) setShowTextPanel(true);
   };
 
-  const drawSplitPageHighlights = (textContent, pageViewport, query) => {
-    const img = imgRef.current;
-    const canvas = canvasRef.current;
-    const overlay = overlayCanvasRef.current;
+  const drawSplitPageHighlights = (textContent, pageViewport, query, pageNum) => {
+    const overlay = pageNum ? overlayRefs.current[pageNum] : overlayCanvasRef.current;
+    const img = pageNum ? imgRefs.current[pageNum] : imgRef.current;
     const ctx = overlay?.getContext("2d");
     if (!ctx || !query.trim()) return;
 
-    // Use img for positioning (pages 1-5, or split books), fallback to pdf.js canvas
-    let refEl = img && img.getBoundingClientRect().width > 0 ? img : canvas;
+    let refEl = img && img.getBoundingClientRect().width > 0 ? img : canvasRef.current;
     if (!refEl || refEl.getBoundingClientRect().width <= 0) return;
     const refRect = refEl.getBoundingClientRect();
     if (refRect.width <= 0 || refRect.height <= 0) return;
@@ -878,11 +852,11 @@ const BookCard = ({
       const cached = ocrCacheRef.current.get(pageNum);
       doSearch(cached, query);
       if (ocrWordsRef.current) {
-        drawSplitSearchHighlights(query);
+        drawHighlightsOnPage(pageNum, query);
       } else if (splitTextItemsCacheRef.current.has(pageNum)) {
         const items = splitTextItemsCacheRef.current.get(pageNum);
         const vp = splitViewportCacheRef.current.get(pageNum);
-        if (items && vp) drawSplitPageHighlights({ items }, vp, query);
+        if (items && vp) drawSplitPageHighlights({ items }, vp, query, pageNum);
       }
       return;
     }
@@ -890,8 +864,8 @@ const BookCard = ({
     const result = await ensurePageText(pageNum);
     if (!result) return;
     doSearch(result.text, query);
-    if (result.words) drawOcrHighlights(query);
-    if (result.items) drawSplitPageHighlights({ items: result.items }, result.viewport, query);
+    if (result.words) drawHighlightsOnPage(pageNum, query);
+    if (result.items) drawSplitPageHighlights({ items: result.items }, result.viewport, query, pageNum);
   };
 
   const handleSearchChange = (e) => {
@@ -922,24 +896,6 @@ const BookCard = ({
       y: isMobile ? "100%" : 0,
       transition: { duration: 0.3 },
     },
-  };
-
-  // Page slide animation
-  const pageVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
   };
 
   const handleDownload = (e) => {
@@ -1106,7 +1062,7 @@ const BookCard = ({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={goToPreviousPage}
-                      disabled={currentPage === 1}
+                      disabled={activePage <= 1}
                       className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold text-sm"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -1114,12 +1070,12 @@ const BookCard = ({
                     </button>
 
                     <div className="text-center text-black font-bold text-base px-3 py-2 bg-gray-100 rounded-lg min-w-[80px]">
-                      {totalPages > 0 ? `${currentPage} / ${totalPages}` : `${currentPage}`}
+                      {totalPages > 0 ? `${activePage} / ${totalPages}` : `${activePage}`}
                     </div>
 
                     <button
                       onClick={goToNextPage}
-                      disabled={totalPages > 0 && currentPage >= totalPages}
+                      disabled={totalPages > 0 && activePage >= totalPages}
                       className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 font-semibold text-sm"
                     >
                       <span className="text-xs hidden sm:inline">{t("islamicBooks.next")}</span>
@@ -1158,8 +1114,9 @@ const BookCard = ({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => {
+                        const target = isSplit ? scrollRef.current : document.querySelector('.book-viewer');
                         if (!document.fullscreenElement) {
-                          document.querySelector('.book-viewer')?.requestFullscreen();
+                          target?.requestFullscreen();
                           setIsFullscreen(true);
                         } else {
                           document.exitFullscreen();
@@ -1182,102 +1139,119 @@ const BookCard = ({
               </div>
 
               {/* PDF / Image Display Area */}
-              <div className="flex-1 bg-gray-300 flex items-start justify-center overflow-auto relative book-viewer">
-                <motion.div
-                  key={currentPage}
-                  custom={pageTransition}
-                  variants={pageVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{
-                    x: { type: "spring", stiffness: 500, damping: 50 },
-                    opacity: { duration: 0.1 },
-                  }}
-                  className="relative bg-white rounded-lg shadow-2xl m-2"
+              {isSplit && totalPages > 0 ? (
+                <div
+                  ref={scrollRef}
+                  className="flex-1 overflow-y-auto bg-gray-300"
                 >
-                    <div style={{ position: "relative", display: "inline-block" }}>
-                    {/* Loading spinner — shown for any book when generating page */}
-                    {pageGenerating && (
-                      <div className="flex items-center justify-center p-16 min-h-[300px]">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="animate-spin rounded-full h-8 w-8 border-3 border-gray-300 border-t-amber-500"></div>
-                          <p className="text-gray-500 text-sm font-medium">Loading page {currentPage}...</p>
+                  <div className="flex flex-col items-center py-2 px-2">
+                    {Array.from({ length: totalPages }, (_, i) => {
+                      const pageNum = i + 1;
+                      const pageErrored = imgErrorStatesRef.current[pageNum];
+                      return (
+                        <div
+                          key={pageNum}
+                          ref={el => { if (el) pageRefs.current[pageNum] = el; }}
+                          data-page={pageNum}
+                          className="w-full max-w-[950px] mx-auto mb-2 bg-white shadow-lg rounded overflow-hidden"
+                        >
+                          <div className="relative">
+                            {!pageErrored ? (
+                              <img
+                                ref={el => { if (el) imgRefs.current[pageNum] = el; }}
+                                src={`${pagesUrlPrefix}page-${pageNum}.jpg`}
+                                alt={`Page ${pageNum}`}
+                                loading="lazy"
+                                onLoad={() => {
+                                  imgErrorStatesRef.current[pageNum] = false;
+                                  retryCountsRef.current[pageNum] = 0;
+                                  if (latestSearchRef.current.trim()) {
+                                    drawHighlightsOnPage(pageNum, latestSearchRef.current);
+                                  }
+                                }}
+                                onError={() => {
+                                  if (currentProcessingStatus === "processing" || currentProcessingStatus === "pending") {
+                                    const retries = retryCountsRef.current[pageNum] || 0;
+                                    if (retries < 60) {
+                                      retryCountsRef.current[pageNum] = retries + 1;
+                                      setTimeout(() => {
+                                        const img = imgRefs.current[pageNum];
+                                        if (img) img.src = `${pagesUrlPrefix}page-${pageNum}.jpg?retry=${Date.now()}`;
+                                      }, 3000);
+                                    } else {
+                                      imgErrorStatesRef.current[pageNum] = true;
+                                    }
+                                  } else {
+                                    imgErrorStatesRef.current[pageNum] = true;
+                                  }
+                                }}
+                                className="w-full h-auto block"
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center p-16 text-gray-500 bg-gray-100 min-h-[200px]">
+                                <p className="text-sm font-medium">Page {pageNum} unavailable</p>
+                              </div>
+                            )}
+                            <canvas
+                              ref={el => { if (el) overlayRefs.current[pageNum] = el; }}
+                              className="absolute inset-0 w-full h-full pointer-events-none"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {/* Page image — displayed when available (all pages after processing) */}
-                    {!imgError && (
-                      <>
-                        <img
-                          ref={imgRef}
-                          src={`${pagesUrlPrefix}page-${currentPage}.jpg`}
-                          alt={`Page ${currentPage}`}
-                          onLoad={() => {
-                            setImgLoaded(true);
-                            setImgError(false);
-                            setPageGenerating(false);
-                            if (retryRef.current) { clearTimeout(retryRef.current); retryRef.current = null; }
-                            retryCountRef.current = 0;
-                          }}
-                            onError={() => {
-                            if (isSplit || currentPage === 1) {
-                              if (currentProcessingStatus === "processing" || currentProcessingStatus === "pending") {
-                                if (retryCountRef.current < 60) {
-                                  setPageGenerating(true); setImgLoaded(false);
-                                  retryCountRef.current += 1;
-                                  retryRef.current = setTimeout(() => {
-                                    if (imgRef.current) imgRef.current.src = `${pagesUrlPrefix}page-${currentPage}.jpg?retry=${Date.now()}`;
-                                  }, 3000);
-                                } else { setImgError(true); setPageGenerating(false); }
-                              } else { setImgError(true); setImgLoaded(true); setPageGenerating(true); }
-                            } else {
-                              setImgError(true);
-                              setImgLoaded(false);
-                              setPageGenerating(true);
-                              if (pdfDocRef.current) {
-                                renderPage(pdfDocRef.current, currentPage, searchQuery);
-                              }
-                            }
-                          }}
-                          className="max-w-full h-auto"
-                          style={{ display: imgLoaded && !imgError ? 'block' : 'none' }}
-                        />
-                      </>
-                    )}
-
-                    {/* pdf.js canvas — shown when image unavailable or for search highlights */}
-                    <canvas
-                      ref={canvasRef}
-                      style={{
-                        display: isSplit || (!imgError && imgLoaded) ? 'none' : 'block',
-                        imageRendering: "high-quality",
-                      }}
-                    />
-
-                    <canvas
-                      ref={overlayCanvasRef}
-                      style={{
-                        position: "absolute", top: 0, left: 0,
-                        width: "100%", height: "100%", pointerEvents: "none",
-                      }}
-                    />
+                      );
+                    })}
                   </div>
-                </motion.div>
-
-                {/* Error overlay */}
-                {error && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-                    <div className="text-center text-red-600 p-8">
-                      <p className="text-lg font-bold mb-4 text-black">{t("islamicBooks.failedToLoad")}</p>
-                      <p className="text-red-500 mb-6">{error}</p>
-                      <button onClick={() => setIsOpen(false)} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
-                        {t("islamicBooks.close")}
-                      </button>
+                </div>
+              ) : (
+                <div className="flex-1 bg-gray-300 flex items-start justify-center overflow-auto relative book-viewer">
+                  <div className="relative bg-white rounded-lg shadow-2xl m-2">
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                      <img
+                        ref={imgRef}
+                        src={isSplit ? `${pagesUrlPrefix}page-${activePage}.jpg` : ''}
+                        alt={`Page ${activePage}`}
+                        onLoad={() => {
+                          if (retryRef.current) { clearTimeout(retryRef.current); retryRef.current = null; }
+                        }}
+                        onError={() => {
+                          if (!isSplit && pdfDocRef.current) {
+                            renderPage(pdfDocRef.current, activePage, searchQuery);
+                          }
+                        }}
+                        className="max-w-full h-auto"
+                        style={{ display: isSplit ? 'block' : 'none' }}
+                      />
+                      <canvas
+                        ref={canvasRef}
+                        style={{
+                          display: isSplit ? 'none' : 'block',
+                          imageRendering: "high-quality",
+                        }}
+                      />
+                      <canvas
+                        ref={overlayCanvasRef}
+                        style={{
+                          position: "absolute", top: 0, left: 0,
+                          width: "100%", height: "100%", pointerEvents: "none",
+                        }}
+                      />
                     </div>
                   </div>
-                )}
-              </div>
+
+                  {/* Error overlay */}
+                  {error && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                      <div className="text-center text-red-600 p-8">
+                        <p className="text-lg font-bold mb-4 text-black">{t("islamicBooks.failedToLoad")}</p>
+                        <p className="text-red-500 mb-6">{error}</p>
+                        <button onClick={() => setIsOpen(false)} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                          {t("islamicBooks.close")}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
             </motion.div>
           </>
