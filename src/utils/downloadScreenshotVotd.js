@@ -99,8 +99,8 @@ const downloadScreenshotVotd = async (item, type, lang, t) => {
           </div>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: ${isUrdu ? "20px" : "15px"}; color: #ffffff; line-height: 1.6; font-family: ${isUrdu ? "'Jameel Noori Nastaleeq Regular', serif" : "'OptimaNovaLTPro', serif"}; word-spacing: ${isUrdu ? "0.15em" : "normal"};">
-          <div style="text-align: left; flex: 1; unicode-bidi: plaintext;">${getGregorianDate(isUrdu)}</div>
-          <div style="text-align: right; flex: 1; unicode-bidi: plaintext;">${getIslamicDate(isUrdu)}</div>
+          <div style="text-align: right; flex: 1; unicode-bidi: plaintext;">${getGregorianDate(isUrdu)}</div>
+          <div style="text-align: left; flex: 1; unicode-bidi: plaintext;">${getIslamicDate(isUrdu)}</div>
         </div>
       </div>
       <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
