@@ -33,7 +33,7 @@ function parseReference(ref) {
   return { book: ref, number: "" };
 }
 
-const EMERALD = "#157347";
+const EMERALD = "#25D366";
 const GOLD = "#c9a227";
 
 const downloadScreenshotVotd = async (item, type) => {
@@ -42,9 +42,7 @@ const downloadScreenshotVotd = async (item, type) => {
 
   const bgColor = isVerse ? EMERALD : GOLD;
   const accentColor = isVerse ? GOLD : EMERALD;
-  const contentColor = isVerse ? "#ffffff" : "#2d2d2d";
-  const mutedColor = isVerse ? "#d1d5db" : "#5a5a5a";
-  const borderColor = isVerse ? "#c9a227" : "#157347";
+  const borderColor = isVerse ? "#c9a227" : "#25D366";
   const logoBorder = isVerse ? GOLD : EMERALD;
   const brandColor = isVerse ? GOLD : EMERALD;
 
@@ -62,7 +60,7 @@ const downloadScreenshotVotd = async (item, type) => {
   container.style.width = "650px";
   container.style.padding = "40px";
   container.style.backgroundColor = bgColor;
-  container.style.color = contentColor;
+  container.style.color = "#ffffff";
   container.style.borderRadius = "16px";
   container.style.border = `2px solid ${borderColor}`;
   container.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.3)";
@@ -74,12 +72,12 @@ const downloadScreenshotVotd = async (item, type) => {
         <img src="/assets/logo.jpeg" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid ${logoBorder};" />
         <div>
           <h2 style="margin: 0; font-size: 18px; color: ${brandColor}; font-weight: bold;">Dawat o Islaah</h2>
-          <span style="font-size: 11px; color: ${mutedColor};">dawatoislaah.com</span>
+          <span style="font-size: 11px; color: #ffffff;">dawatoislaah.com</span>
         </div>
       </div>
-      <div style="text-align: right; font-size: 11px; color: ${mutedColor}; line-height: 1.6;">
+      <div style="text-align: right; font-size: 11px; color: #ffffff; line-height: 1.6;">
         <div>${getGregorianDate()}</div>
-        <div style="color: ${accentColor};">${getIslamicDate()}</div>
+        <div>${getIslamicDate()}</div>
       </div>
     </div>
     <div style="height: 2px; background: linear-gradient(to right, ${accentColor}, transparent); margin-bottom: 25px;"></div>
@@ -94,33 +92,33 @@ const downloadScreenshotVotd = async (item, type) => {
   `;
 
   const arabicHtml = `
-    <div style='font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 32px; color: ${contentColor}; word-spacing: 0.1em;'>
+    <div style='font-family: ${arabicFont}; font-size: 32px; line-height: 2.2; text-align: center; direction: rtl; margin-bottom: 32px; color: #ffffff; word-spacing: 0.1em;'>
       ${item.arabic}
     </div>
   `;
 
   const urduHtml = `
-    <div style="font-family: 'Jameel Noori Nastaleeq Regular', serif; font-size: 18px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: ${mutedColor};">
+    <div style="font-family: 'Jameel Noori Nastaleeq Regular', serif; font-size: 22px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: #ffffff;">
       ${item.urdu}
     </div>
   `;
 
   const englishHtml = `
-    <div style="font-family: 'OptimaNovaLTPro', serif; font-size: 16px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: ${mutedColor};">
+    <div style="font-family: 'OptimaNovaLTPro', serif; font-size: 20px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: #ffffff;">
       ${item.english}
     </div>
   `;
 
   const refHtml = `
-    <div style="font-size: 13px; color: ${accentColor}; text-align: center; font-weight: 600; margin-bottom: 25px;">
+    <div style="font-size: 13px; color: #ffffff; text-align: center; font-weight: 600; margin-bottom: 25px;">
       ${isVerse ? `<span>${refInfo.book}</span>` : `<span>${refInfo.book}</span>`}
-      ${refInfo.number ? `<span style="color: ${mutedColor}; font-weight: 400;"> — ${refInfo.number}</span>` : ""}
+      ${refInfo.number ? `<span style="color: #ffffff; font-weight: 400;"> — ${refInfo.number}</span>` : ""}
     </div>
   `;
 
   const footerHtml = `
     <div style="height: 1px; background-color: ${accentColor}; opacity: 0.3; margin-bottom: 15px;"></div>
-    <div style="text-align: center; font-size: 11px; color: ${mutedColor};">
+    <div style="text-align: center; font-size: 11px; color: #ffffff;">
       For more authentic Islamic knowledge, visit dawatoislaah.com
     </div>
   `;
