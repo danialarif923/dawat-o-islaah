@@ -3,7 +3,15 @@ import { useLanguage } from "../../context/LanguageContext";
 import ur from "../../../assets/languages/ur.json";
 
 function getUrduName(bookSlug, chapterNumber) {
-  return ur?.hadithChapterNames?.[bookSlug]?.[String(chapterNumber)];
+  return chapterNumber != null
+    ? ur?.hadithChapterNames?.[bookSlug]?.[String(Number(chapterNumber) + 1)]
+    : undefined;
+}
+
+function getTranslationLabel(t, bookSlug, chapterNumber) {
+  const key = `hadithChapterNames.${bookSlug}.${Number(chapterNumber) + 1}`;
+  const val = t(key);
+  return val && !val.startsWith("hadithChapterNames.") ? val : undefined;
 }
 
 const ChapterCard = ({ chapter }) => {
@@ -11,6 +19,7 @@ const ChapterCard = ({ chapter }) => {
   const { t, language } = useLanguage();
   const chapterNum = chapter.chapterNumber;
   const urduName = chapter.chapterUrdu || getUrduName(chapter.bookSlug, chapterNum);
+  const displayChapter = Number(chapterNum) + 1;
 
   return (
     <div
@@ -23,11 +32,11 @@ const ChapterCard = ({ chapter }) => {
         {/* LEFT SIDE */}
         <div className="flex-1">
           <h3 className={`${language === "ur" ? "text-[1.5rem]" : "text-xl"} font-semibold text-blue-600 leading-snug`}>
-            {chapterNum}. {language === "ur" ? (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapterNum}`); return n && !n.startsWith("hadithChapterNames.") ? n : chapter.chapterEnglish || `Chapter ${chapterNum}`; })() : chapter.chapterEnglish || `Chapter ${chapterNum}`}
+            {displayChapter}. {language === "ur" ? (getTranslationLabel(t, chapter.bookSlug, chapterNum) || chapter.chapterEnglish || `Chapter ${displayChapter}`) : chapter.chapterEnglish || `Chapter ${displayChapter}`}
           </h3>
 
           {language === "en" && urduName && (
-            <p className="text-sm text-gray-500 mt-4 leading-relaxed">
+            <p className="text-[1.3rem] text-gray-500 mt-4 leading-relaxed">
               {urduName}
             </p>
           )}
@@ -39,16 +48,10 @@ const ChapterCard = ({ chapter }) => {
             {chapter.chapterArabic || "—"}
           </p>
 
-          {language === "ur" ? (
+          {language === "ur" && (
             <p className="text-md text-gray-500 mt-2 leading-relaxed">
-              {chapter.chapterEnglish || `Chapter ${chapterNum}`}
+              {chapter.chapterEnglish || `Chapter ${displayChapter}`}
             </p>
-          ) : (
-            urduName && (
-              <p className="text-md text-gray-500 mt-2 leading-relaxed">
-                {urduName}
-              </p>
-            )
           )}
         </div>
       </div>
