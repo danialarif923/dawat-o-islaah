@@ -32,7 +32,7 @@ const downloadScreenshotVotd = async (item, type) => {
   const accentColor = isVerse ? "#22c55e" : "#3b82f6";
   const arabicFont = isVerse
     ? '"Amiri", serif'
-    : '"TraditionNaskh", "Jameel Noori Nastaleeq Regular", "Noto Nastaliq Urdu", serif';
+    : '"TraditionNaskh", serif';
   const filename = `${type}-${(item.reference || type).toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "")}.png`;
 
   const refInfo = parseReference(item.reference);
@@ -48,7 +48,7 @@ const downloadScreenshotVotd = async (item, type) => {
   container.style.borderRadius = "16px";
   container.style.border = "2px solid #233857";
   container.style.boxShadow = "0 20px 25px -5px rgba(0, 0, 0, 0.3)";
-  container.style.fontFamily = "'Merriweather', serif";
+  container.style.fontFamily = "'OptimaNovaLTPro', serif";
 
   const headerHtml = `
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
@@ -80,13 +80,13 @@ const downloadScreenshotVotd = async (item, type) => {
   `;
 
   const urduHtml = `
-    <div style="font-family: 'Noto Nastaliq Urdu', serif; font-size: 18px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: #D1D5DB;">
+    <div style="font-family: 'Jameel Noori Nastaleeq Regular', serif; font-size: 18px; line-height: 2; text-align: center; direction: rtl; margin-bottom: 16px; color: #D1D5DB;">
       ${item.urdu}
     </div>
   `;
 
   const englishHtml = `
-    <div style="font-size: 16px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: #D1D5DB;">
+    <div style="font-family: 'OptimaNovaLTPro', serif; font-size: 16px; line-height: 1.7; text-align: center; margin-bottom: 20px; color: #D1D5DB;">
       ${item.english}
     </div>
   `;
