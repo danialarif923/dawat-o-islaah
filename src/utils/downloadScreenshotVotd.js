@@ -1,5 +1,11 @@
 import html2canvas from "html2canvas";
 
+function getQuranFont() {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue("--quran-font").trim();
+  if (!raw) return '"Amiri", serif';
+  return raw;
+}
+
 const EMERALD = "#157347";
 const GOLD = "#c9a227";
 
