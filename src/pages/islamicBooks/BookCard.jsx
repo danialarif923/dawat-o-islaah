@@ -51,6 +51,7 @@ const BookCard = ({
   const isSplit = propIsSplit;
   const pagesUrlPrefix = propPagesUrlPrefix ? `${propPagesUrlPrefix.replace(/\/?$/, '/')}` : '';
   const imgCacheRef = useRef(new Set());
+  const preloadedImgsRef = useRef(new Map());
 
   useEffect(() => {
     setCurrentProcessingStatus(processingStatus);
@@ -80,12 +81,18 @@ const BookCard = ({
     return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
   }, [isOpen, currentProcessingStatus, id, pagesUrlPrefix, currentPage]);
 
-  // Preload page 1 for split books (instant open)
+  // Preload first 10 pages for split books (instant open)
+  const totalPagesNum = propTotalPages || totalPages || 999;
   useEffect(() => {
     if (!isSplit || !pagesUrlPrefix) return;
-    const img = new Image();
-    img.src = `${pagesUrlPrefix}page-1.jpg`;
-  }, [isSplit, pagesUrlPrefix]);
+    const limit = Math.min(10, totalPagesNum);
+    for (let p = 1; p <= limit; p++) {
+      if (preloadedImgsRef.current.has(p)) continue;
+      const img = new Image();
+      img.src = `${pagesUrlPrefix}page-${p}.jpg`;
+      preloadedImgsRef.current.set(p, img);
+    }
+  }, [isSplit, pagesUrlPrefix, totalPagesNum]);
 
   // Preload adjacent pages for split books (batch of 10)
   useEffect(() => {
@@ -908,7 +915,7 @@ const BookCard = ({
     visible: {
       x: 0,
       y: 0,
-      transition: { type: "spring", damping: 25, stiffness: 300 },
+      transition: { type: "spring", damping: 40, stiffness: 500 },
     },
     exit: {
       x: isMobile ? 0 : "100%",
@@ -1184,8 +1191,8 @@ const BookCard = ({
                   animate="center"
                   exit="exit"
                   transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 },
+                    x: { type: "spring", stiffness: 500, damping: 50 },
+                    opacity: { duration: 0.1 },
                   }}
                   className="relative bg-white rounded-lg shadow-2xl m-2"
                 >
