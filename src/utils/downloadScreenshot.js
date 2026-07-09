@@ -71,9 +71,9 @@ export const downloadScreenshot = async (question, language = "en") => {
       <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #E5E7EB; white-space: pre-wrap;">
         ${answerContent}
       </p>
-      ${question.answer?.mufti_name ? `
+      ${question.answer?.updated_by ? `
         <div style="margin-top: 15px; font-size: 12px; color: #9CA3AF; text-align: ${language === 'ur' ? 'left' : 'right'};">
-          — ${language === "ur" ? "مفتی" : "Mufti"}: <strong>${question.answer.mufti_name}</strong>
+          — ${language === "ur" ? "مفتی" : "Mufti"}: <strong>${question.answer.updated_by}</strong>
         </div>
       ` : ""}
     </div>

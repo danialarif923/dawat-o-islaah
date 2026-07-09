@@ -13,14 +13,15 @@ const useHadithChapters = () => {
       try {
         const data = await getHadiths(`${bookSlug}/chapters`);
 
-        if (data?.chapters) {
-          setChapters(data.chapters);
-        } else if (data?.data) {
-          setChapters(data.data);
-        } else if (Array.isArray(data)) {
-          setChapters(data);
-        } else {
+        const raw = data?.chapters || data?.data || (Array.isArray(data) ? data : null);
+        if (!raw || raw.length === 0) {
           setError(`Failed to fetch chapters: unexpected response format for book "${bookSlug}"`);
+        } else {
+          setChapters(raw.map((ch) => ({
+            ...ch,
+            chapterEnglish: (ch.chapterEnglish || `Chapter ${ch.chapterNumber}`)
+              .replace(/^\[(Machine|AI)\]\s*/i, ''),
+          })));
         }
       } catch (err) {
         const detail = err.response?.status

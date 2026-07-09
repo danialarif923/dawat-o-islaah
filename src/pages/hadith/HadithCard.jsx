@@ -54,10 +54,11 @@ const HadithCard = ({ hadith }) => {
       />
 
       <div
-        className={`text-left text-base text-gray-800 pt-2 leading-12 ${
+        className={`text-left text-gray-800 pt-2 ${
           showFull || !isTruncated ? "block" : "line-clamp-3"
         }`}
         dir="ltr"
+        style={{ fontSize: "1.3rem", lineHeight: 1.8 }}
         dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
       />
 

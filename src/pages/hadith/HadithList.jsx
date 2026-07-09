@@ -82,7 +82,7 @@ const HadithList = () => {
             </p>
           )}
           <h2 className="text-3xl font-bold text-blue-900">
-            &#34; {language === "ur" ? t(`hadithChapterNames.${bookSlug}.${hadiths[0].chapter.chapterNumber}`) || hadiths[0].chapter.chapterEnglish : hadiths[0].chapter.chapterEnglish} &#34;
+            &#34; {language === "ur" ? (() => { const n = t(`hadithChapterNames.${bookSlug}.${hadiths[0].chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames.") ? n : hadiths[0].chapter.chapterEnglish || `Chapter ${hadiths[0].chapter.chapterNumber}`; })() : hadiths[0].chapter.chapterEnglish || `Chapter ${hadiths[0].chapter.chapterNumber}`} &#34;
           </h2>
           {hadiths[0]?.chapter?.chapterUrdu && (
             <p className="text-[1.5rem] text-gray-600 mt-1" dir="rtl">

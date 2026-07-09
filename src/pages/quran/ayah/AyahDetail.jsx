@@ -95,21 +95,33 @@ const AyahDetail = () => {
   const formatTafsirContent = (text) => {
     if (!text) return "";
     return text
+      // 1. ﴿...﴾ brackets → green + Muhammadi
+      .replace(
+        /\uFD3F([^\uFD3E]+)\uFD3E/g,
+        '<span class="text-emerald-600 font-muhammadi">﴿$1﴾</span>'
+      )
+      // 2. {...} → green + Muhammadi (existing)
       .replace(
         /\{([^\}]+)\}/g,
-        '<span class="text-emerald-600 font-semibold font-quran">$1</span>'
+        '<span class="text-emerald-600 font-muhammadi">$1</span>'
       )
+      // 3. «...» → blue + Muhammadi (existing)
       .replace(
         /«([^»]+)»/g,
-        '<span class="text-blue-600 font-medium">$1</span>'
+        '<span class="text-blue-600 font-medium font-muhammadi">$1</span>'
       )
+      // 4. [...] → red + Muhammadi, not bold
       .replace(
         /\[([^\]]+)\]/g,
-        '<span class="text-red-600 font-bold">[$1]</span>'
+        '<span class="text-red-600 font-muhammadi" style="font-size:inherit;line-height:inherit">[$1]</span>'
       )
+      // 5. Circled numbers → gray circle + white number + Optima
       .replace(
-        /([➊-➓])/g,
-        '<span class="font-bold text-gray-900 mx-1">$1</span>'
+        /[➊-➓]/g,
+        (match) => {
+          const num = match.codePointAt(0) - 0x2789;
+          return `<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-400 text-white text-xs mx-0.5 align-middle" style="font-family:'OptimaNovaLTPro',sans-serif;font-weight:400">${num}</span>`;
+        }
       );
   };
 
@@ -124,7 +136,7 @@ const AyahDetail = () => {
     );
 
   return (
-    <div className="container mx-auto px-6 md:px-20 py-12">
+    <div className="container mx-auto px-5 md:px-5 py-5">
       <Link
         to={`/surah/${surahNumber}`}
         className="inline-flex items-center gap-2 text-emerald-600 hover:underline mb-6"
@@ -164,7 +176,7 @@ const AyahDetail = () => {
         <select
           value={selectedQari || ""}
           onChange={(e) => setSelectedQari(e.target.value)}
-          className="w-full md:w-1/2 p-2 border rounded"
+          className={`w-full md:w-1/2 p-2 border rounded ${isRtl ? "text-2xl" : ""}`}
         >
           <option value="">
             {isRtl ? "قاری منتخب کریں" : "Select Qari"}
@@ -238,12 +250,13 @@ const AyahDetail = () => {
               <FaChevronDown />
             </button>
             {showDropdown[lang] && (
-              <div className="absolute w-full bg-white shadow rounded mt-2 z-10 max-h-60 overflow-auto">
-                {translationAuthors?.[lang]?.map((author) => (
-                  <label
-                    key={author.name}
-                    className="block px-4 py-2 hover:bg-gray-100"
-                  >
+                <div className="absolute w-full bg-white shadow rounded mt-2 z-10 max-h-60 overflow-auto">
+                  {translationAuthors?.[lang]?.map((author) => (
+                    <label
+                      key={author.name}
+                      className="block px-4 py-2 hover:bg-gray-100"
+                      style={isRtl ? { fontSize: "1.5rem" } : undefined}
+                    >
                     <input
                       type="checkbox"
                       checked={selectedTranslations[lang].some(
@@ -254,7 +267,7 @@ const AyahDetail = () => {
                       }
                       className="mr-2"
                     />
-                    {author.name}
+                    {author.book_name ? `${author.name} - ${author.book_name}` : author.name}
                   </label>
                 ))}
               </div>
@@ -271,7 +284,7 @@ const AyahDetail = () => {
             }}
             className={`w-full p-2 border rounded ${
               tafsirEnabled ? "bg-white" : "bg-gray-200 text-gray-500"
-            }`}
+            } ${isRtl ? "text-2xl" : ""}`}
           >
             <option value="ur">{isRtl ? "اردو تفسیر" : "Urdu Tafsir"}</option>
             <option value="en">{isRtl ? "انگریزی تفسیر" : "English Tafsir"}</option>
@@ -282,7 +295,7 @@ const AyahDetail = () => {
             onChange={(e) => setSelectedTafsirAuthor(e.target.value)}
             className={`w-full p-2 border rounded ${
               tafsirEnabled ? "bg-white" : "bg-gray-200 text-gray-500"
-            }`}
+            } ${isRtl ? "text-2xl" : ""}`}
           >
             <option value="">
               {isRtl
@@ -291,7 +304,7 @@ const AyahDetail = () => {
             </option>
             {tafsirAuthors?.[tafsirLang]?.map((author) => (
               <option key={author.id} value={author.name}>
-                {author.name}
+                {author.book_name ? `${author.name} - ${author.book_name}` : author.name}
               </option>
             ))}
           </select>
@@ -299,7 +312,7 @@ const AyahDetail = () => {
       </div>
 
       {translationsEnabled && (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-6 mb-8" dir="ltr">
           <div>
             {selectedTranslations.en.map((author) => {
               const name = String(author?.name || author).trim();
@@ -316,8 +329,8 @@ const AyahDetail = () => {
               if (!tr) return null;
               return (
                 <div key={`en-${name}`} className="mb-4">
-                  <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">
-                    {author.displayName || tr.author || name}
+                  <p className="font-bold text-emerald-700 uppercase tracking-wide mb-1" style={{ fontSize: "1.3rem" }}>
+                    {tr.book_name ? `${tr.author} - ${tr.book_name}` : (author.displayName || tr.author || name)}
                   </p>
                   <p
                     className="text-lg text-gray-700"
@@ -345,8 +358,8 @@ const AyahDetail = () => {
               if (!tr) return null;
               return (
                 <div key={`ur-${name}`} className="mb-4">
-                  <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-1">
-                    {author.displayName || tr.author || name}
+                  <p className="font-bold text-emerald-700 uppercase tracking-wide mb-1" style={{ fontSize: "1.3rem" }}>
+                    {tr.book_name ? `${tr.author} - ${tr.book_name}` : (author.displayName || tr.author || name)}
                   </p>
                   <p
                     className="text-2xl leading-relaxed font-urdu"
@@ -364,8 +377,12 @@ const AyahDetail = () => {
 
       {tafsirEnabled && selectedTafsirAuthor && (
         <div className="bg-gray-50 p-6 rounded-lg border">
-          <p className="text-sm text-emerald-800 mb-2 font-bold">
-            {selectedTafsirAuthor} — {t("quranDetails.tafsir")}
+          <p className="text-emerald-800 mb-2 font-bold" style={{ fontSize: "1.3rem", direction: tafsirLang === "en" ? "ltr" : "rtl" }}>
+            {(() => {
+              const info = tafsirAuthors?.[tafsirLang]?.find(a => a.name === selectedTafsirAuthor);
+              const authorPart = info?.book_name ? `${info.book_name} - ${selectedTafsirAuthor}` : selectedTafsirAuthor;
+              return `${t("quranDetails.tafsir")} - ${authorPart}`;
+            })()}
           </p>
           {(() => {
             const rawTafsir = (
@@ -385,7 +402,7 @@ const AyahDetail = () => {
             return (
               <>
                 <div
-                  className={`text-xl leading-loose text-gray-800 ${tafsirLang === "en" ? "text-left" : "text-right"} ${tafsirLang === "en" ? "" : "font-urdu"}`}
+                  className={`${tafsirLang === "en" ? "text-xl" : "text-2xl"} leading-loose text-gray-800 ${tafsirLang === "en" ? "text-left" : "text-right"} ${tafsirLang === "en" ? "" : "font-urdu-tafsir"}`}
                   style={{ direction: tafsirLang === "en" ? "ltr" : "rtl" }}
                   dangerouslySetInnerHTML={{
                     __html: expandedTafsir

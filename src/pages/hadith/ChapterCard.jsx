@@ -16,7 +16,7 @@ const ChapterCard = ({ chapter }) => {
         {/* LEFT SIDE */}
         <div className="flex-1">
           <h3 className={`${language === "ur" ? "text-[1.5rem]" : "text-xl"} font-semibold text-blue-600 leading-snug`}>
-            {chapter.chapterNumber}. {language === "ur" ? t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) || chapter.chapterEnglish : chapter.chapterEnglish}
+            {chapter.chapterNumber}. {language === "ur" ? (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames.") ? n : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`; })() : chapter.chapterEnglish || `Chapter ${chapter.chapterNumber}`}
           </h3>
 
           <p className={`${language === "ur" ? "text-[1.3rem]" : "text-sm"} text-gray-500 mt-4`}>
@@ -36,7 +36,7 @@ const ChapterCard = ({ chapter }) => {
             </p>
           )}
 
-          {!chapter.chapterUrdu && language === "ur" && t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`) && (
+          {!chapter.chapterUrdu && language === "ur" && (() => { const n = t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`); return n && !n.startsWith("hadithChapterNames."); })() && (
             <p className="text-gray-500 mt-2 leading-relaxed">
               {t(`hadithChapterNames.${chapter.bookSlug}.${chapter.chapterNumber}`)}
             </p>

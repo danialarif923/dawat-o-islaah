@@ -114,7 +114,7 @@ const HadithDetail = () => {
         </div>
 
         <div className={`flex justify-between gap-2 ${language === "ur" ? "flex-row-reverse" : ""}`}>
-          <h3 className={`text-lg font-bold text-gray-900 flex-1 leading-8 ${language === "ur" ? "text-end" : ""}`}>
+          <h3 className={`text-lg font-bold text-gray-900 flex-1 ${language === "ur" ? "text-end" : ""}`} style={{ lineHeight: 1.3 }}>
             {hadith?.chapter?.chapterEnglish}
             {getBaabName(hadith, "en") && (
               <span className="text-green-700 ml-2"> - {getBaabName(hadith, "en")}</span>
@@ -140,8 +140,9 @@ const HadithDetail = () => {
           dangerouslySetInnerHTML={{ __html: hadith?.hadithUrdu?.replace(/<\/?p[^>]*>/g, "") }}
         />
         <div
-          className="text-base text-gray-800 pt-2 leading-12 text-left"
+          className="text-gray-800 pt-2 text-left"
           dir="ltr"
+          style={{ fontSize: "1.3rem", lineHeight: 1.8 }}
           dangerouslySetInnerHTML={{ __html: hadith?.hadithEnglish?.replace(/<\/?p[^>]*>/g, "") }}
         />
 

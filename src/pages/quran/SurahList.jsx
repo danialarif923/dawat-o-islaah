@@ -9,7 +9,7 @@ import { useLanguage } from "../../context/LanguageContext";
 
 const TajweedSurahList = lazy(() => import("./tajweed/TajweedSurahList"));
 
-const tabKeys = ["Surah", "Juzz", "ReadQuran", "Tajweed"];
+const tabKeys = ["Surah", "Juz", "ReadQuran", "Tajweed"];
 
 const SurahList = () => {
   const { t } = useLanguage();

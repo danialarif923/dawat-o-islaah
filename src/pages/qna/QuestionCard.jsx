@@ -1,23 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, ChevronUp, Bookmark, Download, Share2, Eye, User, Calendar, MessageSquare, LogIn, X, Loader2, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, Bookmark, Download, Share2, Eye, User, Calendar, Clock } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { useQnaContext } from "../../context/QnaContext";
-import { useAuthData } from "../../context/AuthContext";
 import { downloadScreenshot } from "../../utils/downloadScreenshot";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
   const { t, language } = useLanguage();
-  const { trackView, toggleSave, trackDownload, getSavedList, postAnswer, qnaTheme } = useQnaContext();
-  const { isAuthenticated } = useAuthData();
-  const navigate = useNavigate();
+  const { trackView, toggleSave, trackDownload, getSavedList, qnaTheme } = useQnaContext();
   const [isOpen, setIsOpen] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const contentRef = useRef(null);
-  const [showAnswerForm, setShowAnswerForm] = useState(false);
-  const [answerText, setAnswerText] = useState("");
-  const [submittingAnswer, setSubmittingAnswer] = useState(false);
-
   const isRtl = language === "ur";
   const formattedIndex = String(index + 1).padStart(2, "0");
   const isSaved = getSavedList().includes(question.id);
@@ -74,36 +66,6 @@ const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
   const handleShareClick = (e) => {
     e.stopPropagation();
     onShare(question);
-  };
-
-  const handleAnswerClick = (e) => {
-    e.stopPropagation();
-    if (!isAuthenticated) {
-      navigate("/signin");
-      return;
-    }
-    if (!isOpen) setIsOpen(true);
-    setShowAnswerForm(!showAnswerForm);
-  };
-
-  const handleSubmitAnswer = async (e) => {
-    e.stopPropagation();
-    if (!answerText.trim()) return;
-    setSubmittingAnswer(true);
-    try {
-      await postAnswer(question.id, answerText);
-      toast.success(isRtl
-        ? "آپ کا جواب مفتی صاحب کو بھیج دیا گیا ہے، منظوری کے بعد شائع کیا جائے گا!"
-        : "Your answer has been submitted to the Muftis. It will be published after approval.");
-      setAnswerText("");
-      setShowAnswerForm(false);
-    } catch (err) {
-      toast.error(isRtl
-        ? "جواب جمع کرنے میں ناکامی! براہ کرم دوبارہ کوشش کریں۔"
-        : "Failed to submit answer! Please try again.");
-    } finally {
-      setSubmittingAnswer(false);
-    }
   };
 
   return (
@@ -178,14 +140,14 @@ const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     {isRtl ? "جواب:" : "Answer:"}
                   </h3>
-                  <div className="text-sm text-black dark:text-gray-100 leading-relaxed whitespace-pre-wrap">
+                  <div className="text-black dark:text-gray-100 leading-relaxed whitespace-pre-wrap" style={{fontSize:"1.3rem"}}>
                     {typeof ansContent === 'string' ? ansContent.replace(/<[^>]+>/g, '') : ''}
                   </div>
-                  {ans.mufti_name && (
+                  {ans.updated_by && (
                     <div className={`mt-3 flex items-center gap-1 text-xs text-black dark:text-gray-400 justify-start`}>
                       <User size={12} />
                       <span>
-                        {isRtl ? "مفتی:" : "Mufti:"} <strong className="font-semibold text-black dark:text-gray-300">{ans.mufti_name}</strong>
+                        {isRtl ? "مفتی:" : "Mufti:"} <strong className="font-semibold text-black dark:text-gray-300">{ans.updated_by}</strong>
                       </span>
                     </div>
                   )}
@@ -193,38 +155,6 @@ const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
               );
             })()}
 
-            {/* Answer Form */}
-            {showAnswerForm && (
-              <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                <textarea
-                  value={answerText}
-                  onChange={(e) => setAnswerText(e.target.value)}
-                  rows={4}
-                  placeholder={isRtl ? "اپنا جواب یہاں لکھیں..." : "Write your answer here..."}
-                  className="w-full border border-gray-200 dark:border-[#233857] rounded-xl px-4 py-3 bg-white dark:bg-[#0B131A] text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
-                />
-                <div className="flex justify-end gap-2 mt-2">
-                  <button
-                    onClick={() => { setShowAnswerForm(false); setAnswerText(""); }}
-                    className="px-4 py-2 text-sm text-black dark:text-gray-400 hover:text-black dark:hover:text-white transition"
-                  >
-                    {isRtl ? "منسوخ کریں" : "Cancel"}
-                  </button>
-                  <button
-                    onClick={handleSubmitAnswer}
-                    disabled={submittingAnswer || !answerText.trim()}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition flex items-center gap-1.5 ${
-                      submittingAnswer || !answerText.trim()
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-emerald-600 text-white hover:bg-emerald-700"
-                    }`}
-                  >
-                    {submittingAnswer ? <Loader2 size={14} className="animate-spin" /> : <MessageSquare size={14} />}
-                    {isRtl ? "جمع کریں" : "Submit Answer"}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -232,7 +162,7 @@ const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
         <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
           
           {/* Action Buttons: Save, Download, Share */}
-          <div className={`flex items-center gap-4 text-xs font-semibold select-none ${isRtl ? "flex-row-reverse" : "flex-row"}`}>
+          <div className={`flex items-center gap-4 font-semibold select-none ${isRtl ? "flex-row-reverse" : "flex-row"}`} style={{fontSize:"1.1rem"}}>
             {/* Save Button */}
             <button
               onClick={handleSaveClick}
@@ -264,18 +194,10 @@ const QuestionCard = ({ question, index, highlightSearchTerm, onShare }) => {
               <span>{isRtl ? "شیئر کریں" : "Share"}</span>
             </button>
 
-            {/* Answer Button */}
-            <button
-              onClick={handleAnswerClick}
-              className="flex items-center gap-1.5 transition py-1 px-2.5 rounded-lg border border-gray-200 dark:border-[#233857] text-black dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
-            >
-              {isAuthenticated ? <MessageSquare size={15} /> : <LogIn size={15} />}
-              <span>{isRtl ? "جواب دیں" : "Answer"}</span>
-            </button>
           </div>
 
           {/* Question Stats (Views, Saves, Downloads) */}
-          <div className={`flex items-center gap-4 text-xs text-black dark:text-gray-300 ${isRtl ? "flex-row-reverse" : "flex-row"}`}>
+          <div className={`flex items-center gap-4 text-black dark:text-gray-300 ${isRtl ? "flex-row-reverse" : "flex-row"}`} style={{fontSize:"1.1rem"}}>
             
             {/* Analytics Stats */}
             <div className={`flex items-center gap-3 ${isRtl ? "flex-row-reverse" : "flex-row"}`}>
