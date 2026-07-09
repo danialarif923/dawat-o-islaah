@@ -9,7 +9,9 @@ import {
   FaFacebook,
   FaInstagram,
   FaTimes,
+  FaDownload,
 } from "react-icons/fa";
+import downloadScreenshotVotd from "../../utils/downloadScreenshotVotd";
 
 const COLORS = {
   verse: { primary: "#22c55e", light: "#dcfce7", dark: "#166534" },
@@ -69,6 +71,17 @@ ${item.english}
     setModalType(null);
   };
 
+  const handleDownloadImage = async (item, type) => {
+    try {
+      await downloadScreenshotVotd(item, type);
+    } catch (error) {
+      console.error("Failed to download image:", error);
+      alert("Failed to generate image. Please try again.");
+    }
+    setModalItem(null);
+    setModalType(null);
+  };
+
   const openShareModal = (item, type) => {
     setModalItem(item);
     setModalType(type);
@@ -122,6 +135,16 @@ ${item.english}
                 <FaWhatsapp className="text-green-600 text-xl" />
               </div>
               <span className="font-medium text-gray-700">Share to WhatsApp</span>
+            </button>
+
+            <button
+              onClick={() => handleDownloadImage(modalItem, modalType)}
+              className="w-full flex items-center gap-4 px-4 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <FaDownload className="text-gray-600 text-xl" />
+              </div>
+              <span className="font-medium text-gray-700">Download Image</span>
             </button>
 
             <button
